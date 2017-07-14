@@ -20,6 +20,48 @@ export interface ICanaryState {
   saveConfigErrorMessage: string;
 }
 
+function configSummaries(state: ICanaryConfigSummary[] = [], action: Action & any): ICanaryConfigSummary[] {
+  switch (action.type) {
+    case INITIALIZE:
+      return action.state.configSummaries;
+
+    case UPDATE_CONFIG_SUMMARIES:
+      return action.configSummaries;
+
+    default:
+      return state;
+  }
+}
+
+function selectedConfig(state: ICanaryConfig = null, action: Action & any): ICanaryConfig {
+  switch (action.type) {
+    case INITIALIZE:
+      return action.state.selectedConfig;
+
+    case SELECT_CONFIG:
+      return action.config;
+
+    default:
+      return state;
+  }
+}
+
+function configLoadState(state: ConfigDetailLoadState = ConfigDetailLoadState.Loaded, action: Action & any): ConfigDetailLoadState {
+  switch (action.type) {
+    case LOAD_CONFIG:
+      return ConfigDetailLoadState.Loading;
+
+    case CONFIG_LOAD_ERROR:
+      return ConfigDetailLoadState.Error;
+
+    case SELECT_CONFIG:
+      return ConfigDetailLoadState.Loaded;
+
+    default:
+      return state;
+  }
+}
+
 function reduceMetric(metric: ICanaryMetricConfig, id: string, action: Action & any): ICanaryMetricConfig {
   if (id === action.id) {
     switch (action.type) {
@@ -36,49 +78,7 @@ function reduceMetric(metric: ICanaryMetricConfig, id: string, action: Action & 
   }
 }
 
-function configSummaries(state: ICanaryConfigSummary[], action: Action & any): ICanaryConfigSummary[] {
-  switch (action.type) {
-    case INITIALIZE:
-      return action.state.configSummaries;
-
-    case UPDATE_CONFIG_SUMMARIES:
-      return action.configSummaries;
-
-    default:
-      return state || [];
-  }
-}
-
-function selectedConfig(state: ICanaryConfig, action: Action & any): ICanaryConfig {
-  switch (action.type) {
-    case INITIALIZE:
-      return action.state.selectedConfig;
-
-    case SELECT_CONFIG:
-      return action.config;
-
-    default:
-      return state || null;
-  }
-}
-
-function configLoadState(state: ConfigDetailLoadState, action: Action & any): ConfigDetailLoadState {
-  switch (action.type) {
-    case LOAD_CONFIG:
-      return ConfigDetailLoadState.Loading;
-
-    case CONFIG_LOAD_ERROR:
-      return ConfigDetailLoadState.Error;
-
-    case SELECT_CONFIG:
-      return ConfigDetailLoadState.Loaded;
-
-    default:
-      return state || ConfigDetailLoadState.Loaded;
-  }
-}
-
-function metricList(state: ICanaryMetricConfig[], action: Action & any): ICanaryMetricConfig[] {
+function metricList(state: ICanaryMetricConfig[] = [], action: Action & any): ICanaryMetricConfig[] {
   switch (action.type) {
     case INITIALIZE:
       return action.state.metricList;
@@ -93,11 +93,11 @@ function metricList(state: ICanaryMetricConfig[], action: Action & any): ICanary
       return state.map((metric, index) => reduceMetric(metric, String(index), action));
 
     default:
-      return state || [];
+      return state;
   }
 }
 
-function saveConfigState(state: SaveConfigState, action: Action & any): SaveConfigState {
+function saveConfigState(state: SaveConfigState = SaveConfigState.Saved, action: Action & any): SaveConfigState {
   switch (action.type) {
     case SAVE_CONFIG_SAVING:
       return SaveConfigState.Saving;
@@ -112,11 +112,11 @@ function saveConfigState(state: SaveConfigState, action: Action & any): SaveConf
       return SaveConfigState.Saved;
 
     default:
-      return state || SaveConfigState.Saved;
+      return state;
   }
 }
 
-function saveConfigErrorMessage(state: string, action: Action & any): string {
+function saveConfigErrorMessage(state: string = null, action: Action & any): string {
   switch (action.type) {
     case SAVE_CONFIG_SAVING:
       return null;
@@ -128,7 +128,7 @@ function saveConfigErrorMessage(state: string, action: Action & any): string {
       return null;
 
     default:
-      return state || null;
+      return state;
   }
 }
 
