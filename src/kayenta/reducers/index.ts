@@ -1,6 +1,6 @@
 import { get } from 'lodash';
 
-import { combineReducers } from 'redux';
+import { combineReducers, Action } from 'redux';
 import { ICanaryConfig, ICanaryMetricConfig } from '../domain/ICanaryConfig';
 import { ICanaryConfigSummary } from '../domain/ICanaryConfigSummary';
 import { ConfigDetailLoadState } from '../edit/configDetailLoader';
@@ -20,7 +20,7 @@ export interface ICanaryState {
   saveConfigErrorMessage: string;
 }
 
-function reduceMetric(metric: ICanaryMetricConfig, id: string, action: any): ICanaryMetricConfig {
+function reduceMetric(metric: ICanaryMetricConfig, id: string, action: Action & any): ICanaryMetricConfig {
   if (id === action.id) {
     switch (action.type) {
 
@@ -36,7 +36,7 @@ function reduceMetric(metric: ICanaryMetricConfig, id: string, action: any): ICa
   }
 }
 
-function configSummaries(state: ICanaryConfigSummary[], action: any): ICanaryConfigSummary[] {
+function configSummaries(state: ICanaryConfigSummary[], action: Action & any): ICanaryConfigSummary[] {
   switch (action.type) {
     case INITIALIZE:
       return action.state.configSummaries;
@@ -49,7 +49,7 @@ function configSummaries(state: ICanaryConfigSummary[], action: any): ICanaryCon
   }
 }
 
-function selectedConfig(state: ICanaryConfig, action: any): ICanaryConfig {
+function selectedConfig(state: ICanaryConfig, action: Action & any): ICanaryConfig {
   switch (action.type) {
     case INITIALIZE:
       return action.state.selectedConfig;
@@ -62,7 +62,7 @@ function selectedConfig(state: ICanaryConfig, action: any): ICanaryConfig {
   }
 }
 
-function configLoadState(state: ConfigDetailLoadState, action: any): ConfigDetailLoadState {
+function configLoadState(state: ConfigDetailLoadState, action: Action & any): ConfigDetailLoadState {
   switch (action.type) {
     case LOAD_CONFIG:
       return ConfigDetailLoadState.Loading;
@@ -78,7 +78,7 @@ function configLoadState(state: ConfigDetailLoadState, action: any): ConfigDetai
   }
 }
 
-function metricList(state: ICanaryMetricConfig[], action: any): ICanaryMetricConfig[] {
+function metricList(state: ICanaryMetricConfig[], action: Action & any): ICanaryMetricConfig[] {
   switch (action.type) {
     case INITIALIZE:
       return action.state.metricList;
@@ -97,7 +97,7 @@ function metricList(state: ICanaryMetricConfig[], action: any): ICanaryMetricCon
   }
 }
 
-function saveConfigState(state: SaveConfigState, action: any): SaveConfigState {
+function saveConfigState(state: SaveConfigState, action: Action & any): SaveConfigState {
   switch (action.type) {
     case SAVE_CONFIG_SAVING:
       return SaveConfigState.Saving;
@@ -116,7 +116,7 @@ function saveConfigState(state: SaveConfigState, action: any): SaveConfigState {
   }
 }
 
-function saveConfigErrorMessage(state: string, action: any): string {
+function saveConfigErrorMessage(state: string, action: Action & any): string {
   switch (action.type) {
     case SAVE_CONFIG_SAVING:
       return null;
