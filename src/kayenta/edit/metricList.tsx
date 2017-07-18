@@ -23,7 +23,6 @@ interface IMetricListDispatchProps {
 function MetricList({ metrics, selectedGroup, changeName, addMetric }: IMetricListStateProps & IMetricListDispatchProps) {
   return (
     <section>
-      <h2>Metrics</h2>
       <ul className="list-group">
         {metrics.map((metric, index) => (
           <li className="list-group-item" key={index}>
