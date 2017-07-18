@@ -31,6 +31,16 @@ export default function MetricDetail({ metric, changeName }: IMetricDetailProps)
           disabled={true}
         />
       </FormRow>
+      <FormRow label="Groups">
+        {/* TODO: needs to be a multiselect combo box like select2 */}
+        <input
+          type="text"
+          className="form-control"
+          value={metric.groups.join(',')}
+          data-id={metric.id}
+          disabled={true}
+        />
+      </FormRow>
     </form>
   );
 }
