@@ -29,7 +29,7 @@ function MetricList({ metrics, changeName, addMetric }: IMetricListStateProps & 
           // TODO: put id on metric? name can change by edit, index can change by remove operation
           // unless remove leaves a null entry instead of deleting the index.
           <li className="list-group-item" key={index}>
-            <MetricDetail id={index} metric={metric} changeName={changeName}/>
+            <MetricDetail metric={metric} changeName={changeName}/>
           </li>
         ))}
       </ul>

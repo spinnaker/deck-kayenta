@@ -69,8 +69,8 @@ function configLoadState(state: ConfigDetailLoadState = ConfigDetailLoadState.Lo
   }
 }
 
-function reduceMetric(metric: ICanaryMetricConfig, id: string, action: Action & any): ICanaryMetricConfig {
-  if (id === action.id) {
+function reduceMetric(metric: ICanaryMetricConfig, action: Action & any): ICanaryMetricConfig {
+  if (metric.id === action.id) {
     switch (action.type) {
 
       case RENAME_METRIC:
@@ -85,19 +85,23 @@ function reduceMetric(metric: ICanaryMetricConfig, id: string, action: Action & 
   }
 }
 
+function idMetrics(metrics: ICanaryMetricConfig[]) {
+  return metrics.map((metric, index) => Object.assign({}, metric, { id: '#' + index }));
+}
+
 function metricList(state: ICanaryMetricConfig[] = [], action: Action & any): ICanaryMetricConfig[] {
   switch (action.type) {
     case INITIALIZE:
-      return action.state.metricList;
+      return idMetrics(action.state.metricList);
 
     case SELECT_CONFIG:
-      return action.config.metrics;
+      return idMetrics(action.config.metrics);
 
     case ADD_METRIC:
-      return state.concat([action.metric]);
+      return idMetrics(state.concat([action.metric]));
 
     case RENAME_METRIC:
-      return state.map((metric, index) => reduceMetric(metric, String(index), action));
+      return state.map(metric => reduceMetric(metric, action));
 
     default:
       return state;
