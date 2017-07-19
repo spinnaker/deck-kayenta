@@ -4,6 +4,9 @@ import { connect } from 'react-redux';
 import { ICanaryState } from '../reducers';
 import { ADD_GROUP, SELECT_GROUP } from '../actions/index';
 
+export const UNGROUPED = '(ungrouped)';
+
+
 interface IGroupTabsStateProps {
   groupList: string[];
   selectedGroup: string;
@@ -21,13 +24,16 @@ function GroupTabs({ groupList, selectedGroup, selectGroup, addGroup }: IGroupTa
   return (
     <section>
       <ul className="nav nav-tabs">
+        <li className={selectedGroup ? '' : 'active'}>
+          <a data-group="" onClick={selectGroup}>(all)</a>
+        </li>
         {groupList.map(group => (
           <li className={group === selectedGroup ? 'active' : ''} key={group}>
             <a data-group={group} onClick={selectGroup}>{group}</a>
           </li>
         ))}
-        <li className={selectedGroup ? '' : 'active'}>
-          <a data-group="" onClick={selectGroup}>(ungrouped)</a>
+        <li className={selectedGroup === UNGROUPED ? 'active' : ''}>
+          <a data-group={UNGROUPED} onClick={selectGroup}>(ungrouped)</a>
         </li>
         <button className="float-right" onClick={addGroup}>Add Group</button>
       </ul>
@@ -46,7 +52,7 @@ function mapDispatchToProps(dispatch: (action: Action & any) => void): IGroupTab
   return {
     selectGroup: (event: any) => {
       const name = event.target.dataset.group;
-      dispatch({type: SELECT_GROUP, name});
+      dispatch({ type: SELECT_GROUP, name });
       event.preventDefault();
       event.stopPropagation();
     },

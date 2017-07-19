@@ -3,6 +3,7 @@ import { Action } from 'redux';
 import { connect } from 'react-redux';
 import { ICanaryMetricConfig } from '../domain/ICanaryConfig';
 import { ICanaryState } from '../reducers';
+import { UNGROUPED } from './groupTabs';
 import MetricDetail from './metricDetail';
 import OpenDeleteModalButton from './openDeleteModalButton';
 import { ADD_METRIC, RENAME_METRIC } from '../actions/index';
@@ -40,9 +41,14 @@ function MetricList({ metrics, selectedGroup, changeName, addMetric }: IMetricLi
 
 function mapStateToProps(state: ICanaryState): IMetricListStateProps {
   const { selectedGroup, metricList } = state;
-  const filter = selectedGroup
-    ? (metric: ICanaryMetricConfig) => metric.groups.includes(selectedGroup)
-    : (metric: ICanaryMetricConfig) => metric.groups.length === 0;
+  let filter;
+  if (!selectedGroup) {
+    filter = () => true;
+  } else if (selectedGroup === UNGROUPED) {
+    filter = (metric: ICanaryMetricConfig) => metric.groups.length === 0;
+  } else {
+    filter = (metric: ICanaryMetricConfig) => metric.groups.includes(selectedGroup);
+  }
   return {
     selectedGroup,
     metrics: metricList.filter(filter)
@@ -69,7 +75,7 @@ function mapDispatchToProps(dispatch: (action: Action & any) => void): IMetricLi
           name: '',
           // TODO: we should have a default service setting somewhere
           serviceName: 'atlas',
-          groups: group ? [group] : []
+          groups: (group && group !== UNGROUPED) ? [group] : []
         }
       })
     }
