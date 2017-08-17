@@ -1,0 +1,13 @@
+<div class="canary-details" ng-controller="kayentaStageExecutionDetailsCtrl">
+  <execution-details-section-nav sections="configSections"></execution-details-section-nav>
+  <div class="step-section-details" ng-if="detailsSection === 'canarySummary'">
+    <stage-failure-message stage="stage"
+                           is-failed="stage.exceptions.length > 0"
+                           messages="stage.exceptions"></stage-failure-message>
+  </div>
+  <div class="step-section-details" ng-if="detailsSection === 'taskStatus'">
+    <div class="row">
+      <execution-step-details item="stage"></execution-step-details>
+    </div>
+  </div>
+</div>
