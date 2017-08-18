@@ -1,15 +1,21 @@
 import { IScope, module } from 'angular';
 import { StateParams } from '@uirouter/angularjs';
 
-import { ExecutionDetailsSectionService } from '@spinnaker/core';
+import {
+  ExecutionDetailsSectionService,
+  IExecutionStage
+} from '@spinnaker/core';
+import { RUN_CANARY } from './stageTypes';
 
 class KayentaStageExecutionDetailsController {
+
+  public canaryRuns: IExecutionStage[];
 
   constructor(public $scope: IScope,
               private $stateParams: StateParams,
               private executionDetailsSectionService: ExecutionDetailsSectionService) {
     'ngInject';
-    this.$scope.configSections = ['canarySummary', 'taskStatus'];
+    this.$scope.configSections = ['canarySummary', 'canaryConfig', 'taskStatus'];
     this.$scope.$on('$stateChangeSuccess', () => this.initialize());
   }
 
@@ -19,6 +25,13 @@ class KayentaStageExecutionDetailsController {
 
   private initialize(): void {
     this.executionDetailsSectionService.synchronizeSection(this.$scope.configSections, () => this.initialized());
+    this.setCanaryRuns();
+  }
+
+  private setCanaryRuns(): void {
+    // The kayentaStageTransformer pushes related 'runCanary' and 'wait' stages
+    // into the 'kayentaCanary' tasks list.
+    this.canaryRuns = this.$scope.stage.tasks.filter((t: IExecutionStage) => t.type === RUN_CANARY);
   }
 
   private initialized(): void {
