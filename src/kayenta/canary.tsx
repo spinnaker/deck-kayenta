@@ -35,8 +35,8 @@ export default class Canary extends React.Component<ICanaryProps, {}> {
           application: props.app,
           configSummaries: props.app.getDataSource('canaryConfigs').data as ICanaryConfigSummary[],
           judges: props.app.getDataSource('canaryJudges').data as IJudge[],
-        }
-      }
+        },
+      },
     });
   }
 

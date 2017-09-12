@@ -50,7 +50,7 @@ export interface ISelectedConfigState {
 const config = handleActions({
   [Actions.SELECT_CONFIG]: (_state: ICanaryConfig, action: Action & any) => action.config,
   [Actions.UPDATE_CONFIG_NAME]: (state: ICanaryConfig, action: Action & any) => ({ ...state, name: action.name }),
-  [Actions.UPDATE_CONFIG_DESCRIPTION]: (state: ICanaryConfig, action: Action & any) => ({ ...state, name: action.description }),
+  [Actions.UPDATE_CONFIG_DESCRIPTION]: (state: ICanaryConfig, action: Action & any) => ({ ...state, description: action.description }),
   [Actions.DELETE_CONFIG_SUCCESS]: () => null,
 }, null);
 

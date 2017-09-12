@@ -17,7 +17,7 @@ export interface IDataState {
 }
 
 export const application = handleActions({
-  [Actions.INITIALIZE]: (_state: Application = null, action: Action & any) => action.state.data.application,
+  [Actions.INITIALIZE]: (_state: Application, action: Action & any) => action.state.data.application,
 }, null);
 
 export const configSummaries = handleActions({
@@ -26,7 +26,7 @@ export const configSummaries = handleActions({
 }, []);
 
 const configs = handleActions({
-  [Actions.LOAD_CONFIG_SUCCESS]: (state: ICanaryConfig[] = [], action: Action & any): ICanaryConfig[] => {
+  [Actions.LOAD_CONFIG_SUCCESS]: (state: ICanaryConfig[], action: Action & any): ICanaryConfig[] => {
     if (state.some(config => config.name === action.config.name)) {
       return without(
         state,
@@ -39,8 +39,8 @@ const configs = handleActions({
 }, []);
 
 const judges = handleActions({
-  [Actions.INITIALIZE]: (_state: IJudge[] = null, action: Action & any): IJudge[] => action.state.data.judges,
-  [Actions.UPDATE_JUDGES]: (_state: IJudge[] = null, action: Action & any): IJudge[] => action.judges,
+  [Actions.INITIALIZE]: (_state: IJudge[], action: Action & any): IJudge[] => action.state.data.judges,
+  [Actions.UPDATE_JUDGES]: (_state: IJudge[], action: Action & any): IJudge[] => action.judges,
 }, null);
 
 export const data = combineReducers<IDataState>({
