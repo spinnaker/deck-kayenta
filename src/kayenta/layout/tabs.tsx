@@ -15,7 +15,6 @@ export function Tabs({ children }: ITabsProps) {
 export interface ITabProps {
   selected: boolean;
   children: JSX.Element | JSX.Element[];
-  onClick: Function
 }
 
 export function Tab({ selected = false, children }: ITabProps) {
