@@ -5,7 +5,7 @@ import { Modal } from 'react-bootstrap';
 import * as Creators from '../actions/creators';
 import {ICanaryState} from '../reducers/index';
 import {ICanaryMetricConfig} from 'kayenta/domain';
-import MetricConfigurerDelegator from './metricConfigurerDelegator';
+import { MetricStoreConfigDelegator } from '../metricStore/metricStoreConfig.service';
 import Styleguide from '../layout/styleguide';
 
 interface IEditMetricModalDispatchProps {
@@ -39,7 +39,7 @@ function EditMetricModal({ metric, rename, confirm, cancel }: IEditMetricModalDi
             data-id={metric.id}
             onChange={rename}
           />
-          <MetricConfigurerDelegator/>
+          <MetricStoreConfigDelegator name={metric.serviceName} property="metricConfigurer"/>
         </Modal.Body>
         <Modal.Footer>
           <ul className="list-inline pull-right">
