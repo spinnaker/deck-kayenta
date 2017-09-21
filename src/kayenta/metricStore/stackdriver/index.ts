@@ -1,7 +1,6 @@
-import metricStoreConfigStore from '../metricStoreConfig.service';
+import { metricStoreConfigService } from '../metricStoreConfig.service';
 import StackdriverMetricConfigurer from './metricConfigurer';
 
-metricStoreConfigStore.register({
-  name: 'stackdriver',
+metricStoreConfigService.register('stackdriver', {
   metricConfigurer: StackdriverMetricConfigurer,
 });
