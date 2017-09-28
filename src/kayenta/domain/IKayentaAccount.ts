@@ -1,10 +1,10 @@
 export interface IKayentaAccount {
   name: string;
   type: string;
-  supportedTypes: Type[];
+  supportedTypes: KayentaAccountType[];
 }
 
-export enum Type {
+export enum KayentaAccountType {
   MetricsStore = 'METRICS_STORE',
   ObjectStore = 'OBJECT_STORE',
   ConfigurationStore = 'CONFIGURATION_STORE',

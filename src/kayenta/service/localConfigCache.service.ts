@@ -1,7 +1,7 @@
 import { ICanaryConfig } from '../domain/ICanaryConfig';
 import { ICanaryConfigSummary } from '../domain/ICanaryConfigSummary';
 import { IJudge } from '../domain/IJudge';
-import { IKayentaAccount, Type } from '../domain/IKayentaAccount';
+import { IKayentaAccount, KayentaAccountType } from '../domain/IKayentaAccount';
 
 const atlasCanaryConfig = require('kayenta/scratch/atlas_canary_config.json');
 const stackdriverCanaryConfig = require('kayenta/scratch/stackdriver_canary_config.json');
@@ -62,8 +62,20 @@ class LocalConfigCache {
 
   public listKayentaAccounts(): Promise<IKayentaAccount[]> {
     return Promise.resolve([
-      { name: 'my-google-account', type: 'google', supportedTypes: [Type.ObjectStore, Type.MetricsStore, Type.ConfigurationStore] },
-      { name: 'my-other-google-account', type: 'google', supportedTypes: [Type.MetricsStore] },
+      {
+        name: 'my-google-account',
+        type: 'google',
+        supportedTypes: [
+          KayentaAccountType.ObjectStore,
+          KayentaAccountType.MetricsStore,
+          KayentaAccountType.ConfigurationStore,
+        ],
+      },
+      {
+        name: 'my-other-google-account',
+        type: 'google',
+        supportedTypes: [KayentaAccountType.MetricsStore],
+      },
     ]);
   }
 }
