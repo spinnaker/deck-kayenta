@@ -17,7 +17,7 @@ module(CANARY_STATES, [APPLICATION_STATE_PROVIDER])
   .config((applicationStateProvider: ApplicationStateProvider) => {
   const configDetail: INestedState = {
     name: 'configDetail',
-    url: '/canary/:configName?copy&new',
+    url: '/config/:configName?copy&new',
     views: {
       detail: {
         component: ConfigDetailLoader, $type: 'react'
@@ -40,8 +40,8 @@ module(CANARY_STATES, [APPLICATION_STATE_PROVIDER])
   };
 
   const canaryDefault: INestedState = {
-    name: 'default',
-    url: '/canary',
+    name: 'configDefault',
+    url: '/config',
     views: {
       detail: {
         component: SelectConfig, $type: 'react'
@@ -52,6 +52,7 @@ module(CANARY_STATES, [APPLICATION_STATE_PROVIDER])
   const canary: INestedState = {
     abstract: true,
     name: 'canary',
+    url: '/canary',
     views: {
       insight: {
         component: Canary, $type: 'react'
