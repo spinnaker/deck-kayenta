@@ -7,10 +7,10 @@ import {
   ApplicationStateProvider
 } from '@spinnaker/core';
 
-import ConfigDetailLoader from './edit/configDetailLoader';
-import CanaryConfigSave from './edit/save';
-import Canary from './canary';
-import SelectConfig from './selectConfig';
+import ConfigDetailLoader from '../edit/configDetailLoader';
+import CanaryConfigSave from '../edit/save';
+import Canary from '../canary';
+import SelectConfig from '../selectConfig';
 
 export const CANARY_STATES = 'spinnaker.kayenta.canary.states';
 module(CANARY_STATES, [APPLICATION_STATE_PROVIDER])
