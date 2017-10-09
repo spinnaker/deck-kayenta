@@ -3,4 +3,3 @@ export enum AsyncRequestState {
   Fulfilled = 'fulfilled',
   Failed = 'failed',
 }
-
