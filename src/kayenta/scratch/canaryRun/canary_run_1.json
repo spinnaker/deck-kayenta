@@ -192,6 +192,7 @@
           "results": {
             "metric B": {
               "name": "metric B",
+              "metricSetPairId": "2",
               "tags": {},
               "classification": "Pass",
               "groups": [
@@ -221,6 +222,7 @@
             },
             "metric F": {
               "name": "metric F",
+              "metricSetPairId": "0",
               "tags": {},
               "classification": "Pass",
               "groups": [
@@ -250,6 +252,7 @@
             },
             "metric C": {
               "name": "metric C",
+              "metricSetPairId": "3",
               "tags": {},
               "classification": "High",
               "classificationReason": "The metric was classified as High",
@@ -280,6 +283,7 @@
             },
             "metric D": {
               "name": "metric D",
+              "metricSetPairId": "4",
               "tags": {},
               "classification": "Pass",
               "groups": [
@@ -309,6 +313,7 @@
             },
             "metric A": {
               "name": "metric A",
+              "metricSetPairId": "1",
               "tags": {},
               "classification": "Pass",
               "groups": [
@@ -339,6 +344,7 @@
             },
             "metric E": {
               "name": "metric E",
+              "metricSetPairId": "5",
               "tags": {},
               "classification": "Pass",
               "groups": [

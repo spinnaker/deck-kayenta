@@ -1,7 +1,7 @@
 [
   {
     "name": "metric F",
-    "id": 0,
+    "id": "0",
     "tags": {},
     "values": {
       "control": [
@@ -72,7 +72,7 @@
   },
   {
     "name": "metric A",
-    "id": 1,
+    "id": "1",
     "tags": {},
     "values": {
       "control": [
@@ -143,7 +143,7 @@
   },
   {
     "name": "metric B",
-    "id": 2,
+    "id": "2",
     "tags": {},
     "values": {
       "control": [
@@ -214,7 +214,7 @@
   },
   {
     "name": "metric C",
-    "id": 3,
+    "id": "3",
     "tags": {},
     "values": {
       "control": [
@@ -285,7 +285,7 @@
   },
   {
     "name": "metric D",
-    "id": 4,
+    "id": "4",
     "tags": {},
     "values": {
       "control": [
@@ -356,7 +356,7 @@
   },
   {
     "name": "metric E",
-    "id": 5,
+    "id": "5",
     "tags": {},
     "values": {
       "control": [
