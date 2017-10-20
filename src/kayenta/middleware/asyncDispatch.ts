@@ -21,7 +21,7 @@ export const asyncDispatchMiddleware: Middleware = (store: MiddlewareAPI<any>) =
   };
 
   const asyncDispatch = (a: Action & any) => {
-    actionQueue = actionQueue.concat([a]);
+    actionQueue.push(a);
     if (syncActivityFinished) {
       flushQueue();
     }
