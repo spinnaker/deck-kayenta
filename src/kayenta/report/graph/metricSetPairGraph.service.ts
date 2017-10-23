@@ -4,6 +4,17 @@ import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
 import { ICanaryAnalysisResult } from 'kayenta/domain/ICanaryJudgeResult';
 import { buildDelegateService } from 'kayenta/service/delegateFactory';
 
+// e.g., amplitude vs. time, histogram, etc.
+export enum GraphType {
+  AmplitudeVsTime,
+}
+
+export interface IMetricSetPairGraphProps {
+  type: GraphType;
+  metricSetPair: IMetricSetPair;
+  result: ICanaryAnalysisResult;
+}
+
 export interface IMetricSetPairGraph {
   /*
   * Name of the graph implementation, referenced in settings.js.
@@ -11,24 +22,14 @@ export interface IMetricSetPairGraph {
   name: string;
 
   /*
-  * Returns top-level graph component.
+  * Returns top-level graph component class.
   * */
-  getGraph(): React.Component;
+  getGraph(): React.ComponentClass<IMetricSetPairGraphProps>;
 
   /*
   * Returns true if the graph implementation supports a given graph type.
   * */
-  handlesGraphType(): boolean;
-
-  /*
-  * Handles a given graph type.
-  * */
-  handleGraphType(type: GraphType, metricSetPair: IMetricSetPair, result: ICanaryAnalysisResult): void;
-}
-
-// e.g., amplitude vs. time, histogram, etc.
-export enum GraphType {
-  AmplitudeVsTime,
+  handlesGraphType(type: GraphType): boolean;
 }
 
 export const metricSetPairGraphService = buildDelegateService<IMetricSetPairGraph>();

@@ -1,11 +1,13 @@
 import * as React from 'react';
 
+import Graph from './graph/graph';
+
 /*
 * Responsible for layout of the metric result detail view after the metric set
 * pair for the result has successfully loaded.
 * */
 export default () => (
   <section>
-    Graph goes here.
+    <Graph/>
   </section>
 );
