@@ -5,4 +5,3 @@ export enum ScoreClassificationLabel {
   Nodata = 'Nodata',
   Error = 'Error',
 }
-
