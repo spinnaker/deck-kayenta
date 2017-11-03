@@ -1,11 +1,5 @@
 import { ICanaryState } from './index';
 
-export interface IConfigValidationState {
-  isConfigNameUnique: boolean;
-  isConfigNameValid: boolean;
-  isGroupWeightsValid: boolean;
-}
-
 const isConfigNameUnique = (state: ICanaryState): ICanaryState => {
   if (!state.selectedConfig.config) {
     return state;
@@ -16,12 +10,16 @@ const isConfigNameUnique = (state: ICanaryState): ICanaryState => {
   const isUnique = configSummaries.every(s =>
     selectedConfig.name !== s.name || selectedConfig.id === s.id
   );
+
+  const configValidationErrors = state.configValidationErrors.concat(
+    isUnique
+      ? []
+      : [`Canary config '${selectedConfig.name}' already exists.`]
+  );
+
   return {
     ...state,
-    configValidation: {
-      ...state.configValidation,
-      isConfigNameUnique: isUnique,
-    },
+    configValidationErrors,
   };
 };
 
@@ -34,13 +32,15 @@ const isConfigNameValid = (state: ICanaryState): ICanaryState => {
   }
 
   const isValid = pattern.test(state.selectedConfig.config.name);
+  const configValidationErrors = state.configValidationErrors.concat(
+    isValid
+      ? []
+      : ['Canary config names must contain only letters, numbers, dashes (-) and underscores (_).']
+  );
 
   return {
     ...state,
-    configValidation: {
-      ...state.configValidation,
-      isConfigNameValid: isValid,
-    },
+    configValidationErrors,
   };
 };
 
@@ -53,19 +53,27 @@ const isGroupWeightsValid = (state: ICanaryState): ICanaryState => {
     Object.values(state.selectedConfig.group.groupWeights)
       .reduce((sum, weight) => sum + weight, 0);
 
+  const configValidationErrors = state.configValidationErrors.concat(
+    groupWeightsSum === 100
+      ? []
+      : ['Metric group weights must sum to 100.']
+  );
+
   return {
     ...state,
-    configValidation: {
-      ...state.configValidation,
-      isGroupWeightsValid: groupWeightsSum === 100,
-    },
+    configValidationErrors,
   };
 };
 
 
-export const validatorsReducer = (state: ICanaryState): ICanaryState =>
-  [
+export const validationErrorsReducer = (state: ICanaryState): ICanaryState => {
+  if (!state.configValidationErrors) {
+    state = { ...state, configValidationErrors: [] };
+  }
+
+  return [
     isConfigNameUnique,
     isConfigNameValid,
     isGroupWeightsValid,
   ].reduce((s, reducer) => reducer(s), state);
+};
