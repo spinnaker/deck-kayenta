@@ -2,6 +2,7 @@ import { ICanaryJudgeResult } from './ICanaryJudgeResult';
 import { ICanaryClassifierThresholdsConfig, ICanaryConfig } from './ICanaryConfig';
 
 export interface ICanaryExecutionStatusResult {
+  id: string // Added by Deck on load.
   complete: boolean;
   metricSetPairListId: string;
   status: string;

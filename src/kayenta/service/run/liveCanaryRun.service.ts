@@ -12,7 +12,12 @@ export class LiveCanaryRunService implements ICanaryRunService {
       .one(configId)
       .one(canaryExecutionId)
       .withParams({storageAccountName: CanarySettings.storageAccountName})
-      .get();
+      .get()
+      .then((run: ICanaryExecutionStatusResult) => {
+        run.result.config.id = configId;
+        run.id = canaryExecutionId;
+        return run;
+      });
   }
 
   public getMetricSetPair(metricSetPairListId: string,
