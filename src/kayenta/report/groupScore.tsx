@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 
 import { ICanaryJudgeGroupScore } from '../domain/ICanaryJudgeResult';
+import ScoreArrow from './scoreArrow';
 
 export interface IGroupScoreProps {
   group: ICanaryJudgeGroupScore;
@@ -20,6 +21,6 @@ export default ({ group, onClick, style, className }: IGroupScoreProps) => (
     className={classNames('clickable', 'text-center', 'group-score', className)}
   >
     <h3 className="heading-3 uppercase label">{group.name}</h3>
-    <div className="arrow-down" style={{borderTopColor: style.backgroundColor}}/>
+    <ScoreArrow borderTopColor={style.backgroundColor}/>
   </section>
 );

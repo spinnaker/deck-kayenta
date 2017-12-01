@@ -15,7 +15,9 @@ export interface ICanaryJudgeScoreProps {
 * Renders top-level canary report score.
 */
 export default ({ score, className, onClick }: ICanaryJudgeScoreProps) => (
-  <section className={classNames(className, 'clickable')} onClick={onClick}>
+  <section
+    className={classNames(className, 'clickable')}
+    onClick={onClick}>
     <CanaryScore
       className="score-report"
       score={round(score.score, 2)}
