@@ -1,26 +1,25 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
 
-import { ICanaryJudgeGroupScore } from '../domain/ICanaryJudgeResult';
 import ScoreArrow from './scoreArrow';
 
 export interface IGroupScoreProps {
-  group: ICanaryJudgeGroupScore;
+  label: string;
   style?: {[key: string]: string };
-  onClick: (event: any) => void;
+  onClick: () => void;
   className: string;
 }
 
 /*
-* Renders an individual group score.
+* Component for a labeled, clickable, colored header.
 * */
-export default ({ group, onClick, style, className }: IGroupScoreProps) => (
+export default ({ label, onClick, style, className }: IGroupScoreProps) => (
   <section
     style={style}
-    onClick={() => onClick(group.name)}
+    onClick={() => onClick()}
     className={classNames('clickable', 'text-center', 'group-score', className)}
   >
-    <h3 className="heading-3 uppercase label">{group.name}</h3>
+    <h3 className="heading-3 uppercase label">{label}</h3>
     <ScoreArrow borderTopColor={style.backgroundColor}/>
   </section>
 );
