@@ -1,6 +1,5 @@
 import * as React from 'react';
 import * as classNames from 'classnames';
-import { round } from 'lodash';
 import { ICanaryJudgeScore } from '../domain/ICanaryJudgeResult';
 import ClickableHeader from './clickableHeader';
 import { mapScoreClassificationToColor } from './colors';
@@ -23,7 +22,7 @@ export default ({ score, className, onClick }: ICanaryJudgeScoreProps) => (
         margin: '0 auto'
       }}
       onClick={onClick}
-      label={round(score.score, 2).toString()}
+      label={score.score.toPrecision(2)}
       className={className}
     />
   </section>

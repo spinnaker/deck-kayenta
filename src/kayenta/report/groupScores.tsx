@@ -39,7 +39,7 @@ const GroupScores = ({ groups, groupWeights, scoreThresholds, className, select,
         }}
         onClick={() => select(g.name)}
         label={g.name}
-        className={classNames(g.name === selectedGroup ? 'active' : '', 'report-score')}
+        className={classNames('report-score', { active: g.name === selectedGroup })}
       />
     ))}
   </section>
