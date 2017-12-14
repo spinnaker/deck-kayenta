@@ -61,9 +61,7 @@ function MetricList({ metrics, selectedGroup, showGroups, addMetric, editMetric,
     <section>
       <Table
         columns={columns}
-        rowClassName="metric-list-row"
-        headerClassName="metric-list-header"
-        data={metrics}
+        rows={metrics}
         rowKey={metric => metric.id}
       />
       {(!metrics.length && selectedGroup && selectedGroup !== UNGROUPED) ? (

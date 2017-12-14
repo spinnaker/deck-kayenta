@@ -1,29 +1,26 @@
 import * as React from 'react';
-import * as classNames from 'classnames';
 
 import { ITableColumn } from './tableColumn';
 import { TableHeader } from './tableHeader';
 
 export interface ITableProps<T> {
-  data: T[];
+  rows: T[];
   columns: ITableColumn<T>[];
   rowKey: (row: T) => string;
-  headerClassName: string;
-  rowClassName: string;
 }
 
-export function Table<T>({ data, columns, rowKey, headerClassName, rowClassName }: ITableProps<T>) {
+export function Table<T>({ rows, columns, rowKey }: ITableProps<T>) {
   return (
     <div>
-      <TableHeader columns={columns} className={headerClassName}/>
+      <TableHeader columns={columns} className="table-header"/>
       <ul className="list-group">
         {
-          data.map(d => (
-            <div key={rowKey(d)} className={classNames('horizontal', rowClassName)}>
+          rows.map(r => (
+            <div key={rowKey(r)} className="horizontal table-row">
               {
                 columns.map((c, i) => (
                   <div key={c.label || i} className={`flex-${c.width}`}>
-                    {!c.hide && c.getContent(d)}
+                    {!c.hide && c.getContent(r)}
                   </div>
                 ))
               }
