@@ -21,9 +21,9 @@ export function Table<T>({ data, columns, rowKey, headerClassName, rowClassName 
           data.map(d => (
             <div key={rowKey(d)} className={classNames('horizontal', rowClassName)}>
               {
-                columns.map(c => (
-                  <div className={`flex-${c.width}`}>
-                    {c.getContent(d)}
+                columns.map((c, i) => (
+                  <div key={c.label || i} className={`flex-${c.width}`}>
+                    {!c.hide && c.getContent(d)}
                   </div>
                 ))
               }
