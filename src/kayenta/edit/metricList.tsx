@@ -29,8 +29,8 @@ function MetricList({ metrics, selectedGroup, showGroups, addMetric, editMetric,
     <section>
       <MetricListHeader showGroups={showGroups}/>
       <ul className="list-group">
-        {metrics.map((metric, index) => (
-          <li className="list-unstyled" key={index}>
+        {metrics.map(metric => (
+          <li className="list-unstyled" key={metric.id}>
             <MetricDetail metric={metric} edit={editMetric} remove={removeMetric} showGroups={showGroups}/>
           </li>
         ))}
