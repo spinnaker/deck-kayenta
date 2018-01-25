@@ -6,9 +6,9 @@
   version "0.0.46"
   resolved "https://registry.yarnpkg.com/@spinnaker/amazon/-/amazon-0.0.46.tgz#188ea7fa75a7e166a77f1eaa7079342fcedd6dfd"
 
-"@spinnaker/core@^0.0.93":
-  version "0.0.93"
-  resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.93.tgz#f0345b2bc0a60e1622b372d0a7ee688ef25b92f0"
+"@spinnaker/core@0.0.135":
+  version "0.0.135"
+  resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.135.tgz#047846cb93eb91ab22a0fe77ced29ec822087f9e"
 
 "@spinnaker/google@^0.0.1":
   version "0.0.1"
@@ -2986,6 +2986,14 @@ form-data@~2.1.1:
     combined-stream "^1.0.5"
     mime-types "^2.1.12"
 
+formik@^0.10.5:
+  version "0.10.5"
+  resolved "https://registry.yarnpkg.com/formik/-/formik-0.10.5.tgz#6984d2f22e918c6d2264a3cb86b8582f7277faca"
+  dependencies:
+    lodash.isequal "4.5.0"
+    prop-types "^15.5.10"
+    warning "^3.0.0"
+
 formsy-react@^0.19.2:
   version "0.19.2"
   resolved "https://registry.yarnpkg.com/formsy-react/-/formsy-react-0.19.2.tgz#7fa818ff93c8c07195486c4d2e42b6da0c0ee4a3"
@@ -4109,6 +4117,10 @@ lodash.foreach@^4.3.0:
 lodash.frompairs@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/lodash.frompairs/-/lodash.frompairs-4.0.1.tgz#bc4e5207fa2757c136e573614e9664506b2b1bd2"
+
+lodash.isequal@4.5.0:
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/lodash.isequal/-/lodash.isequal-4.5.0.tgz#415c4478f2bcc30120c22ce10ed3226f7d3e18e0"
 
 lodash.isfunction@^3.0.8:
   version "3.0.8"
