@@ -69,7 +69,6 @@ class CanaryStage implements IComponentController {
   public selectedCanaryConfigDetails: ICanaryConfig;
   public scopeNames: string[] = [];
   public kayentaAccounts = new Map<KayentaAccountType, IKayentaAccount[]>();
-  public metricStore: string;
 
   constructor(private $scope: IScope, public stage: IKayentaStage) {
     'ngInject';
@@ -233,7 +232,6 @@ class CanaryStage implements IComponentController {
     this.state.detailsLoading = true;
     getCanaryConfigById(this.stage.canaryConfig.canaryConfigId).then(configDetails => {
       this.state.detailsLoading = false;
-      this.metricStore = get(configDetails, 'metrics[0].query.type');
       this.populateScopeNameChoices(configDetails);
     }).catch(() => {
       this.state.detailsLoading = false;
