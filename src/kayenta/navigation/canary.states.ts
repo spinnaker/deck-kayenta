@@ -13,9 +13,9 @@ import CanaryConfigEdit from 'kayenta/edit/edit';
 import CanaryConfigSave from 'kayenta/edit/save';
 import Canary, { canaryStore } from 'kayenta/canary';
 import SelectConfig from 'kayenta/edit/selectConfig';
-import Report from 'kayenta/report/report';
-import ResultDetailLoader from 'kayenta/report/detailLoader';
-import ResultList from 'kayenta/report/resultList';
+import Report from 'kayenta/report/detail/report';
+import ResultDetailLoader from 'kayenta/report/detail/detailLoader';
+import ResultList from 'kayenta/report/detail/resultList';
 import * as Creators from 'kayenta/actions/creators';
 
 export const CANARY_STATES = 'spinnaker.kayenta.canary.states';

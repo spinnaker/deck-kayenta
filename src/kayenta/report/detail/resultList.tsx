@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import CenteredDetail from '../layout/centeredDetail';
+import CenteredDetail from 'kayenta/layout/centeredDetail';
 
 const ResultList = () => (
   <CenteredDetail>
