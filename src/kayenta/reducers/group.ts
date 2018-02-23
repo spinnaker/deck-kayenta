@@ -14,7 +14,7 @@ export interface IGroupState {
 
 function groupsFromMetrics(metrics: ICanaryMetricConfig[] = []) {
   return metrics.reduce((groups, metric) => {
-    return groups.concat(metric.groups.filter((group: string) => !groups.includes(group)))
+    return groups.concat(metric.groups.filter((g: string) => !groups.includes(g)))
   }, []).sort();
 }
 
@@ -22,7 +22,7 @@ const list = handleActions({
   [Actions.SELECT_CONFIG]: (_state: string[], action: Action & any) => groupsFromMetrics(action.payload.config.metrics),
   [Actions.ADD_METRIC]: (state: string[], action: Action & any) => {
     const groups = action.payload.metric.groups;
-    return state.concat(groups.filter((group: string) => !state.includes(group)));
+    return state.concat(groups.filter((g: string) => !state.includes(g)));
   },
   [Actions.ADD_GROUP]: (state: string[]) => {
     let n = 1;
