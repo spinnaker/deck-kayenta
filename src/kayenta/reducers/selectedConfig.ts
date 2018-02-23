@@ -12,7 +12,7 @@ import {
   ICanaryMetricConfig
 } from '../domain/ICanaryConfig';
 import { CanarySettings } from '../canary.settings';
-import { IGroupState, group } from './group';
+import { IGroupState, group as groupReducer } from './group';
 import { JudgeSelectRenderState } from '../edit/judgeSelect';
 import { UNGROUPED, ALL } from '../edit/groupTabs';
 import { AsyncRequestState } from './asyncRequest';
@@ -232,9 +232,9 @@ function selectedJudgeReducer(state: ISelectedConfigState = null, action: Action
   switch (action.type) {
     case Actions.SELECT_CONFIG:
       if (has(action, 'payload.config.judge')) {
-        return { ...state, judge: { ...state.judge, judgeConfig: { ...action.payload.config.judge } }};
+        return { ...state, judge: { ...state.judge, judgeConfig: { ...action.payload.config.judge } } };
       } else {
-        return { ...state, judge: { ...state.judge, judgeConfig: { name: CanarySettings.defaultJudge, judgeConfigurations: {} }}};
+        return { ...state, judge: { ...state.judge, judgeConfig: { name: CanarySettings.defaultJudge, judgeConfigurations: {} } } };
       }
 
     default:
@@ -260,7 +260,7 @@ export function editGroupConfirmReducer(state: ISelectedConfigState = null, acti
 
   const weightsUpdator = (weights: IGroupWeights): IGroupWeights => {
     const weight = weights[group];
-    weights = omit(weights, group);
+    weights = omit(weights, groupReducer);
     return {
       ...weights,
       [edit]: weight,
@@ -370,7 +370,7 @@ const combined = combineReducers<ISelectedConfigState>({
   metricList,
   editingMetric: (metric, action) =>
     [editingMetric, stackdriverMetricConfigReducer].reduce((s, reducer) => reducer(s, action), metric),
-  group,
+  groupReducer,
   thresholds,
   changeMetricGroup,
   isInSyncWithServer,
