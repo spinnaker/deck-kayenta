@@ -1,60 +1,65 @@
 import * as React from 'react';
-import * as Select from 'react-select';
+import { get } from 'lodash';
 import { Action } from 'redux';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 import FormRow from 'kayenta/layout/formRow';
 import { ICanaryState } from 'kayenta/reducers';
-import { ICanaryMetricConfig } from 'kayenta/domain/ICanaryConfig';
-import { IUpdateListPayload, List } from 'kayenta/layout/list';
 import * as Creators from 'kayenta/actions/creators';
-import DatadogMetricTypeSelector from './metricTypeSelector';
+import KayentaInput from '../../layout/kayentaInput';
+import { ICanaryMetricConfig } from '../../domain';
 
 interface IDatadogMetricConfigurerStateProps {
   editingMetric: ICanaryMetricConfig;
 }
 
 interface IDatadogMetricConfigurerDispatchProps {
-  updateMetricType: (option: Select.Option) => void;
-  updateGroupBy: (payload: IUpdateListPayload) => void;
+  changeMetricName: (name: string) => void;
 }
+
+type DatadogMetricConfigurerProps = IDatadogMetricConfigurerStateProps & IDatadogMetricConfigurerDispatchProps;
+
+export const queryFinder = (metric: ICanaryMetricConfig) => get(metric, 'query.metricName', '');
 
 /*
 * Component for configuring a Datadog metric.
 * */
-function DatadogMetricConfigurer({ editingMetric, updateMetricType, updateGroupBy }: IDatadogMetricConfigurerStateProps & IDatadogMetricConfigurerDispatchProps) {
-  return (
-    <section>
-      <FormRow label="Metric Type">
-        <DatadogMetricTypeSelector
-          value={get(editingMetric, 'query.metricType', '')}
-          onChange={updateMetricType}
-        />
-      </FormRow>
-      <FormRow label="Group By">
-        <List
-          list={editingMetric.query.groupByFields || []}
-          actionCreator={updateGroupBy}
-        />
-      </FormRow>
-    </section>
-  );
+class DatadogMetricConfigurer extends React.Component<DatadogMetricConfigurerProps, {}> {
+  constructor(props: DatadogMetricConfigurerProps) {
+    super(props);
+    this.onChange = this.onChange.bind(this)
+  }
+
+  public onChange(e: React.ChangeEvent<HTMLInputElement>) {
+    this.props.changeMetricName(e.target.value);
+  }
+
+  public render() {
+    const { editingMetric } = this.props;
+    return (
+      <section>
+        <FormRow label="Datadog Metric">
+          <KayentaInput
+            type="text"
+            value={queryFinder(editingMetric)}
+            onChange={this.onChange}
+          />
+        </FormRow>
+      </section>
+    );
+  }
 }
 
 function mapStateToProps(state: ICanaryState): IDatadogMetricConfigurerStateProps {
   return {
-    editingMetric: state.selectedConfig.editingMetric,
+    editingMetric: state.selectedConfig.editingMetric
   };
 }
 
 function mapDispatchToProps(dispatch: (action: Action & any) => void): IDatadogMetricConfigurerDispatchProps {
   return {
-    updateMetricType: (option: Select.Option): void => {
-      dispatch(Creators.updateDatadogMetricType({
-        metricType: (option ? option.value : null) as string,
-      }));
+    changeMetricName: (metricName: string): void => {
+      dispatch(Creators.updateDatadogMetricName({ metricName }));
     },
-    updateGroupBy: payload => dispatch(Creators.updateDatadogGroupBy(payload)),
   };
 }
 
