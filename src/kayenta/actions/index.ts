@@ -66,7 +66,6 @@ export const LOAD_METRICS_SERVICE_METADATA_REQUEST = 'load_metrics_service_metad
 export const LOAD_METRICS_SERVICE_METADATA_SUCCESS = 'load_metrics_service_metadata_success';
 export const LOAD_METRICS_SERVICE_METADATA_FAILURE = 'load_metrics_service_metadata_failure';
 export const UPDATE_STACKDRIVER_METRIC_DESCRIPTOR_FILTER = 'update_stackdriver_metric_descriptor_filter';
-export const UPDATE_DATADOG_METRIC_DESCRIPTOR_FILTER = 'update_datadog_metric_descriptor_filter';
 export const LOAD_EXECUTIONS_REQUEST = 'load_executions_request';
 export const LOAD_EXECUTIONS_SUCCESS = 'load_executions_success';
 export const LOAD_EXECUTIONS_FAILURE = 'load_executions_failure';
