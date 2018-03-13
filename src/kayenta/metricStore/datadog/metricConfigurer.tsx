@@ -5,8 +5,9 @@ import { connect } from 'react-redux';
 import FormRow from 'kayenta/layout/formRow';
 import { ICanaryState } from 'kayenta/reducers';
 import * as Creators from 'kayenta/actions/creators';
-import KayentaInput from '../../layout/kayentaInput';
-import { ICanaryMetricConfig } from '../../domain';
+import KayentaInput from 'kayenta/layout/kayentaInput';
+import { ICanaryMetricConfig } from 'kayenta/domain';
+import autoBindMethods from 'class-autobind-decorator';
 
 interface IDatadogMetricConfigurerStateProps {
   editingMetric: ICanaryMetricConfig;
@@ -23,12 +24,8 @@ export const queryFinder = (metric: ICanaryMetricConfig) => get(metric, 'query.m
 /*
 * Component for configuring a Datadog metric.
 * */
-class DatadogMetricConfigurer extends React.Component<DatadogMetricConfigurerProps, {}> {
-  constructor(props: DatadogMetricConfigurerProps) {
-    super(props);
-    this.onChange = this.onChange.bind(this)
-  }
-
+@autoBindMethods
+class DatadogMetricConfigurer extends React.Component<DatadogMetricConfigurerProps> {
   public onChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.props.changeMetricName(e.target.value);
   }
