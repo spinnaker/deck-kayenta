@@ -6,7 +6,6 @@ import { ICanaryState } from 'kayenta/reducers';
 import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
 import { ICanaryAnalysisResult } from 'kayenta/domain/ICanaryJudgeResult';
 import { metricResultsSelector } from 'kayenta/selectors';
-import { CanarySettings } from 'kayenta/canary.settings';
 
 interface IMetricSetPairGraphStateProps {
   pair: IMetricSetPair;
@@ -14,11 +13,12 @@ interface IMetricSetPairGraphStateProps {
   graphType: GraphType;
 }
 
+const GRAPH_IMPLEMENTATIONS = ['chartjs', 'plotly'];
+
 const MetricSetPairGraph = ({ pair, result, graphType }: IMetricSetPairGraphStateProps) => {
-  const delegates = CanarySettings.graphImplementation
-    .split(',')
+  const delegates = GRAPH_IMPLEMENTATIONS
     .map(name => metricSetPairGraphService.getDelegate(name))
-    .filter(delegate => !!delegate);
+    .filter(d => !!d);
 
   const delegate = delegates.find(candidate => candidate.handlesGraphType(graphType));
   if (!delegate) {
@@ -26,15 +26,15 @@ const MetricSetPairGraph = ({ pair, result, graphType }: IMetricSetPairGraphStat
   }
 
   const Graph = delegate.getGraph();
-  return <Graph metricSetPair={pair} result={result} type={graphType}/>
+  return <Graph metricSetPair={pair} result={result} type={graphType}/>;
 };
 
-const mapStateToProps  = (state: ICanaryState): IMetricSetPairGraphStateProps => {
+const mapStateToProps = (state: ICanaryState): IMetricSetPairGraphStateProps => {
   const selectedMetric = state.selectedRun.selectedMetric;
   return {
     pair: state.selectedRun.metricSetPair.pair,
     result: metricResultsSelector(state).find(result => result.id === selectedMetric),
-    graphType: GraphType.Histogram
+    graphType: state.selectedRun.graphType,
   };
 };
 

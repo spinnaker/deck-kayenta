@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as Plotly from 'plotly.js';
 import autoBindMethods from 'class-autobind-decorator';
 
-import { IMetricSetPair } from '../../../../domain/IMetricSetPair';
+import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
 import { GraphType, IMetricSetPairGraphProps } from '../metricSetPairGraph.service';
 
 const BASELINE_COLOR = '#0075dc';
@@ -29,7 +29,6 @@ function renderHistogram(container: HTMLElement, metricSetPair: IMetricSetPair) 
   };
   const canaryHisto = {
     name: 'Canary',
-    showlegend: true,
     x: canaryData,
     histnorm: 'count',
     type: 'histogram',
@@ -42,6 +41,16 @@ function renderHistogram(container: HTMLElement, metricSetPair: IMetricSetPair) 
   };
 
   const layout = {
+    autosize: false,
+    width: 830,
+    height: 415,
+    margin: {
+      l: 40,
+      r: 40,
+      b: 40,
+      t: 40,
+      pad: 4,
+    },
     barmode: 'overlay',
     bargroupgap: 0.01,
     plot_bgcolor: '#f5f5f5',
@@ -63,7 +72,7 @@ function renderHistogram(container: HTMLElement, metricSetPair: IMetricSetPair) 
       baselineHisto.xbins = { start, end, size };
       canaryHisto.autobinx = false;
       canaryHisto.xbins = { start, end, size };
-      // console.log('replotting', baselineHisto.xbins);
+
       Plotly.newPlot(container, [ baselineHisto as any, canaryHisto as any ], layout);
     }
   });
