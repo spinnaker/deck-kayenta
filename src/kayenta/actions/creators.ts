@@ -89,3 +89,4 @@ export const selectGraphType = createAction<{type: GraphType}>(Actions.SELECT_GR
 export const loadKayentaAccountsRequest = createAction(Actions.LOAD_KAYENTA_ACCOUNTS_REQUEST);
 export const loadKayentaAccountsSuccess = createAction<{accounts: IKayentaAccount[]}>(Actions.LOAD_KAYENTA_ACCOUNTS_SUCCESS);
 export const loadKayentaAccountsFailure = createAction<{error: Error}>(Actions.LOAD_KAYENTA_ACCOUNTS_FAILURE);
+export const selectMetricStore = createAction<{store: string}>(Actions.SELECT_METRIC_STORE);
