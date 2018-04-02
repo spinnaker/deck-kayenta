@@ -27,13 +27,13 @@ const mapStateToProps = (state: ICanaryState, ownProps: IDisableableOwnProps) =>
 });
 
 // A component wrapped in `disableable` is disabled if one of the keys passed
-// through `disabledStateKeys` returns true.
+// through `disabledStateKeys` returns true when checked against the Redux store.
 function disableable<T extends IDisableable>(Component: React.SFC<T>) {
   return connect(mapStateToProps)((props: T & IDisableable & IDisableableStateProps) => {
     const { disabled, disabledBecauseOfState } = props;
 
     // Would use object spread except for weird interaction with TS generics.
-    const otherProps = omit(props, ['disabled', 'disabledBecauseOfState']);
+    const otherProps = omit(props, ['disabled', 'disabledBecauseOfState', 'disabledStateKeys', 'dispatch']);
     return (
       <Component
         {...otherProps}
