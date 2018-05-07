@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Modal } from 'react-bootstrap';
 import { get } from 'lodash';
 import { Option } from 'react-select';
-import { noop } from '@spinnaker/core';
+import { noop, HelpField } from '@spinnaker/core';
 import * as Creators from 'kayenta/actions/creators';
 import { ICanaryState } from 'kayenta/reducers';
 import { ICanaryMetricConfig } from 'kayenta/domain';
@@ -165,7 +165,7 @@ function EditMetricModal({
               Fail the canary if this metric fails
             </label>
           </FormRow>
-          <FormRow label="NaN Strategy">
+          <FormRow label={<>NaN Strategy <HelpField id="canary.config.nanStrategy"/></>}>
             <RadioChoice value="default" label="Default (remove)"  name="nanStrategy" current={nanStrategy} action={updateNanStrategy}/>
             <RadioChoice value="replace" label="Replace with zero" name="nanStrategy" current={nanStrategy} action={updateNanStrategy}/>
             <RadioChoice value="remove"  label="Remove"            name="nanStrategy" current={nanStrategy} action={updateNanStrategy}/>

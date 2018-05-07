@@ -2,7 +2,7 @@ import * as React from 'react';
 import * as classNames from 'classnames';
 
 export default function FormRow(
-  { label, children, checkbox }: { label?: string, children?: any, checkbox?: boolean }
+  { label, children, checkbox }: { label?: string | React.ReactFragment, children?: any, checkbox?: boolean }
 ) {
   return (
     <div className="form-group row">
