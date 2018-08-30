@@ -1,6 +1,8 @@
 import { ICanaryJudgeResult } from './ICanaryJudgeResult';
 import { ICanaryClassifierThresholdsConfig, ICanaryConfig } from './ICanaryConfig';
 
+export const CANARY_EXECUTION_NO_PIPELINE_STATUS = 'no-parent-pipeline-execution';
+
 export interface ICanaryExecutionStatusResult {
   id: string // Added by Deck on load.
   complete: boolean;
