@@ -5,7 +5,7 @@ import { isEqual, get } from 'lodash';
 
 import { ITableColumn, NativeTable } from 'kayenta/layout/table';
 import { ICanaryState } from 'kayenta/reducers';
-import { ICanaryExecutionStatusResult, ICanaryMetricConfig, CANARY_EXECUTION_NO_PIPELINE_STATUS } from 'kayenta/domain';
+import { ICanaryExecutionStatusResult, ICanaryMetricConfig, ICanaryScopesByName, CANARY_EXECUTION_NO_PIPELINE_STATUS } from 'kayenta/domain';
 import FormattedDate from 'kayenta/layout/formattedDate';
 import CenteredDetail from 'kayenta/layout/centeredDetail';
 import Score from '../detail/score';
@@ -17,6 +17,28 @@ import './executionList.less';
 
 const isAtlasScope = (scope: string, metrics: ICanaryMetricConfig[]) => (
   metrics.some(({ query, scopeName }) => scopeName === scope && query.type === 'atlas')
+);
+
+const getScopeLocations = (scopes: ICanaryScopesByName, metrics: ICanaryMetricConfig[]) => (
+  Object.keys(scopes).reduce<Set<string>>((acc, scopeName) => {
+    const { controlScope, experimentScope } = scopes[scopeName];
+    const isAtlas = isAtlasScope(scopeName, metrics);
+
+    // When atlas metrics have the dataset param set to global,
+    // the location field is not accurate.
+    if (isAtlas && get(controlScope, 'extendedScopeParams.dataset') === 'global') {
+      acc.add('Global');
+    } else {
+      acc.add(controlScope.location)
+    }
+    if (isAtlas && get(experimentScope, 'extendedScopeParams.dataset') === 'global') {
+      acc.add('Global');
+    } else {
+      acc.add(experimentScope.location)
+    }
+
+    return acc;
+  }, new Set())
 );
 
 const columns: ITableColumn<ICanaryExecutionStatusResult>[] = [
@@ -48,27 +70,7 @@ const columns: ITableColumn<ICanaryExecutionStatusResult>[] = [
   {
     label: 'Locations',
     getContent: ({ canaryExecutionRequest: { scopes }, config: { metrics } }) => {
-      const locations = Array.from(
-        Object.keys(scopes).reduce<Set<string>>((acc, scopeName) => {
-          const { controlScope, experimentScope } = scopes[scopeName];
-          const isAtlas = isAtlasScope(scopeName, metrics);
-
-          // When atlas metrics have the dataset param set to global,
-          // the location field is not accurate.
-          if (isAtlas && get(controlScope, 'extendedScopeParams.dataset') === 'global') {
-            acc.add('Global');
-          } else {
-            acc.add(controlScope.location)
-          }
-          if (isAtlas && get(experimentScope, 'extendedScopeParams.dataset') === 'global') {
-            acc.add('Global');
-          } else {
-            acc.add(experimentScope.location)
-          }
-
-          return acc;
-        }, new Set())
-      );
+      const locations = [...getScopeLocations(scopes, metrics)];
 
       return (
         <div className="vertical">

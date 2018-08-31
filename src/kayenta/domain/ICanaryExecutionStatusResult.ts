@@ -29,12 +29,16 @@ export interface ICanaryResult {
 export interface ICanaryExecutionRequest {
   thresholds: ICanaryClassifierThresholdsConfig;
   scopes: {
-    [scopeName: string]: {
-      controlScope: ICanaryScope;
-      experimentScope: ICanaryScope;
-    };
+    [scopeName: string]: ICanaryScopePair;
   };
 }
+
+export type ICanaryScopesByName = ICanaryExecutionRequest['scopes'];
+
+export interface ICanaryScopePair {
+  controlScope: ICanaryScope;
+  experimentScope: ICanaryScope;
+};
 
 export interface ICanaryScope {
   scope: string;
