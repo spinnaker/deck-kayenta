@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import * as moment from 'moment';
+import { isEqual, get } from 'lodash';
 
-import { ITableColumn, Table } from 'kayenta/layout/table';
+import { ITableColumn, NativeTable } from 'kayenta/layout/table';
 import { ICanaryState } from 'kayenta/reducers';
-import { ICanaryExecutionStatusResult, CANARY_EXECUTION_NO_PIPELINE_STATUS } from 'kayenta/domain';
+import { ICanaryExecutionStatusResult, ICanaryMetricConfig, CANARY_EXECUTION_NO_PIPELINE_STATUS } from 'kayenta/domain';
 import FormattedDate from 'kayenta/layout/formattedDate';
 import CenteredDetail from 'kayenta/layout/centeredDetail';
 import Score from '../detail/score';
@@ -13,6 +14,10 @@ import ConfigLink from './configLink';
 import { PipelineLink } from './pipelineLink';
 
 import './executionList.less';
+
+const isAtlasScope = (scope: string, metrics: ICanaryMetricConfig[]) => (
+  metrics.some(({ query, scopeName }) => scopeName === scope && query.type === 'atlas')
+);
 
 const columns: ITableColumn<ICanaryExecutionStatusResult>[] = [
   {
@@ -39,15 +44,30 @@ const columns: ITableColumn<ICanaryExecutionStatusResult>[] = [
         }
       </>
     ),
-    width: 2,
   },
   {
-    label: 'Location',
-    getContent: ({canaryExecutionRequest: { scopes }}) => {
+    label: 'Locations',
+    getContent: ({ canaryExecutionRequest: { scopes }, config: { metrics } }) => {
       const locations = Array.from(
-        Object.keys(scopes).reduce<Set<string>>((acc, scope) => 
-          acc.add(scopes[scope].controlScope.location) && acc.add(scopes[scope].controlScope.location)
-        , new Set())
+        Object.keys(scopes).reduce<Set<string>>((acc, scopeName) => {
+          const { controlScope, experimentScope } = scopes[scopeName];
+          const isAtlas = isAtlasScope(scopeName, metrics);
+
+          // When atlas metrics have the dataset param set to global,
+          // the location field is not accurate.
+          if (isAtlas && get(controlScope, 'extendedScopeParams.dataset') === 'global') {
+            acc.add('Global');
+          } else {
+            acc.add(controlScope.location)
+          }
+          if (isAtlas && get(experimentScope, 'extendedScopeParams.dataset') === 'global') {
+            acc.add('Global');
+          } else {
+            acc.add(experimentScope.location)
+          }
+
+          return acc;
+        }, new Set())
       );
 
       return (
@@ -56,7 +76,6 @@ const columns: ITableColumn<ICanaryExecutionStatusResult>[] = [
         </div>
       );
     },
-    width: 1,
   },
   {
     label: 'Config',
@@ -67,24 +86,36 @@ const columns: ITableColumn<ICanaryExecutionStatusResult>[] = [
         application={execution.application}
       />
     ),
-    width: 1,
   },
   {
-    label: 'Scope',
+    label: 'Scopes',
     getContent: ({ canaryExecutionRequest: { scopes } }) => {
-      const scopeNames = Array.from(
-        Object.keys(scopes).reduce<Set<string>>((acc, scope) =>
-          acc.add(scopes[scope].controlScope.scope) && acc.add(scopes[scope].controlScope.scope)
-          , new Set())
-      );
+      const baselineScopeNames = Object.keys(scopes).reduce<Set<string>>((acc, scope) =>
+        acc.add(scopes[scope].controlScope.scope)
+      , new Set())
+      const canaryScopeNames = Object.keys(scopes).reduce<Set<string>>((acc, scope) =>
+        acc.add(scopes[scope].experimentScope.scope)
+      , new Set())
 
-      return (
-        <div className="vertical">
-          {scopeNames.map((scope) => <span key={scope}>{scope}</span>)}
-        </div>
-      );
+      const areScopesIdentical = isEqual(baselineScopeNames, canaryScopeNames);
+
+      if (areScopesIdentical) {
+        return (
+          <div className="vertical">
+            {[...canaryScopeNames].map((scope) => <span key={scope}>{scope}</span>)}
+          </div>
+        );
+      } else {
+        return (
+          <div className="vertical">
+            <span className="heading-6 uppercase color-text-caption">Baseline</span>
+            {[...baselineScopeNames].map((scope) => <span key={scope}>{scope}</span>)}
+            <span className="heading-6 uppercase color-text-caption" style={{ marginTop: '5px' }}>Canary</span>
+            {[...canaryScopeNames].map((scope) => <span key={scope}>{scope}</span>)}
+          </div>
+        );
+      }
     },
-    width: 1,
   },
   {
     getContent: ({ parentPipelineExecutionId, application }) => (
@@ -94,7 +125,6 @@ const columns: ITableColumn<ICanaryExecutionStatusResult>[] = [
           application={application}
         />
     ),
-    width: 1,
   },
 ];
 
@@ -112,13 +142,14 @@ const ExecutionListTable = ({ executions }: IExecutionListTableStateProps) => {
   }
 
   return (
-    <Table
-      rows={executions}
-      className="vertical flex-1 execution-list-table"
-      columns={columns}
-      rowKey={execution => execution.pipelineId}
-      tableBodyClassName="flex-1"
-    />
+    <div className="vertical execution-list-container">
+      <NativeTable
+        rows={executions}
+        className="flex-1 execution-list-table"
+        columns={columns}
+        rowKey={execution => execution.pipelineId}
+      />
+    </div>
   );
 };
 

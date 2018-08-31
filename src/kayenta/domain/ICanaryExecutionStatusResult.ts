@@ -42,4 +42,5 @@ export interface ICanaryScope {
   start: string;
   end: string;
   step: number;
+  extendedScopeParams?: { [param: string]: string };
 }
