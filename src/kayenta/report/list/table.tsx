@@ -15,12 +15,17 @@ import { PipelineLink } from './pipelineLink';
 
 import './executionList.less';
 
+
+// Both this and the atlas-specific logic in `getScopeLocations` shouldn't really
+// be in this file, and probably shouldn't even be referenced directly.
+// Ideally this and any other metric store customizations should happen in a registry
+// of store-specific transformation functions or similar.
 const isAtlasScope = (scope: string, metrics: ICanaryMetricConfig[]) => (
   metrics.some(({ query, scopeName }) => scopeName === scope && query.type === 'atlas')
 );
 
 const getScopeLocations = (scopes: ICanaryScopesByName, metrics: ICanaryMetricConfig[]) => (
-  Object.keys(scopes).reduce<Set<string>>((acc, scopeName) => {
+  Object.keys(scopes).reduce((acc, scopeName) => {
     const { controlScope, experimentScope } = scopes[scopeName];
     const isAtlas = isAtlasScope(scopeName, metrics);
 
@@ -38,7 +43,7 @@ const getScopeLocations = (scopes: ICanaryScopesByName, metrics: ICanaryMetricCo
     }
 
     return acc;
-  }, new Set())
+  }, new Set<string>())
 );
 
 const columns: ITableColumn<ICanaryExecutionStatusResult>[] = [
@@ -92,12 +97,12 @@ const columns: ITableColumn<ICanaryExecutionStatusResult>[] = [
   {
     label: 'Scopes',
     getContent: ({ canaryExecutionRequest: { scopes } }) => {
-      const baselineScopeNames = Object.keys(scopes).reduce<Set<string>>((acc, scope) =>
+      const baselineScopeNames = Object.keys(scopes).reduce((acc, scope) =>
         acc.add(scopes[scope].controlScope.scope)
-      , new Set())
-      const canaryScopeNames = Object.keys(scopes).reduce<Set<string>>((acc, scope) =>
+      , new Set<string>())
+      const canaryScopeNames = Object.keys(scopes).reduce((acc, scope) =>
         acc.add(scopes[scope].experimentScope.scope)
-      , new Set())
+      , new Set<string>())
 
       const areScopesIdentical = isEqual(baselineScopeNames, canaryScopeNames);
 
