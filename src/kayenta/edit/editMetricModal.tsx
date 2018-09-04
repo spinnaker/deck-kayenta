@@ -82,7 +82,7 @@ function FilterTemplateSelector({ metricStore, template, templates, select }: IF
 }
 
 function EffectSizeSummary({ effectSizes }: { effectSizes: ICanaryMetricEffectSizeConfig }) {
-  if (!effectSizes) {
+  if (!effectSizes || Object.keys(effectSizes).length === 0) {
     return null;
   }
 
