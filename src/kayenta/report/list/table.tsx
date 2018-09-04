@@ -48,7 +48,7 @@ const getScopeLocations = (scopes: ICanaryScopesByName, metrics: ICanaryMetricCo
 
 const columns: ITableColumn<ICanaryExecutionStatusResult>[] = [
   {
-    label: 'Score / Report',
+    label: 'Summary',
     getContent: execution => (
       <>
         <ReportLink
