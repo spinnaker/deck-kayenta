@@ -180,6 +180,8 @@ export class KayentaStageController implements IComponentController {
       case KayentaAnalysisType.RealTimeAutomatic:
         delete this.stage.canaryConfig.scopes[0].startTimeIso;
         delete this.stage.canaryConfig.scopes[0].endTimeIso;
+        delete this.stage.canaryConfig.scopes[0].controlLocation;
+        delete this.stage.canaryConfig.scopes[0].experimentLocation;
         this.initializeRealTimeAutomaticAnalysisType();
         break;
       case KayentaAnalysisType.Retrospective:
