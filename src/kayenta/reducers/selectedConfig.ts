@@ -14,6 +14,7 @@ import { AsyncRequestState } from './asyncRequest';
 import { IConfigValidationError } from './validators';
 import { editingTemplate, IEditingTemplateState } from './editingTemplate';
 import { prometheusMetricConfigReducer } from './prometheusMetricConfig';
+import { signalFxMetricConfigReducer } from './signalFxMetricConfig';
 import { stackdriverMetricConfigReducer } from './stackdriverMetricConfig';
 
 export interface ILoadState {
@@ -162,6 +163,12 @@ const editingMetric = handleActions(
     [Actions.UPDATE_METRIC_SCOPE_NAME]: (state: ICanaryMetricConfig, action: Action & any) => ({
       ...state,
       scopeName: action.payload.scopeName,
+    }),
+    [Actions.UPDATE_SIGNAL_FX_METRIC_NAME]: (state: ICanaryMetricConfig, action: Action & any) => ({
+      ...state, query: { ...state.query, metricName: action.payload.metricName }
+    }),
+    [Actions.UPDATE_SIGNAL_FX_AGGREGATION_METHOD]: (state: ICanaryMetricConfig, action: Action & any) => ({
+      ...state, query: { ...state.query, aggregationMethod: action.payload.aggregationMethod }
     }),
   },
   null,
@@ -472,7 +479,7 @@ const combined = combineReducers<ISelectedConfigState>({
   judge,
   metricList,
   editingMetric: (metric, action) =>
-    [editingMetric, prometheusMetricConfigReducer, stackdriverMetricConfigReducer].reduce(
+    [editingMetric, prometheusMetricConfigReducer, signalFxMetricConfigReducer, stackdriverMetricConfigReducer].reduce(
       (s, reducer) => reducer(s, action),
       metric,
     ),
