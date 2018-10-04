@@ -361,7 +361,7 @@
     <stage-config-field label="Extended Params"
                         help-key="pipeline.config.canary.extendedScopeParams">
       <map-editor
-        hidden-keys="['resourceType', 'dataset', 'type']"
+        hidden-keys="['resourceType', 'dataset', 'type', 'environment']"
         on-change="kayentaCanaryStageCtrl.handleExtendedScopeParamsChange()"
         model="kayentaCanaryStageCtrl.stage.canaryConfig.scopes[0].extendedScopeParams">
       </map-editor>
