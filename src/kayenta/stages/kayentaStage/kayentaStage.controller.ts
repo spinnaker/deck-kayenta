@@ -1,6 +1,6 @@
 import { IComponentController, ILogService, IScope } from 'angular';
 import { IModalService } from 'angular-ui-bootstrap';
-import { cloneDeep, first, get, has, isEmpty, isFinite, isString, isNil, map, set, uniq } from 'lodash';
+import { cloneDeep, first, get, has, isEmpty, isFinite, isString, isNil, map, set, unset, uniq } from 'lodash';
 import {
   AccountService,
   AppListExtractor,
@@ -170,10 +170,9 @@ export class KayentaStageController implements IComponentController {
         delete this.stage.deployments;
 
         if (this.metricStore === 'atlas') {
-          this.stage.canaryConfig.scopes.forEach((scope) => {
-            if (scope.extendedScopeParams) {
-              delete scope.extendedScopeParams.dataset;
-            }
+          this.stage.canaryConfig.scopes.forEach(scope => {
+            unset(scope, 'extendedScopeParams.dataset');
+            unset(scope, 'extendedScopeParams.environment');
           });
         }
         break;
@@ -190,10 +189,9 @@ export class KayentaStageController implements IComponentController {
         delete this.stage.deployments;
 
         if (this.metricStore === 'atlas') {
-          this.stage.canaryConfig.scopes.forEach((scope) => {
-            if (scope.extendedScopeParams) {
-              delete scope.extendedScopeParams.dataset;
-            }
+          this.stage.canaryConfig.scopes.forEach(scope => {
+            unset(scope, 'extendedScopeParams.dataset');
+            unset(scope, 'extendedScopeParams.environment');
           });
         }
         break;
@@ -241,16 +239,16 @@ export class KayentaStageController implements IComponentController {
     this.metricStore = get(this.selectedCanaryConfigDetails, 'metrics[0].query.type');
 
     if (this.metricStore === 'atlas') {
-      this.stage.canaryConfig.scopes.forEach((scope) => {
-        scope.extendedScopeParams = { ...(scope.extendedScopeParams || {}) };
+      this.stage.canaryConfig.scopes.forEach(scope => {
         // TODO: support query types
-        scope.extendedScopeParams.type = 'cluster';
+        set(scope, 'extendedScopeParams.type', 'cluster');
       });
 
       if (this.stage.analysisType === KayentaAnalysisType.RealTimeAutomatic) {
-        this.state.useAtlasGlobalDataset = (this.stage.canaryConfig.scopes[0].extendedScopeParams || {}).dataset === 'global';
-        this.stage.canaryConfig.scopes.forEach((scope) => {
-          scope.extendedScopeParams.dataset = this.state.useAtlasGlobalDataset ? 'global' : 'regional';
+        this.state.useAtlasGlobalDataset =
+          get(this.stage.canaryConfig.scopes[0], 'extendedScopeParams.dataset') === 'global';
+        this.stage.canaryConfig.scopes.forEach(scope => {
+          set(scope, 'extendedScopeParams.dataset', this.state.useAtlasGlobalDataset ? 'global' : 'regional');
         });
       }
 
@@ -259,17 +257,16 @@ export class KayentaStageController implements IComponentController {
   };
 
   private setLocations = (): void => {
-    const { recommendedLocations, locations, hasChoices} = this.getLocationChoices();
+    const { recommendedLocations, locations, hasChoices } = this.getLocationChoices();
 
     if (!hasChoices) {
       return;
     }
 
-    this.state.showAllLocations.control = this.state.showAllLocations.experiment = (
-      recommendedLocations.length === 0 && locations.length > 0
-    );
+    this.state.showAllLocations.control = this.state.showAllLocations.experiment =
+      recommendedLocations.length === 0 && locations.length > 0;
 
-    this.stage.canaryConfig.scopes.forEach((scope) => {
+    this.stage.canaryConfig.scopes.forEach(scope => {
       if (!recommendedLocations.includes(scope.controlLocation) && !locations.includes(scope.controlLocation)) {
         delete scope.controlLocation;
       } else if (!recommendedLocations.includes(scope.controlLocation)) {
@@ -285,33 +282,46 @@ export class KayentaStageController implements IComponentController {
   };
 
   private setShowAdvancedSettings = (): void => {
-    this.state.showAdvancedSettings = (
+    this.state.showAdvancedSettings =
       this.kayentaAccounts.get(KayentaAccountType.MetricsStore).length > 1 ||
       this.kayentaAccounts.get(KayentaAccountType.ObjectStore).length > 1 ||
-      this.scopeNames.length > 1
-    );
-  }
+      this.scopeNames.length > 1;
+  };
 
   public getLocationChoices = (): {
-    combinedLocations: { control: string[], experiment: string[] },
-    recommendedLocations: string[],
-    locations: string[],
-    hasChoices: boolean
+    combinedLocations: { control: string[]; experiment: string[] };
+    recommendedLocations: string[];
+    locations: string[];
+    hasChoices: boolean;
   } => {
     const accounts = this.kayentaAccounts.get(KayentaAccountType.MetricsStore);
-    const selectedAccount = accounts && accounts.find(({ name }) => name === this.stage.canaryConfig.metricsAccountName);
+    const selectedAccount =
+      accounts && accounts.find(({ name }) => name === this.stage.canaryConfig.metricsAccountName);
     if (!selectedAccount) {
-      return { combinedLocations: { control: [], experiment: [] }, recommendedLocations: [], locations: [], hasChoices: false };
+      return {
+        combinedLocations: { control: [], experiment: [] },
+        recommendedLocations: [],
+        locations: [],
+        hasChoices: false,
+      };
     }
 
     const hasChoices = selectedAccount.locations.length > 0 || selectedAccount.recommendedLocations.length > 0;
     const allLocations = selectedAccount.recommendedLocations.concat(selectedAccount.locations);
-    const control = uniq(this.state.showAllLocations.control ?
-      allLocations :
-      (selectedAccount.recommendedLocations.length > 0 ? selectedAccount.recommendedLocations : selectedAccount.locations));
-    const experiment = uniq(this.state.showAllLocations.experiment ?
-      allLocations :
-      (selectedAccount.recommendedLocations.length > 0 ? selectedAccount.recommendedLocations : selectedAccount.locations));
+    const control = uniq(
+      this.state.showAllLocations.control
+        ? allLocations
+        : selectedAccount.recommendedLocations.length > 0
+          ? selectedAccount.recommendedLocations
+          : selectedAccount.locations,
+    );
+    const experiment = uniq(
+      this.state.showAllLocations.experiment
+        ? allLocations
+        : selectedAccount.recommendedLocations.length > 0
+          ? selectedAccount.recommendedLocations
+          : selectedAccount.locations,
+    );
 
     return {
       combinedLocations: {
@@ -329,7 +339,7 @@ export class KayentaStageController implements IComponentController {
 
     const locationChoices = this.getLocationChoices();
 
-    this.stage.canaryConfig.scopes.forEach((scope) => {
+    this.stage.canaryConfig.scopes.forEach(scope => {
       if (!locationChoices.combinedLocations.control.includes(scope.controlLocation)) {
         delete scope.controlLocation;
       }
@@ -495,6 +505,21 @@ export class KayentaStageController implements IComponentController {
       sg =>
         has(this.stage, 'deployments.baseline.account') ? sg.account === this.stage.deployments.baseline.account : true,
     );
+
+    this.setAtlasEnvironment();
+  };
+
+  private setAtlasEnvironment = (): void => {
+    if (this.metricStore === 'atlas' && this.stage.analysisType === KayentaAnalysisType.RealTimeAutomatic) {
+      this.stage.canaryConfig.scopes.forEach(scope => {
+        if (this.stage.deployments.baseline.account) {
+          const accountDetails = this.accounts.find(({ name }) => this.stage.deployments.baseline.account === name);
+          accountDetails && set(scope, 'extendedScopeParams.environment', accountDetails.environment);
+        } else {
+          unset(scope, 'extendedScopeParams.environment');
+        }
+      });
+    }
   };
 
   public getRegion = (serverGroup: any): string => {
@@ -683,11 +708,10 @@ export class KayentaStageController implements IComponentController {
   public handleAtlasDatasetChange = (event: Event): void => {
     const { checked } = event.target as HTMLInputElement;
     this.$scope.$applyAsync(() => {
-      this.stage.canaryConfig.scopes.forEach((scope) => {
-        scope.extendedScopeParams = { ...(scope.extendedScopeParams || {}) };
-        scope.extendedScopeParams.dataset = checked ? 'global' : 'regional';
+      this.stage.canaryConfig.scopes.forEach(scope => {
+        set(scope, 'extendedScopeParams.dataset', checked ? 'global' : 'regional');
         // TODO: support query type
-        scope.extendedScopeParams.type = 'cluster';
+        set(scope, 'extendedScopeParams.type', 'cluster');
       });
     });
   };
@@ -697,16 +721,16 @@ export class KayentaStageController implements IComponentController {
       return;
     }
 
-    this.stage.canaryConfig.scopes.forEach((scope) => {
-      scope.extendedScopeParams = { ...(scope.extendedScopeParams || {}) };
+    this.stage.canaryConfig.scopes.forEach(scope => {
       // TODO: support query type
-      scope.extendedScopeParams.type = 'cluster';
+      set(scope, 'extendedScopeParams.type', 'cluster');
     });
 
     if (this.stage.analysisType === KayentaAnalysisType.RealTimeAutomatic) {
-      this.stage.canaryConfig.scopes.forEach((scope) => {
-        scope.extendedScopeParams.dataset = this.state.useAtlasGlobalDataset ? 'global' : 'regional';
+      this.stage.canaryConfig.scopes.forEach(scope => {
+        set(scope, 'extendedScopeParams.dataset', this.state.useAtlasGlobalDataset ? 'global' : 'regional');
       });
+      this.setAtlasEnvironment();
     }
     this.$scope.$applyAsync();
   };
