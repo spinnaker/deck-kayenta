@@ -16,6 +16,7 @@ import {
   ICanaryMetricConfig,
 } from 'kayenta/domain';
 import { IUpdateKeyValueListPayload } from '../layout/keyValueList';
+import { IStackdriverCanaryMetricSetQueryConfig } from '../metricStore/stackdriver/domain/IStackdriverCanaryMetricSetQueryConfig';
 
 export interface IKayentaAction<T> extends Action {
   payload: T;
@@ -111,7 +112,10 @@ export const updatePrometheusMetricType = createAction<{ metricName: string }>(A
 export const updateStackdriverMetricDescriptorFilter = createAction<{ filter: string }>(
   Actions.UPDATE_STACKDRIVER_METRIC_DESCRIPTOR_FILTER,
 );
-export const updateStackdriverMetricType = createAction<{ metricType: string }>(Actions.UPDATE_STACKDRIVER_METRIC_TYPE);
+export const updateStackdriverMetricResourceField = createAction<{
+  field: keyof IStackdriverCanaryMetricSetQueryConfig;
+  value: IStackdriverCanaryMetricSetQueryConfig[keyof IStackdriverCanaryMetricSetQueryConfig];
+}>(Actions.UPDATE_STACKDRIVER_METRIC_QUERY_FIELD);
 export const updateDatadogMetricName = createAction<{ metricName: string }>(Actions.UPDATE_DATADOG_METRIC_NAME);
 export const loadExecutionsRequest = createAction(Actions.LOAD_EXECUTIONS_REQUEST);
 export const loadExecutionsFailure = createAction<{ error: Error }>(Actions.LOAD_EXECUTIONS_FAILURE);

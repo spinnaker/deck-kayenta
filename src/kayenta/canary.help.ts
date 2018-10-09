@@ -91,6 +91,14 @@ const helpContents: { [key: string]: string } = {
         Note that the version and environment k,v pairs are sourced from the canary scope. The other k,v pairs come from the metric specific k,v pair list.
     </p>
   `,
+  // These come (almost) verbatim from Stackdriver's Metric Explorer.
+  'stackdriver.resourceType':
+    'For Stackdriver, a set of time series is identified by a <strong>resource type</strong> and a metric type that has data from that resource type.',
+  'stackdriver.metricType':
+    'For Stackdriver, a set of time series is identified by a resource type and a <strong>metric type</strong> that has data from that resource type.',
+  'stackdriver.groupBy': 'Group by resource or metric labels to reduce the number of time series.',
+  'stackdriver.crossSeriesReducer': 'Use an algorithm to group multiple time series together.',
+  'stackdriver.perSeriesAligner': 'Use an algorithm to align individual time series.',
 };
 
 Object.keys(helpContents).forEach(key => HelpContentsRegistry.register(key, helpContents[key]));

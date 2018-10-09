@@ -10,6 +10,9 @@ var entityTagsEnabled = process.env.ENTITY_TAGS_ENABLED === 'true' ? true : fals
 var reduxLoggerEnabled = process.env.REDUX_LOGGER === 'true';
 var defaultMetricStore = process.env.METRIC_STORE || 'atlas';
 var canaryStagesEnabled = process.env.CANARY_STAGES_ENABLED === 'true';
+var manualCanaryAnalysisEnabled = process.env.MANUAL_CANARY_ANALYSIS_ENABLED === 'true';
+var canaryStageName = process.env.CANARY_STAGE_NAME;
+var canaryStageDescription = process.env.CANARY_STAGE_DESCRIPTION;
 var templatesEnabled = process.env.TEMPLATES_ENABLED === 'true';
 var atlasWebComponentsUrl = process.env.ATLAS_WEB_COMPONENTS_URL;
 var atlasWebComponentsPolyfillUrl = process.env.ATLAS_WEB_COMPONENTS_POLYFILL_URL;
@@ -87,6 +90,9 @@ window.spinnakerSettings = {
     defaultJudge: 'NetflixACAJudge-v1.0',
     metricStore: defaultMetricStore,
     stagesEnabled: canaryStagesEnabled,
+    manualAnalysisEnabled: manualCanaryAnalysisEnabled,
+    stageName: canaryStageName,
+    stageDescription: canaryStageDescription,
     atlasWebComponentsUrl: atlasWebComponentsUrl,
     atlasWebComponentsPolyfillUrl: atlasWebComponentsPolyfillUrl,
     templatesEnabled: templatesEnabled,
