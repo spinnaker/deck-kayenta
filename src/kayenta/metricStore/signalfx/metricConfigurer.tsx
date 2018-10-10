@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { get } from 'lodash';
 import { Action } from 'redux';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
+import autoBindMethods from 'class-autobind-decorator';
+
 import FormRow from 'kayenta/layout/formRow';
 import { ICanaryState } from 'kayenta/reducers';
 import * as Creators from 'kayenta/actions/creators';
 import { DisableableInput, DISABLE_EDIT_CONFIG } from 'kayenta/layout/disableable';
 import { ICanaryMetricConfig } from 'kayenta/domain';
-import autoBindMethods from 'class-autobind-decorator';
-import { HelpField } from '@spinnaker/core';
 import KeyValueList, { IKeyValuePair, IUpdateKeyValueListPayload } from '../../layout/keyValueList';
 
 import './metricConfigurer.less'
@@ -36,8 +36,6 @@ export const queryFinder = (metric: ICanaryMetricConfig) => get(metric, 'query.m
 const getSignalFxMetric = queryFinder;
 const getQueryPairs = (metric: ICanaryMetricConfig) => get(metric, 'query.queryPairs', []) as IKeyValuePair[];
 const getAggregationMethod = (metric: ICanaryMetricConfig) => get(metric, 'query.aggregationMethod', '');
-
-export const SIGNAL_FLOW_SIMPLE = 'signalfx';
 
 @autoBindMethods
 class SignalFxMetricConfigurer extends React.Component<SignalFxMetricConfigurerProps> {
@@ -68,7 +66,8 @@ class SignalFxMetricConfigurer extends React.Component<SignalFxMetricConfigurerP
           />
         </FormRow>
         <FormRow
-          label={<>Aggregation Method <HelpField id="canary.config.signalFx.aggregationMethod"/></>}
+          label="Aggregation Method"
+          helpId="canary.config.signalFx.aggregationMethod"
           error={get(validationErrors, 'aggregationMethod.message', null)}
         >
           <DisableableInput
@@ -79,7 +78,8 @@ class SignalFxMetricConfigurer extends React.Component<SignalFxMetricConfigurerP
           />
         </FormRow>
         <FormRow
-          label={<>Query Pairs <HelpField id="canary.config.signalFx.queryPairs"/></>}
+          label="Query Pairs"
+          helpId="canary.config.signalFx.queryPairs"
           error={get(validationErrors, 'queryPairs.message', null)}
         >
           <KeyValueList className="signalfx-query-pairs" list={getQueryPairs(editingMetric)} actionCreator={updateQueryPairs}/>
@@ -105,28 +105,19 @@ export function validateMetric(editingMetric: ICanaryMetricConfig): ICanaryMetri
   );
 }
 
-
 /**
- * Get validators based on type
+ * returns the list of validators for the SignalFx edit metric form.
  */
 export function getSignalFxValidators(editingMetric: ICanaryMetricConfig): MetricValidatorFunction[] {
   if (!editingMetric || !editingMetric.query) {
     return [];
   }
-  const { type } = editingMetric.query;
-  return signalFxMetricValidators[type] || [];
-}
-
-/**
- * Collection of the validators the SignalFx metricConfigurer cares about.
- */
-export const signalFxMetricValidators: { [key: string]: MetricValidatorFunction[] } = {
-  [SIGNAL_FLOW_SIMPLE]: [
+  return [
     validateSignalFxMetricName,
     validateAggregationMethod,
     validateQueryPairs
   ]
-};
+}
 
 /**
  * Validates that the user has supplied a SignalFx metric.
@@ -200,5 +191,3 @@ function mapDispatchToProps(dispatch: (action: Action & any) => void): ISignalFx
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(SignalFxMetricConfigurer);
-
-

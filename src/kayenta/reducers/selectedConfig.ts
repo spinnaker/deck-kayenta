@@ -164,12 +164,6 @@ const editingMetric = handleActions(
       ...state,
       scopeName: action.payload.scopeName,
     }),
-    [Actions.UPDATE_SIGNAL_FX_METRIC_NAME]: (state: ICanaryMetricConfig, action: Action & any) => ({
-      ...state, query: { ...state.query, metricName: action.payload.metricName }
-    }),
-    [Actions.UPDATE_SIGNAL_FX_AGGREGATION_METHOD]: (state: ICanaryMetricConfig, action: Action & any) => ({
-      ...state, query: { ...state.query, aggregationMethod: action.payload.aggregationMethod }
-    }),
   },
   null,
 );
