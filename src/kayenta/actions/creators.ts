@@ -129,6 +129,8 @@ export const loadKayentaAccountsSuccess = createAction<{ accounts: IKayentaAccou
 );
 export const loadKayentaAccountsFailure = createAction<{ error: Error }>(Actions.LOAD_KAYENTA_ACCOUNTS_FAILURE);
 export const selectMetricStore = createAction<{ store: string }>(Actions.SELECT_METRIC_STORE);
-export const updateSignalFxMetricName = createAction<{metricName: string}>(Actions.UPDATE_SIGNAL_FX_METRIC_NAME);
-export const updateSignalFxAggregationMethod = createAction<{aggregationMethod: string}>(Actions.UPDATE_SIGNAL_FX_AGGREGATION_METHOD);
+export const updateSignalFxMetricName = createAction<{ metricName: string }>(Actions.UPDATE_SIGNAL_FX_METRIC_NAME);
+export const updateSignalFxAggregationMethod = createAction<{ aggregationMethod: string }>(
+  Actions.UPDATE_SIGNAL_FX_AGGREGATION_METHOD,
+);
 export const updateSignalFxQueryPairs = createAction<IUpdateKeyValueListPayload>(Actions.UPDATE_SIGNAL_FX_QUERY_PAIRS);

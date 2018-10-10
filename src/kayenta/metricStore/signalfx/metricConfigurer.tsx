@@ -11,16 +11,13 @@ import { DisableableInput, DISABLE_EDIT_CONFIG } from 'kayenta/layout/disableabl
 import { ICanaryMetricConfig } from 'kayenta/domain';
 import KeyValueList, { IKeyValuePair, IUpdateKeyValueListPayload } from '../../layout/keyValueList';
 
-import './metricConfigurer.less'
-import {
-  ICanaryMetricValidationErrors,
-  MetricValidatorFunction
-} from '../../edit/editMetricValidation';
+import './metricConfigurer.less';
+import { ICanaryMetricValidationErrors, MetricValidatorFunction } from '../../edit/editMetricValidation';
 import { createSelector } from 'reselect';
 import { editingMetricSelector } from '../../selectors';
 
 interface ISignalFxMetricConfigurerStateProps {
-  editingMetric: ICanaryMetricConfig,
+  editingMetric: ICanaryMetricConfig;
   validationErrors: ICanaryMetricValidationErrors;
 }
 
@@ -39,7 +36,6 @@ const getAggregationMethod = (metric: ICanaryMetricConfig) => get(metric, 'query
 
 @autoBindMethods
 class SignalFxMetricConfigurer extends React.Component<SignalFxMetricConfigurerProps> {
-
   public onMetricNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     this.props.updateMetricName(e.target.value);
   }
@@ -49,15 +45,11 @@ class SignalFxMetricConfigurer extends React.Component<SignalFxMetricConfigurerP
   }
 
   public render() {
-
     const { editingMetric, updateQueryPairs, validationErrors } = this.props;
 
     return (
       <section>
-        <FormRow
-          label="SignalFx Metric"
-          error={get(validationErrors, 'signalFxMetric.message', null)}
-        >
+        <FormRow label="SignalFx Metric" error={get(validationErrors, 'signalFxMetric.message', null)}>
           <DisableableInput
             type="text"
             value={getSignalFxMetric(editingMetric)}
@@ -82,7 +74,11 @@ class SignalFxMetricConfigurer extends React.Component<SignalFxMetricConfigurerP
           helpId="canary.config.signalFx.queryPairs"
           error={get(validationErrors, 'queryPairs.message', null)}
         >
-          <KeyValueList className="signalfx-query-pairs" list={getQueryPairs(editingMetric)} actionCreator={updateQueryPairs}/>
+          <KeyValueList
+            className="signalfx-query-pairs"
+            list={getQueryPairs(editingMetric)}
+            actionCreator={updateQueryPairs}
+          />
         </FormRow>
       </section>
     );
@@ -95,14 +91,9 @@ class SignalFxMetricConfigurer extends React.Component<SignalFxMetricConfigurerP
 export function validateMetric(editingMetric: ICanaryMetricConfig): ICanaryMetricValidationErrors {
   const errors: ICanaryMetricValidationErrors = {};
 
-  const validators: MetricValidatorFunction[] = [
-    ...getSignalFxValidators(editingMetric)
-  ];
+  const validators: MetricValidatorFunction[] = [...getSignalFxValidators(editingMetric)];
 
-  return validators.reduce(
-    (reducedErrors, validator) => validator(reducedErrors, editingMetric),
-    errors,
-  );
+  return validators.reduce((reducedErrors, validator) => validator(reducedErrors, editingMetric), errors);
 }
 
 /**
@@ -112,23 +103,22 @@ export function getSignalFxValidators(editingMetric: ICanaryMetricConfig): Metri
   if (!editingMetric || !editingMetric.query) {
     return [];
   }
-  return [
-    validateSignalFxMetricName,
-    validateAggregationMethod,
-    validateQueryPairs
-  ]
+  return [validateSignalFxMetricName, validateAggregationMethod, validateQueryPairs];
 }
 
 /**
  * Validates that the user has supplied a SignalFx metric.
  */
-function validateSignalFxMetricName(errors: ICanaryMetricValidationErrors, editingMetric: ICanaryMetricConfig): ICanaryMetricValidationErrors {
+function validateSignalFxMetricName(
+  errors: ICanaryMetricValidationErrors,
+  editingMetric: ICanaryMetricConfig,
+): ICanaryMetricValidationErrors {
   const nextErrors = { ...errors };
 
   const signalFxMetric = getSignalFxMetric(editingMetric);
 
   if (!signalFxMetric) {
-    nextErrors.signalFxMetric = { message: 'The SignalFx metric is required.' }
+    nextErrors.signalFxMetric = { message: 'The SignalFx metric is required.' };
   }
 
   return nextErrors;
@@ -137,13 +127,16 @@ function validateSignalFxMetricName(errors: ICanaryMetricValidationErrors, editi
 /**
  * Validates that the user has supplied an aggregation method.
  */
-function validateAggregationMethod(errors: ICanaryMetricValidationErrors, editingMetric: ICanaryMetricConfig): ICanaryMetricValidationErrors {
+function validateAggregationMethod(
+  errors: ICanaryMetricValidationErrors,
+  editingMetric: ICanaryMetricConfig,
+): ICanaryMetricValidationErrors {
   const nextErrors = { ...errors };
 
   const aggregationMethod = getAggregationMethod(editingMetric);
 
   if (!aggregationMethod) {
-    nextErrors.aggregationMethod = { message: 'The SignalFx SignalFlow stream aggregation method is required.' }
+    nextErrors.aggregationMethod = { message: 'The SignalFx SignalFlow stream aggregation method is required.' };
   }
 
   return nextErrors;
@@ -152,24 +145,24 @@ function validateAggregationMethod(errors: ICanaryMetricValidationErrors, editin
 /**
  * Validates that if the user has supplied query pairs that all key value combos contain values.
  */
-function validateQueryPairs(errors: ICanaryMetricValidationErrors, editingMetric: ICanaryMetricConfig): ICanaryMetricValidationErrors {
+function validateQueryPairs(
+  errors: ICanaryMetricValidationErrors,
+  editingMetric: ICanaryMetricConfig,
+): ICanaryMetricValidationErrors {
   const nextErrors = { ...errors };
 
   const queryPairs: IKeyValuePair[] = getQueryPairs(editingMetric);
 
   queryPairs.forEach(qp => {
     if (!qp.key || !qp.value) {
-      nextErrors.queryPairs = { message: 'All query pairs must contain a non-blank key and value.' }
+      nextErrors.queryPairs = { message: 'All query pairs must contain a non-blank key and value.' };
     }
   });
 
   return nextErrors;
 }
 
-const sfxEditingMetricValidationErrorsSelector = createSelector(
-  editingMetricSelector,
-  validateMetric,
-);
+const sfxEditingMetricValidationErrorsSelector = createSelector(editingMetricSelector, validateMetric);
 
 function mapStateToProps(state: ICanaryState): ISignalFxMetricConfigurerStateProps {
   return {
@@ -184,10 +177,13 @@ function mapDispatchToProps(dispatch: (action: Action & any) => void): ISignalFx
       dispatch(Creators.updateSignalFxMetricName({ metricName }));
     },
     updateAggregationMethod: (aggregationMethod: string): void => {
-      dispatch(Creators.updateSignalFxAggregationMethod({ aggregationMethod }))
+      dispatch(Creators.updateSignalFxAggregationMethod({ aggregationMethod }));
     },
-    updateQueryPairs: payload => dispatch(Creators.updateSignalFxQueryPairs(payload))
+    updateQueryPairs: payload => dispatch(Creators.updateSignalFxQueryPairs(payload)),
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(SignalFxMetricConfigurer);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps,
+)(SignalFxMetricConfigurer);

@@ -5,8 +5,12 @@ export interface ICanaryMetricValidationError {
   message: string;
 }
 
-export type ICanaryMetricValidationErrors = {[key: string]: ICanaryMetricValidationError}
-export type MetricValidatorFunction = (errors: ICanaryMetricValidationErrors, editingMetric: ICanaryMetricConfig, metricList?: ICanaryMetricConfig[]) => ICanaryMetricValidationErrors;
+export type ICanaryMetricValidationErrors = { [key: string]: ICanaryMetricValidationError };
+export type MetricValidatorFunction = (
+  errors: ICanaryMetricValidationErrors,
+  editingMetric: ICanaryMetricConfig,
+  metricList?: ICanaryMetricConfig[],
+) => ICanaryMetricValidationErrors;
 
 export function validateMetricName(
   errors: ICanaryMetricValidationErrors,
