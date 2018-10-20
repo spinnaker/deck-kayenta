@@ -25,7 +25,7 @@
     "format": "prettier --write 'src/**/*.{ts,tsx,less}'"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free-webfonts": "^1.0.4",
+    "@fortawesome/fontawesome-free": "^5.4.1",
     "@types/plotly.js": "^1.28.12",
     "@uirouter/angularjs": "^1.0.15",
     "@uirouter/react-hybrid": "^0.1.0",
