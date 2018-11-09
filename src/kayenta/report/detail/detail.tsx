@@ -10,7 +10,7 @@ import './detail.less';
 * Layout for report detail view.
 * */
 
-export interface IDetailViewStateProps {
+export interface IDetailViewState {
   isExpanded: boolean;
 }
 
