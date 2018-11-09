@@ -36,7 +36,7 @@ export default class DetailView extends React.Component<any, IDetailViewStatePro
       <>
         <div className="kayenta-overview-toggle" onClick={this.toggleDetailHeader}>
           {isExpanded ? <p>hide details</p> : <p>show details</p>}
-          <span className={`glyphicon glyphicon-chevron-right `} style={chevronStyle} />
+          <span className="glyphicon glyphicon-chevron-right" style={chevronStyle} />
         </div>
         <div className="vertical flex-1">
           {isExpanded && <ReportHeader />}
