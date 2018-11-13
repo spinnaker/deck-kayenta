@@ -14,11 +14,8 @@ export interface IDetailViewState {
   isExpanded: boolean;
 }
 
-export default class DetailView extends React.Component<any, IDetailViewStateProps> {
-  constructor(props: any) {
-    super(props);
-    this.state = { isExpanded: true };
-  }
+export default class DetailView extends React.Component<any, IDetailViewState> {
+  public state: IDetailViewState = { isExpanded: true };
 
   private toggleDetailHeader = (): void => {
     this.setState({ isExpanded: !this.state.isExpanded });

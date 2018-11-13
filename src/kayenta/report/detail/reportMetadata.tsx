@@ -19,6 +19,7 @@ interface IMetadataGroup {
 interface IMetadataEntry {
   label: string;
   getContent: () => JSX.Element;
+  popover?: boolean;
 }
 
 const Label = ({ label, extraClass }: { label: string; extraClass?: string }) => (
@@ -52,6 +53,7 @@ const buildScopeMetadataEntries = (run: ICanaryExecutionStatusResult): IMetadata
       entries: [
         {
           label: 'scope',
+          popover: true,
           getContent: () => <p className="kayenta-scope">{controlScope}</p>,
         },
         {
@@ -65,6 +67,7 @@ const buildScopeMetadataEntries = (run: ICanaryExecutionStatusResult): IMetadata
       entries: [
         {
           label: 'scope',
+          popover: true,
           getContent: () => <p className="kayenta-scope">{experimentScope}</p>,
         },
         {
@@ -138,7 +141,7 @@ const ReportMetadata = ({ run }: IReportMetadata) => {
             {group.entries.map(e => (
               <li key={e.label || index}>
                 <Label label={e.label} />
-                {e.label == 'scope' ? (
+                {e.popover ? (
                   <HoverablePopover template={e.getContent()}>{e.getContent()}</HoverablePopover>
                 ) : (
                   <>{e.getContent()}</>
