@@ -1,6 +1,6 @@
 import { IComponentController, ILogService, IScope } from 'angular';
 import { IModalService } from 'angular-ui-bootstrap';
-import { cloneDeep, first, get, has, isEmpty, isFinite, isString, isNil, map, set, unset, uniq } from 'lodash';
+import { cloneDeep, first, get, has, isEmpty, isFinite, isString, map, set, unset, uniq } from 'lodash';
 import {
   AccountService,
   AppListExtractor,
@@ -19,10 +19,15 @@ import {
   IKayentaServerGroupPair,
   IKayentaStage,
   IKayentaStageCanaryConfigScope,
-  IKayentaStageLifetime,
   KayentaAccountType,
   KayentaAnalysisType,
 } from 'kayenta/domain';
+import { getDurationString, parseDurationString } from 'kayenta/utils/duration';
+
+import './kayentaStage.less';
+
+// TODO: Open up to all providers.
+const REAL_TIME_AUTOMATIC_PROVIDERS = ['gce', 'aws', 'titus'];
 
 export class KayentaStageController implements IComponentController {
   public state = {
@@ -30,13 +35,19 @@ export class KayentaStageController implements IComponentController {
     backingDataLoading: false,
     detailsLoading: false,
     lifetimeHoursUpdatedToDuration: false,
-    lifetime: { hours: '', minutes: '' },
+    lifetime: { hours: 0, minutes: 0 },
     showAdvancedSettings: false,
     useAtlasGlobalDataset: false,
     showAllLocations: {
       control: false,
       experiment: false,
     },
+    delayBeforeCleanup: { hours: 0, minutes: 0 },
+    analysisTypes: [
+      KayentaAnalysisType.RealTimeAutomatic,
+      KayentaAnalysisType.RealTime,
+      KayentaAnalysisType.Retrospective,
+    ],
   };
   public canaryConfigSummaries: ICanaryConfigSummary[] = [];
   public selectedCanaryConfigDetails: ICanaryConfig;
@@ -77,18 +88,18 @@ export class KayentaStageController implements IComponentController {
       },
     };
 
-    this.stage.analysisType = this.stage.analysisType || KayentaAnalysisType.RealTimeAutomatic;
+    this.stage.analysisType = this.stage.analysisType || this.state.analysisTypes[0];
 
     if (!this.stage.canaryConfig.scopes || !this.stage.canaryConfig.scopes.length) {
       this.stage.canaryConfig.scopes = [{ scopeName: 'default' } as IKayentaStageCanaryConfigScope];
     }
 
-    const stageLifetime = this.getLifetimeFromStageLifetimeDuration();
-    if (!isNil(stageLifetime.hours)) {
-      this.state.lifetime.hours = String(stageLifetime.hours);
-    }
-    if (!isNil(stageLifetime.minutes)) {
-      this.state.lifetime.minutes = String(stageLifetime.minutes);
+    if (!this.stage.isNew) {
+      const stageLifetimeDuration: string = get(this.stage, 'canaryConfig.lifetimeDuration');
+      this.state.lifetime = parseDurationString(stageLifetimeDuration);
+
+      const stageDelayBeforeCleanupDuration: string = get(this.stage, 'deployments.delayBeforeCleanup');
+      this.state.delayBeforeCleanup = parseDurationString(stageDelayBeforeCleanupDuration);
     }
 
     if (this.stage.canaryConfig.lookbackMins) {
@@ -174,6 +185,7 @@ export class KayentaStageController implements IComponentController {
             unset(scope, 'extendedScopeParams.dataset');
             unset(scope, 'extendedScopeParams.environment');
           });
+          this.setAtlasScopeParams();
         }
         break;
       case KayentaAnalysisType.RealTimeAutomatic:
@@ -193,6 +205,7 @@ export class KayentaStageController implements IComponentController {
             unset(scope, 'extendedScopeParams.dataset');
             unset(scope, 'extendedScopeParams.environment');
           });
+          this.setAtlasScopeParams();
         }
         break;
     }
@@ -211,7 +224,6 @@ export class KayentaStageController implements IComponentController {
         account: null,
       },
       serverGroupPairs: [],
-      delayBeforeCleanup: 0,
     };
     this.accounts = await this.loadAccounts();
     this.setClusterList();
@@ -239,20 +251,28 @@ export class KayentaStageController implements IComponentController {
     this.metricStore = get(this.selectedCanaryConfigDetails, 'metrics[0].query.type');
 
     if (this.metricStore === 'atlas') {
-      this.stage.canaryConfig.scopes.forEach(scope => {
-        // TODO: support query types
-        set(scope, 'extendedScopeParams.type', 'cluster');
-      });
-
-      if (this.stage.analysisType === KayentaAnalysisType.RealTimeAutomatic) {
-        this.state.useAtlasGlobalDataset =
-          get(this.stage.canaryConfig.scopes[0], 'extendedScopeParams.dataset') === 'global';
-        this.stage.canaryConfig.scopes.forEach(scope => {
-          set(scope, 'extendedScopeParams.dataset', this.state.useAtlasGlobalDataset ? 'global' : 'regional');
-        });
-      }
-
+      this.setAtlasScopeParams();
       this.$scope.$applyAsync();
+    } else {
+      this.stage.canaryConfig.scopes.forEach(scope => {
+        unset(scope, 'extendedScopeParams.type');
+      });
+    }
+  };
+
+  private setAtlasScopeParams = (): void => {
+    const isRealTimeAutomatic = this.stage.analysisType === KayentaAnalysisType.RealTimeAutomatic;
+    this.stage.canaryConfig.scopes.forEach(scope => {
+      // TODO: support query types
+      set(scope, 'extendedScopeParams.type', isRealTimeAutomatic ? 'asg' : 'cluster');
+    });
+
+    if (isRealTimeAutomatic) {
+      this.state.useAtlasGlobalDataset =
+        get(this.stage.canaryConfig.scopes[0], 'extendedScopeParams.dataset') === 'global';
+      this.stage.canaryConfig.scopes.forEach(scope => {
+        set(scope, 'extendedScopeParams.dataset', this.state.useAtlasGlobalDataset ? 'global' : 'regional');
+      });
     }
   };
 
@@ -414,8 +434,7 @@ export class KayentaStageController implements IComponentController {
   };
 
   public onLifetimeChange = (): void => {
-    const { hours, minutes } = this.getStateLifetime();
-    this.stage.canaryConfig.lifetimeDuration = `PT${hours}H${minutes}M`;
+    this.stage.canaryConfig.lifetimeDuration = getDurationString(this.state.lifetime);
   };
 
   private updateLifetimeFromHoursToDuration = (): void => {
@@ -434,43 +453,6 @@ export class KayentaStageController implements IComponentController {
     }
   };
 
-  private getStateLifetime = (): IKayentaStageLifetime => {
-    let hours = parseInt(this.state.lifetime.hours, 10);
-    let minutes = parseInt(this.state.lifetime.minutes, 10);
-    if (!isFinite(hours) || hours < 0) {
-      hours = 0;
-    }
-    if (!isFinite(minutes) || minutes < 0) {
-      minutes = 0;
-    }
-    return { hours, minutes };
-  };
-
-  private getLifetimeFromStageLifetimeDuration = (): IKayentaStageLifetime => {
-    const duration = get(this.stage, ['canaryConfig', 'lifetimeDuration']);
-    if (!isString(duration)) {
-      return {};
-    }
-    const lifetimeComponents = duration.match(/PT(\d+)H(?:(\d+)M)?/i);
-    if (lifetimeComponents == null) {
-      return {};
-    }
-    const hours = parseInt(lifetimeComponents[1], 10);
-    if (!isFinite(hours) || hours < 0) {
-      return {};
-    }
-    let minutes = parseInt(lifetimeComponents[2], 10);
-    if (!isFinite(minutes) || minutes < 0) {
-      minutes = 0;
-    }
-    return { hours, minutes };
-  };
-
-  public isLifetimeRequired = (): boolean => {
-    const lifetime = this.getStateLifetime();
-    return lifetime.hours === 0 && lifetime.minutes === 0;
-  };
-
   public getLifetimeClassnames = (): string => {
     if (this.state.lifetimeHoursUpdatedToDuration) {
       return 'alert alert-warning';
@@ -478,10 +460,23 @@ export class KayentaStageController implements IComponentController {
     return '';
   };
 
+  public getLifetimeInputClassnames = (): string => {
+    const { hours, minutes } = this.state.lifetime;
+    if (hours === 0 && minutes === 0) {
+      return 'ng-invalid ng-invalid-required';
+    }
+    return '';
+  };
+
   private loadProviders = async (): Promise<string[]> => {
-    const providers = await AccountService.listProviders(this.$scope.application);
-    // TODO: Open up to all providers.
-    return (this.providers = providers.filter(p => ['gce', 'aws', 'titus'].includes(p)));
+    this.providers = (await AccountService.listProviders(this.$scope.application)).filter(p =>
+      REAL_TIME_AUTOMATIC_PROVIDERS.includes(p),
+    );
+    // If none of the application's providers support real time automatic mode, don't show it!
+    if (!this.providers.length) {
+      this.state.analysisTypes = [KayentaAnalysisType.RealTime, KayentaAnalysisType.Retrospective];
+    }
+    return this.providers;
   };
 
   public handleProviderChange = async (): Promise<void> => {
@@ -621,8 +616,8 @@ export class KayentaStageController implements IComponentController {
         serverGroup.freeFormDetails = `${serverGroup.freeFormDetails ? `${serverGroup.freeFormDetails}-` : ''}${type}`;
       };
 
-      cleanup(control, 'control');
-      cleanup(experiment, 'experiment');
+      cleanup(control, 'baseline');
+      cleanup(experiment, 'canary');
       this.stage.deployments.serverGroupPairs = [{ control, experiment }];
       this.$scope.$applyAsync();
     } catch (e) {
@@ -733,5 +728,9 @@ export class KayentaStageController implements IComponentController {
       this.setAtlasEnvironment();
     }
     this.$scope.$applyAsync();
+  };
+
+  public onDelayBeforeCleanupChange = (): void => {
+    this.stage.deployments.delayBeforeCleanup = getDurationString(this.state.delayBeforeCleanup);
   };
 }

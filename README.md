@@ -1,11 +1,38 @@
 # Spinnaker Canary UI
 
+[![Build Status](https://travis-ci.org/spinnaker/deck-kayenta.png?branch=master)](https://travis-ci.org/spinnaker/deck-kayenta)
+
 ## Development
 
 Make sure that [node](http://nodejs.org/download/) and [yarn](https://yarnpkg.com/en/docs/install)
 are installed on your machine. The minimum versions for each are listed in `package.json`.
 
-To develop this module, run it as a [Deck](https://github.com/spinnaker/deck) dependency.
+To develop this module, run it as a [Deck](https://github.com/spinnaker/deck) dependency using either `yalc` (recommended) or `npm link`.
+
+### yalc
+
+Globally install [yalc](https://github.com/whitecolor/yalc).
+
+From the root of this repository, run
+
+```bash
+yalc publish
+```
+
+From the root of the main Deck repository, run
+
+```bash
+yalc add @spinnaker/kayenta
+yarn start
+```
+
+As you make additional changes in this repository, run
+
+```bash
+yalc publish --push
+```
+
+### npm link
 
 From the root of this repository, run
 
@@ -54,3 +81,6 @@ in the main Deck repository, then open a pull request.
 ## Testing
 
 To run `deck-kayenta`'s tests, run `yarn test`.
+
+To run `deck-kayenta`'s tests and generate a code coverage report, run `yarn test-coverage`.
+Open `/coverage/html/index.html` in a browser to view the HTML version of the report.

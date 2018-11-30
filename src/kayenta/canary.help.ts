@@ -7,7 +7,7 @@ const helpContents: { [key: string]: string } = {
       over a time interval beginning at the moment of execution.
       <ul>
         <li>
-          <strong>Automatic:</strong> Spinnaker will provision and clean up the baseline and canary server groups.
+          <strong>Automatic:</strong> Spinnaker will provision and clean up the baseline and canary server groups. Not all cloud providers support this mode.
         </li>
         <li>
           <strong>Manual:</strong> You are responsible for provisioning and cleaning up the baseline and canary server groups.
@@ -46,6 +46,8 @@ const helpContents: { [key: string]: string } = {
         <p>Also used to provide variable bindings for use in the expansion of custom filter templates within the canary config.</p>`,
   'pipeline.config.canary.lookback':
     '<p>With an analysis type of <strong>Growing</strong>, the entire duration of the canary will be considered during the analysis.</p><p>When choosing <strong>Sliding</strong>, the canary will use the most recent number of specified minutes for its analysis report (<b>useful for long running canaries that span multiple days</b>).</p>',
+  'pipeline.config.canary.delayBeforeCleanup':
+    '<p>The total time after canary analysis ends before canary cluster cleanup begins. Allows for manual inspection of instances.</p>',
   'pipeline.config.canary.marginalScore': `
     <p>A canary stage can include multiple canary runs.</p>
     <p>If a given canary run score is less than or equal to the marginal threshold, the canary stage will fail immediately.</p>
@@ -66,6 +68,11 @@ const helpContents: { [key: string]: string } = {
   'canary.config.nanStrategy': `
     <p>When there is no value for a metric at a given point in time, it can either be ignored or assumed to be zero. The right choice depends on what is being measured. For example, when measuring successful attempts (like health checks) replacing missing values with zero may be appropriate.</p>
     <p>The default strategy for a given metric will be used if no strategy is selected.</p>
+  `,
+  'canary.config.filterTemplate': `
+    <p>Templates allow you to compose and parameterize advanced queries against your telemetry provider.</p>
+    <p>Parameterized queries are hydrated by values provided in the canary stage. The <strong>project</strong>, <strong>resourceType</strong>, </string><strong>scope</strong>, and <strong>location</strong> variable bindings are implicitly available.</p>
+    <p>For example, you can interpolate <strong>project</strong> using the following syntax: <strong>\${project}</strong>.</p>
   `,
   'canary.config.signalFx.queryPairs': `
     <p><strong>Query pairs are optional</strong></p>
@@ -90,6 +97,10 @@ const helpContents: { [key: string]: string } = {
     <p>This method is used to construct the compiled SignalFlow program. EX:<pre>data('request.count', filters=filter('uri', 'v1/some-endpoint') and filter('status_code', '5*') and filter('version', '1.0.0') and filter('environment', 'production')).sum(by=['version', 'environment']).publish()</pre>
         Note that the version and environment k,v pairs are sourced from the canary scope. The other k,v pairs come from the metric specific k,v pair list.
     </p>
+  `,
+  'canary.config.prometheus.queryType': `
+    <p>Select <strong>default</strong> to use options from the UI to configure your query.</p>
+    <p>Select <strong>PromQL</strong> to compose a custom PromQL query (see <a target="blank" href="https://prometheus.io/docs/prometheus/latest/querying/basics/">documentation</a>).</p>
   `,
   // These come (almost) verbatim from Stackdriver's Metric Explorer.
   'stackdriver.resourceType':
