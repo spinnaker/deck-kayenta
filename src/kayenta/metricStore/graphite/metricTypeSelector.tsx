@@ -47,6 +47,7 @@ export const GraphiteMetricTypeSelector = ({
       )}
       placeholder={'Enter at least three characters to search.'}
       onInputChange={input => {
+        onChange([input]);
         load(input);
         return input;
       }}
