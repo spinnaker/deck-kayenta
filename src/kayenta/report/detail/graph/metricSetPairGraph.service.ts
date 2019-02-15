@@ -6,8 +6,11 @@ import { buildDelegateService } from 'kayenta/service/delegateFactory';
 
 // e.g., amplitude vs. time, histogram, etc.
 export enum GraphType {
-  AmplitudeVsTime = 'Amplitude vs. Time',
+  TimeSeries = 'Time Series',
+  TimeSeries2 = 'Time Series 2',
   Histogram = 'Histogram',
+  Histogram2 = 'Histogram 2',
+  BoxPlot = 'Box Plot',
 }
 
 export interface IMetricSetPairGraphProps {
