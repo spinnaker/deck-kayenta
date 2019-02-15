@@ -32,7 +32,7 @@ const buildChartPoints = (values: number[], scope: IMetricSetScope): ChartPoint[
 };
 
 export const buildChartConfig = (metricSetPair: IMetricSetPair, type: GraphType): ChartConfiguration => {
-  if (type !== GraphType.AmplitudeVsTime) {
+  if (type !== GraphType.TimeSeries) {
     // only one type for now.
     return null;
   }

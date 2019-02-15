@@ -3,6 +3,6 @@ import ChartJSGraph from './graph';
 
 metricSetPairGraphService.register({
   name: 'chartjs',
-  handlesGraphType: type => [GraphType.AmplitudeVsTime].includes(type),
+  handlesGraphType: type => [GraphType.TimeSeries].includes(type),
   getGraph: () => ChartJSGraph,
 });

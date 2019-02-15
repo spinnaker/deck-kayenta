@@ -10,6 +10,7 @@ import 'kayenta/canary.help';
 import 'kayenta/metricStore/index';
 import 'kayenta/report/detail/graph/chartjs';
 import 'kayenta/report/detail/graph/plotly';
+import 'kayenta/report/detail/graph/semiotic';
 
 // load all templates into the $templateCache
 const templates = require.context('./', true, /\.html$/);

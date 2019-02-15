@@ -1,0 +1,43 @@
+@axis-color: var(--color-text-primary);
+@grid-color: grey;
+
+.semiotic-graph {
+  .visualization-layer {
+    .background-graphics {
+      .axis-tick-lines {
+        stroke-dasharray: 2;
+        stroke: @grid-color;
+        opacity: 0.5;
+      }
+    }
+    .axis.axis-labels {
+      font-size: 12px;
+      font-weight: 200;
+      .y.left,
+      .x.bottom {
+        stroke: @axis-color;
+        fill: none;
+      }
+    }
+  }
+}
+
+.chart-title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.graph-container {
+  position: relative;
+}
+
+.box-plot-chart {
+  .foreground-graphics {
+    .ordinal-labels {
+      text {
+        transform: translateY(14px);
+      }
+    }
+  }
+}
