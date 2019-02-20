@@ -83,7 +83,7 @@
     "ui-select": "^0.19.6"
   },
   "devDependencies": {
-    "@spinnaker/amazon": "^0.0.118",
+    "@spinnaker/amazon": "^0.0.173",
     "@spinnaker/core": "0.0.335",
     "@spinnaker/styleguide": "^1.0.1",
     "@types/angular": "1.6.26",
