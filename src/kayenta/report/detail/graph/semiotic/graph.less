@@ -1,7 +1,9 @@
 @axis-color: var(--color-text-primary);
-@grid-color: grey;
+@grid-color: var(--color-dovegray);
+@background-color: var(--alabaster);
 
 .semiotic-graph {
+  margin-bottom: 8px;
   .visualization-layer {
     .background-graphics {
       .axis-tick-lines {
@@ -22,22 +24,55 @@
   }
 }
 
-.chart-title {
+.chart-header {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  .prefix {
+    font-weight: 600;
+  }
 }
 
 .graph-container {
   position: relative;
 }
 
-.box-plot-chart {
-  .foreground-graphics {
-    .ordinal-labels {
-      text {
-        transform: translateY(14px);
-      }
-    }
+.time-series-chart {
+  .xyframe-matte {
+    fill: @background-color;
   }
+  .x.axis.bottom text.axis-label {
+    transform: translateY(-4px);
+  }
+}
+
+.box-plot-chart {
+  .piece {
+    opacity: 0.8 !important;
+  }
+  // .piece.baseline{
+  //   stroke: #c1d4db;
+  //
+  // }
+  // .piece.canary{
+  //   stroke: #eebb3c;
+  // }
+  // .foreground-graphics {
+  //   .ordinal-labels {
+  //     text {
+  //       display: none;
+  //     }
+  //   }
+  // }
+}
+
+.zoom-icon {
+  bottom: 20px;
+  left: 15px;
+  position: absolute;
+  color: var(--dove-gray);
+}
+
+.semiotic-legend-svg {
 }

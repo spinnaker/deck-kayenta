@@ -1,22 +1,15 @@
-///<reference path="./semiotic.d.ts" />
+///<reference path="./declarations/semiotic.d.ts" />
 
 import * as React from 'react';
 import { OrdinalFrame } from 'semiotic';
-import * as classNames from 'classnames';
 import { extent } from 'd3-array';
-// import { scaleLinear } from 'd3-scale'
-// import * as moment from 'moment-timezone';
-// import { SETTINGS } from '@spinnaker/core';
-// const { defaultTimeZone } = SETTINGS;
-// import Tooltip from './tooltip'
 
-// import { IMetricSetScope } from 'kayenta/domain/IMetricSetPair';
 import * as utils from './utils';
 import { vizConfig } from './config';
 import { ISemioticChartProps } from './semiotic.service';
-// import './graph.less';
-
-// moment.tz.setDefault(defaultTimeZone);
+import ChartHeader from './chartHeader';
+import ChartLegend from './chartLegend';
+import './graph.less';
 
 interface IChartDataPoint {
   value: number;
@@ -57,30 +50,28 @@ export default class BoxPlot extends React.Component<ISemioticChartProps> {
     const computedConfig = {
       size: [parentWidth, config.height],
       margin: {
-        top: 40,
-        bottom: 40,
-        left: 40,
+        top: 20,
+        bottom: 10,
+        left: 50,
         right: 10,
       },
       projection: 'vertical',
       summaryType: 'boxplot',
-      oLabel: {
-        label: true,
-        padding: 40,
-      },
-      oPadding: 20,
+      oLabel: false,
+      oPadding: 160,
       summaryStyle: (d: IChartDataPoint) => {
         return {
           fill: d.color,
-          fillOpacity: 0.6,
+          fillOpacity: 0.3,
           stroke: '#6a6a6a',
+          strokeWidth: 2,
           opacity: 0.8,
         };
       },
-      style: (d: IChartDataPoint) => ({ fill: d.color, opacity: 0.6 }),
+      pieceClass: (d: IChartDataPoint) => `piece ${d.group}`,
       type: {
         type: 'swarm',
-        r: 2,
+        r: 3,
         iterations: 50,
       },
       rExtent: extent(chartData.map(o => o.value)),
@@ -90,13 +81,6 @@ export default class BoxPlot extends React.Component<ISemioticChartProps> {
       orient: 'left',
       tickFormat: (d: number) => utils.formatMetricValue(d),
     };
-
-    const title = (
-      <h6 className={classNames('heading-6', 'color-text-primary')}>
-        {'Box Swarm Plot for Metric '}
-        <b>{metricSetPair.name}</b>
-      </h6>
-    );
 
     const graph = (
       <OrdinalFrame
@@ -111,7 +95,8 @@ export default class BoxPlot extends React.Component<ISemioticChartProps> {
 
     return (
       <div className={'box-graph-container'}>
-        <div className={'chart-title'}>{title}</div>
+        <ChartHeader metric={metricSetPair.name} />
+        <ChartLegend />
         <div className={'box-plot-chart'}>{graph}</div>
       </div>
     );

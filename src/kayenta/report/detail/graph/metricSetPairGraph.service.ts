@@ -10,7 +10,7 @@ export enum GraphType {
   TimeSeries2 = 'Time Series 2',
   Histogram = 'Histogram',
   Histogram2 = 'Histogram 2',
-  BoxPlot = 'Box Plot',
+  BoxPlot = 'Beeswarm Box Plot',
 }
 
 export interface IMetricSetPairGraphProps {

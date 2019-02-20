@@ -1,21 +1,16 @@
-///<reference path="./semiotic.d.ts" />
+///<reference path="./declarations/semiotic.d.ts" />
 
 import * as React from 'react';
 import { OrdinalFrame } from 'semiotic';
 import { histogram, extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
-import * as classNames from 'classnames';
-// import { scaleLinear } from 'd3-scale'
-// import * as moment from 'moment-timezone';
-// import { SETTINGS } from '@spinnaker/core';
-// const { defaultTimeZone } = SETTINGS;
-// import Tooltip from './tooltip'
 
-// import { IMetricSetScope } from 'kayenta/domain/IMetricSetPair';
 import * as utils from './utils';
 import { vizConfig } from './config';
 import { ISemioticChartProps } from './semiotic.service';
 import './graph.less';
+import ChartHeader from './chartHeader';
+import ChartLegend from './chartLegend';
 
 // moment.tz.setDefault(defaultTimeZone);
 
@@ -69,6 +64,8 @@ export default class Histogram extends React.Component<ISemioticChartProps> {
       baselineChartData.push(baselineBin);
       canaryChartData.push(canaryBin);
     });
+    console.log('histogram data');
+    console.log(baselineChartData);
     return { baselineChartData, canaryChartData };
   };
 
@@ -131,7 +128,7 @@ export default class Histogram extends React.Component<ISemioticChartProps> {
     const maxCount = Math.max(...baselineChartData.map(o => o.count), ...canaryChartData.map(o => o.count));
 
     const computedConfig = {
-      size: [parentWidth, config.height / 2 - 20],
+      size: [parentWidth, config.height / 2],
       margin: {
         top: 0,
         bottom: 20,
@@ -140,22 +137,15 @@ export default class Histogram extends React.Component<ISemioticChartProps> {
       },
       projection: 'vertical',
       type: 'bar',
-      oLabel: true,
+      oLabel: (v: number) => <text>{utils.formatMetricValue(v)}</text>,
       oPadding: 1,
-      oAccessor: (d: IChartDataPoint) => utils.formatMetricValue(d.x1),
+      oAccessor: (d: IChartDataPoint) => d.x1,
     };
 
     const axis = {
       orient: 'left',
       tickFormat: (d: number) => (d === 0 ? null : Math.abs(d)),
     };
-
-    const title = (
-      <h6 className={classNames('heading-6', 'color-text-primary')}>
-        {'Histogram for Metric '}
-        <b>{metricSetPair.name}</b>
-      </h6>
-    );
 
     const canaryGraph = (
       <OrdinalFrame
@@ -182,7 +172,8 @@ export default class Histogram extends React.Component<ISemioticChartProps> {
 
     return (
       <div className={'graph-container'}>
-        <div className={'chart-title'}>{title}</div>
+        <ChartHeader metric={metricSetPair.name} />
+        <ChartLegend />
         <div className={'canary-chart'}>{canaryGraph}</div>
         <div className={'baseline-chart'}>{baselineGraph}</div>
       </div>
