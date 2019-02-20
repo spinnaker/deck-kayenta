@@ -91,10 +91,10 @@
   resolved "https://registry.yarnpkg.com/@spinnaker/amazon/-/amazon-0.0.118.tgz#c3f5f6dc14dbbe3363cba622e9e0390b81f6d879"
   integrity sha512-qCNKTBIFLYIs0g5F8VGFxwukgiObBNWsASZc6YteS/Otu0rNcQ7rtAc2N2NWqLDL5+k2h4LcrQ1mIN0/EO9zsg==
 
-"@spinnaker/core@0.0.262":
-  version "0.0.262"
-  resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.262.tgz#7e9a956f5b5d422d1673742083392a99852c138c"
-  integrity sha512-xZf2/yf6sibUvoGdXZ+LCXKXVM0U3fUZvJ/RzVnKT6IaUm0+6xLioFReQgsKBJMvhjuoSbeYz/p+TK7YNgNNJg==
+"@spinnaker/core@0.0.335":
+  version "0.0.335"
+  resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.335.tgz#11f2917e6f9abeb1ca3e39f9c50bbb2ad2f3edec"
+  integrity sha512-Uqo6bqLOCJePVc6CLVbRNeNRdleFQuDuB/ekVrj9uC4355tnIxZ/xBFqVUsWswSw184hRKcLplE+KOwrLC5dbA==
 
 "@spinnaker/styleguide@^1.0.1":
   version "1.0.1"
