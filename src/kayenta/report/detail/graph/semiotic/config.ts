@@ -4,7 +4,7 @@ interface IVizConfig {
 
 export const vizConfig: IVizConfig = {
   colors: {
-    baseline: '#979797',
-    canary: '#eebb3c',
+    baseline: '#478cc8',
+    canary: '#b6272b',
   },
 };

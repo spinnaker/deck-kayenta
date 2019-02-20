@@ -1,4 +1,5 @@
-///<reference path="./react-container-dimensions.d.ts" />
+///<reference path="./declarations/react-container-dimensions.d.ts" />
+
 import * as React from 'react';
 import ContainerDimensions from 'react-container-dimensions';
 
@@ -10,7 +11,7 @@ import './graph.less';
 
 export default class SemioticGraph extends React.Component<IMetricSetPairGraphProps> {
   private static commonChartConfig = {
-    height: 450,
+    height: 415,
     margin: {
       top: 10,
       bottom: 40,
@@ -46,14 +47,11 @@ export default class SemioticGraph extends React.Component<IMetricSetPairGraphPr
   public render() {
     console.log('semiotic graph render');
     console.log(this.props);
-    const containerStyle = {
-      // backgroundColor: "grey"
-    };
+    const containerStyle = {};
     return (
       <div style={containerStyle} className={'semiotic-graph'}>
         <ContainerDimensions>{({ width }: { width: number }) => this.fetchChart(width)}</ContainerDimensions>
       </div>
     );
-    // return <canvas ref={canvas => (this.canvas = canvas)} />;
   }
 }
