@@ -7,12 +7,10 @@ import { scaleLinear } from 'd3-scale';
 
 import * as utils from './utils';
 import { vizConfig } from './config';
-import { ISemioticChartProps } from './semiotic.service';
+import { ISemioticChartProps, IMargin } from './semiotic.service';
 import './graph.less';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
-
-// moment.tz.setDefault(defaultTimeZone);
 
 interface IInputDataPoint {
   value: number;
@@ -20,12 +18,20 @@ interface IInputDataPoint {
 }
 
 interface IChartDataPoint {
+  group: string;
   count: number;
   x0: number;
   x1: number;
 }
 
 export default class Histogram extends React.Component<ISemioticChartProps> {
+  private margin: IMargin = {
+    top: 10,
+    bottom: 20,
+    left: 40,
+    right: 10,
+  };
+
   decorateData = (dataPoints: number[], group: string): IInputDataPoint[] => {
     return dataPoints.map(dp => ({
       value: dp,
@@ -51,131 +57,109 @@ export default class Histogram extends React.Component<ISemioticChartProps> {
       .domain(domain)
       .value((d: IInputDataPoint) => d.value)(combinedInput);
 
-    // split the datasets to canary vs. baseline and count elements on each bin
-    // define the ordinal values as each bin's ending threshold (x1)
-    let baselineChartData: IChartDataPoint[] = [],
-      canaryChartData: IChartDataPoint[] = [];
+    let chartData: IChartDataPoint[] = [];
 
     histogramData.forEach(h => {
       const { x0, x1 } = h;
-      const baselineBin = { x0: x0, x1: x1, count: 0 };
-      const canaryBin = { x0: x0, x1: x1, count: 0 };
+      const baselineBin = { group: 'baseline', x0: x0, x1: x1, count: 0 };
+      const canaryBin = { group: 'canary', x0: x0, x1: x1, count: 0 };
       h.forEach(d => (d.group === 'baseline' ? baselineBin.count++ : canaryBin.count++));
-      baselineChartData.push(baselineBin);
-      canaryChartData.push(canaryBin);
+      chartData.push(baselineBin);
+      chartData.push(canaryBin);
     });
     console.log('histogram data');
-    console.log(baselineChartData);
-    return { baselineChartData, canaryChartData };
+    console.log(histogramData);
+    return chartData;
   };
 
-  // onChartHover = (d:any) => {
-  //   const {
-  //     config
-  //   } = this.props
-  //
-  //   if(d){
-  //     let tooltipRows = d.coincidentPoints
-  //       .map((cp:any) =>{
-  //         return {
-  //           color: cp.parentLine.color,
-  //           label: cp.parentLine.label,
-  //           value: cp.data.value,
-  //         }
-  //       })
-  //       .sort((a:any,b:any) => a.value-b.value)
-  //       .map((o:any) => {
-  //         const labelStyle = { color: o.color }
-  //         return (
-  //           <div id={o.label}>
-  //             <span style={labelStyle}>{`${o.label}: `}</span><span>{o.value}</span>
-  //           </div>
-  //         )
-  //       })
-  //
-  //     const style = {
-  //
-  //     }
-  //
-  //     const tooltipContent = (
-  //       <div style={style}>
-  //         <div>{moment(d.data.timestampMillis).format('YYYY-MM-DD HH:MM:SS z')}</div>
-  //         {tooltipRows}
-  //       </div>
-  //     )
-  //
-  //     this.setState({
-  //       tooltip: {
-  //         content: tooltipContent,
-  //         x: d.voronoiX + config.margin.left,
-  //         y: d.voronoiY + config.margin.top
-  //       }
-  //     })
-  //   }
-  //
-  //   else this.setState({tooltip:null})
-  // }
+  createChartHoverHandler = (dataSet: IChartDataPoint[]) => {
+    console.log(dataSet);
+    return (d: any): void => {
+      console.log('d+++');
+      console.log(d);
+      // if (d) {
+      //   const timestampMillis = d.timestampMillis;
+      //   const tooltipRows = dataSets
+      //     .map(ds => {
+      //       const dataPoint = ds.coordinates.find(o => o.timestampMillis === timestampMillis);
+      //       return {
+      //         color: ds.color,
+      //         label: ds.label,
+      //         value: dataPoint ? utils.formatMetricValue(dataPoint.value) : null,
+      //       };
+      //     })
+      //     .sort((a: any, b: any) => b.value - a.value)
+      //     .map((o: any) => {
+      //       const labelStyle = { color: o.color };
+      //       return (
+      //         <div id={o.label}>
+      //           <span style={labelStyle}>{`${o.label}: `}</span>
+      //           <span>{o.value}</span>
+      //         </div>
+      //       );
+      //     });
+      //
+      //   const style = {};
+      //
+      //   const tooltipContent = (
+      //     <div style={style}>
+      //       <div>{moment(d.data.timestampMillis).format('YYYY-MM-DD HH:mm:ss z')}</div>
+      //       {tooltipRows}
+      //     </div>
+      //   );
+      //
+      //   this.setState({
+      //     tooltip: {
+      //       content: tooltipContent,
+      //       x: d.voronoiX + config.margin.left,
+      //       y: d.voronoiY + config.margin.top,
+      //     },
+      //   });
+      // } else this.setState({ tooltip: null });
+    };
+  };
 
   render(): any {
     console.log('Histogram...');
     console.log(this.props);
-    const { metricSetPair, config, parentWidth } = this.props;
+    const { metricSetPair, parentWidth } = this.props;
 
-    const { baselineChartData, canaryChartData } = this.generateChartData();
-
-    console.log('baselineChartData');
-    console.log(baselineChartData);
-    const maxCount = Math.max(...baselineChartData.map(o => o.count), ...canaryChartData.map(o => o.count));
-
-    const computedConfig = {
-      size: [parentWidth, config.height / 2],
-      margin: {
-        top: 0,
-        bottom: 20,
-        left: 40,
-        right: 10,
-      },
-      projection: 'vertical',
-      type: 'bar',
-      oLabel: (v: number) => <text>{utils.formatMetricValue(v)}</text>,
-      oPadding: 1,
-      oAccessor: (d: IChartDataPoint) => d.x1,
-    };
+    const chartData = this.generateChartData();
 
     const axis = {
       orient: 'left',
       tickFormat: (d: number) => (d === 0 ? null : Math.abs(d)),
     };
 
-    const canaryGraph = (
-      <OrdinalFrame
-        {...computedConfig}
-        data={canaryChartData}
-        axis={axis}
-        rExtent={[0, maxCount]}
-        rAccessor={(d: IChartDataPoint) => d.count}
-        style={{ fill: vizConfig.colors.canary }}
-      />
-    );
+    const chartHoverHandler = this.createChartHoverHandler(chartData);
 
-    const baselineGraph = (
-      <OrdinalFrame
-        {...computedConfig}
-        data={baselineChartData}
-        axis={axis}
-        rExtent={[0, -maxCount]}
-        rAccessor={(d: IChartDataPoint) => -d.count}
-        oLabel={false}
-        style={{ fill: vizConfig.colors.baseline }}
-      />
-    );
+    const computedConfig = {
+      size: [parentWidth, vizConfig.height],
+      margin: this.margin,
+      projection: 'vertical',
+      type: 'clusterbar',
+      oLabel: (v: number) => <text text-anchor={'middle'}>{utils.formatMetricValue(v)}</text>,
+      oPadding: 10,
+      oAccessor: (d: IChartDataPoint) => d.x1,
+      style: (d: IChartDataPoint) => {
+        return {
+          fill: vizConfig.colors[d.group],
+        };
+      },
+      customHoverBehavior: chartHoverHandler,
+      data: chartData,
+      axis: axis,
+      rAccessor: (d: IChartDataPoint) => d.count,
+      hoverAnnotation: true,
+    };
+
+    const graph = <OrdinalFrame {...computedConfig} />;
 
     return (
       <div className={'graph-container'}>
         <ChartHeader metric={metricSetPair.name} />
         <ChartLegend />
-        <div className={'canary-chart'}>{canaryGraph}</div>
-        <div className={'baseline-chart'}>{baselineGraph}</div>
+        <div className={'canary-chart'}>{graph}</div>
       </div>
     );
   }

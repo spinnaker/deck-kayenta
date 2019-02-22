@@ -1,10 +1,12 @@
 interface IVizConfig {
   readonly colors: any;
+  readonly height: number;
 }
 
 export const vizConfig: IVizConfig = {
   colors: {
-    baseline: '#478cc8',
-    canary: '#b6272b',
+    baseline: '#52b3d9',
+    canary: '#e26a6a',
   },
+  height: 450,
 };
