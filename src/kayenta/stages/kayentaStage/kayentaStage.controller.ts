@@ -30,6 +30,16 @@ import './kayentaStage.less';
 const REAL_TIME_AUTOMATIC_PROVIDERS = ['gce', 'aws', 'titus'];
 
 export class KayentaStageController implements IComponentController {
+  public static $inject = [
+    '$scope',
+    '$uibModal',
+    '$log',
+    'providerSelectionService',
+    'serverGroupCommandBuilder',
+    'serverGroupTransformer',
+    'stage',
+  ];
+
   public state = {
     useLookback: false,
     backingDataLoading: false,

@@ -16,7 +16,7 @@ import { FOR_ANALYSIS_TYPE_COMPONENT } from './forAnalysisType.component';
 
 const isExpression = (value: string) => isString(value) && value.includes('${');
 
-const emailPattern = /^(.+)\@(.+).([A-Za-z]{2,6})/;
+const emailPattern = /^(.+)@(.+).([A-Za-z]{2,6})/;
 const isValidEmail = (email: string) => isExpression(email) || email.match(emailPattern);
 
 const requiredForAnalysisTypes = (
@@ -186,7 +186,10 @@ module(KAYENTA_CANARY_STAGE, [
     });
   })
   .controller('KayentaCanaryStageCtrl', KayentaStageController)
-  .run((kayentaStageTransformer: KayentaStageTransformer) => {
-    'ngInject';
-    Registry.pipeline.registerTransformer(kayentaStageTransformer);
-  });
+  .run([
+    'kayentaStageTransformer',
+    (kayentaStageTransformer: KayentaStageTransformer) => {
+      'ngInject';
+      Registry.pipeline.registerTransformer(kayentaStageTransformer);
+    },
+  ]);

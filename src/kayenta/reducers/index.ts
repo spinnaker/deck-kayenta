@@ -37,6 +37,18 @@ const combined = combineReducers<ICanaryState>({
   selectedRun,
 });
 
+const getRenderState = (judges: IJudge[], judgeConfig: ICanaryJudgeConfig): JudgeSelectRenderState => {
+  if (judges.some(judge => judge.name === judgeConfig.name)) {
+    if (judges.length === 1) {
+      return JudgeSelectRenderState.None;
+    } else {
+      return JudgeSelectRenderState.Multiple;
+    }
+  } else {
+    return JudgeSelectRenderState.Single;
+  }
+};
+
 const judgeRenderStateReducer = handleActions(
   {
     [combineActions(Actions.SELECT_CONFIG, Actions.UPDATE_JUDGES)]: (state: ICanaryState) => {
@@ -67,18 +79,6 @@ const judgeRenderStateReducer = handleActions(
   },
   null,
 );
-
-const getRenderState = (judges: IJudge[], judgeConfig: ICanaryJudgeConfig): JudgeSelectRenderState => {
-  if (judges.some(judge => judge.name === judgeConfig.name)) {
-    if (judges.length === 1) {
-      return JudgeSelectRenderState.None;
-    } else {
-      return JudgeSelectRenderState.Multiple;
-    }
-  } else {
-    return JudgeSelectRenderState.Single;
-  }
-};
 
 const isInSyncWithServerReducer = (state: ICanaryState): ICanaryState => {
   return {
@@ -117,7 +117,7 @@ const resolveSelectedMetricId = (state: ICanaryState, action: Action & any): str
       return metricResultsSelector(state).length ? metricResultsSelector(state)[0].id : null;
 
     // On group select, pick the first metric in the group.
-    case Actions.SELECT_REPORT_METRIC_GROUP:
+    case Actions.SELECT_REPORT_METRIC_GROUP: {
       const results = metricResultsSelector(state);
       if (!results.length) {
         return null;
@@ -132,6 +132,7 @@ const resolveSelectedMetricId = (state: ICanaryState, action: Action & any): str
       }
 
       return results.find(filter) ? results.find(filter).id : null;
+    }
 
     default:
       return null;
