@@ -12,12 +12,12 @@ import './graph.less';
 export default class SemioticGraph extends React.Component<IMetricSetPairGraphProps> {
   private static commonChartConfig = {
     height: 415,
-    margin: {
-      top: 10,
-      bottom: 40,
-      left: 40,
-      right: 10,
-    },
+    // margin: {
+    //   top: 10,
+    //   bottom: 40,
+    //   left: 40,
+    //   right: 10,
+    // },
   };
 
   private fetchChart = (parentWidth: number) => {

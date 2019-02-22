@@ -14,7 +14,7 @@ import * as utils from './utils';
 import Tooltip from './tooltip';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
-import { ISemioticChartProps } from './semiotic.service';
+import { ISemioticChartProps, IMargin } from './semiotic.service';
 import './graph.less';
 import { vizConfig } from './config';
 
@@ -25,7 +25,7 @@ interface IDataPoint {
   value: number | null;
 }
 
-interface IDataSet {
+interface IChartDataSet {
   color: string;
   label: string;
   coordinates: IDataPoint[];
@@ -36,10 +36,17 @@ interface ITimeSeriesState {
   userBrushExtent: any;
 }
 
-export default class TimeSeries extends React.Component<ISemioticChartProps> {
+export default class TimeSeries extends React.Component<ISemioticChartProps, ITimeSeriesState> {
   state: ITimeSeriesState = {
     tooltip: null,
     userBrushExtent: null,
+  };
+
+  private margin: IMargin = {
+    top: 10,
+    bottom: 40,
+    left: 40,
+    right: 10,
   };
 
   componentDidUpdate() {}
@@ -60,7 +67,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps> {
     };
   };
 
-  createChartHoverHandler = (dataSets: IDataSet[]) => {
+  createChartHoverHandler = (dataSets: IChartDataSet[]) => {
     return (d: any) => {
       const { config } = this.props;
       if (d) {
@@ -135,7 +142,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps> {
       metricSetPair.scopes.experiment,
       canaryDataProps,
     );
-    const data = [baselineData, canaryData] as IDataSet[];
+    const data = [baselineData, canaryData] as IChartDataSet[];
     const tsExtent = extent(baselineData.coordinates.map(c => c.timestampMillis));
 
     /* data format
@@ -150,7 +157,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps> {
       ]
     */
 
-    const lineStyleFunc = (ds: IDataSet) => {
+    const lineStyleFunc = (ds: IChartDataSet) => {
       return {
         stroke: ds.color,
         strokeWidth: 2,
@@ -228,12 +235,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps> {
         minimap={minimapConfig}
         xExtent={xExtentMainFrame}
         axes={axes}
-        margin={{
-          top: 10,
-          bottom: 30,
-          left: 45,
-          right: 10,
-        }}
+        margin={this.margin}
         matte={true}
       />
     );
