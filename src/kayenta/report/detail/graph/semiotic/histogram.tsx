@@ -11,6 +11,7 @@ import { ISemioticChartProps, IMargin } from './semiotic.service';
 import './graph.less';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
+import Tooltip from './tooltip';
 
 interface IInputDataPoint {
   value: number;
@@ -24,7 +25,15 @@ interface IChartDataPoint {
   x1: number;
 }
 
-export default class Histogram extends React.Component<ISemioticChartProps> {
+interface IHistogramState {
+  tooltip: any;
+}
+
+export default class Histogram extends React.Component<ISemioticChartProps, IHistogramState> {
+  state: IHistogramState = {
+    tooltip: null,
+  };
+
   private margin: IMargin = {
     top: 10,
     bottom: 20,
@@ -77,45 +86,50 @@ export default class Histogram extends React.Component<ISemioticChartProps> {
     return (d: any): void => {
       console.log('d+++');
       console.log(d);
-      // if (d) {
-      //   const timestampMillis = d.timestampMillis;
-      //   const tooltipRows = dataSets
-      //     .map(ds => {
-      //       const dataPoint = ds.coordinates.find(o => o.timestampMillis === timestampMillis);
-      //       return {
-      //         color: ds.color,
-      //         label: ds.label,
-      //         value: dataPoint ? utils.formatMetricValue(dataPoint.value) : null,
-      //       };
-      //     })
-      //     .sort((a: any, b: any) => b.value - a.value)
-      //     .map((o: any) => {
-      //       const labelStyle = { color: o.color };
-      //       return (
-      //         <div id={o.label}>
-      //           <span style={labelStyle}>{`${o.label}: `}</span>
-      //           <span>{o.value}</span>
-      //         </div>
-      //       );
-      //     });
-      //
-      //   const style = {};
-      //
-      //   const tooltipContent = (
-      //     <div style={style}>
-      //       <div>{moment(d.data.timestampMillis).format('YYYY-MM-DD HH:mm:ss z')}</div>
-      //       {tooltipRows}
-      //     </div>
-      //   );
-      //
-      //   this.setState({
-      //     tooltip: {
-      //       content: tooltipContent,
-      //       x: d.voronoiX + config.margin.left,
-      //       y: d.voronoiY + config.margin.top,
-      //     },
-      //   });
-      // } else this.setState({ tooltip: null });
+
+      if (d && d.type === 'column-hover') {
+        const xyData = d.column.xyData;
+        const x = xyData[1].xy.x;
+        const halfHeight1 = xyData[0].xy.height / 2;
+        const halfHeight2 = xyData[1].xy.height / 2;
+        const y = vizConfig.height - this.margin.bottom - Math.min(halfHeight1, halfHeight2) - 10;
+        const { x0, x1 } = d.summary[0].data;
+        const tooltipRows = d.summary.map((s: any) => {
+          const { group, count } = s.data;
+          const labelStyle = {
+            color: vizConfig.colors[group],
+            fontSize: 14,
+          };
+          const valueStyle = {
+            fontWeight: 'bold',
+          } as React.CSSProperties;
+
+          return (
+            <div id={group}>
+              <span style={labelStyle}>&#9679;</span>
+              <span>{` ${group} count: `}</span>
+              <span style={valueStyle}>{count}</span>
+            </div>
+          );
+        });
+        const tooltipContent = (
+          <div>
+            <div>
+              {`For metric value greater than ${utils.formatMetricValue(x0)} ` +
+                `and less than or equal to ${utils.formatMetricValue(x1)}`}
+            </div>
+            {tooltipRows}
+          </div>
+        );
+
+        this.setState({
+          tooltip: {
+            content: tooltipContent,
+            x: x + this.margin.left,
+            y: y + this.margin.top,
+          },
+        });
+      } else this.setState({ tooltip: null });
     };
   };
 
@@ -132,14 +146,13 @@ export default class Histogram extends React.Component<ISemioticChartProps> {
     };
 
     const chartHoverHandler = this.createChartHoverHandler(chartData);
-
     const computedConfig = {
       size: [parentWidth, vizConfig.height],
       margin: this.margin,
       projection: 'vertical',
       type: 'clusterbar',
-      oLabel: (v: number) => <text text-anchor={'middle'}>{utils.formatMetricValue(v)}</text>,
-      oPadding: 10,
+      oLabel: (v: number) => <text textAnchor={'middle'}>{utils.formatMetricValue(v)}</text>,
+      oPadding: 20,
       oAccessor: (d: IChartDataPoint) => d.x1,
       style: (d: IChartDataPoint) => {
         return {
@@ -150,16 +163,18 @@ export default class Histogram extends React.Component<ISemioticChartProps> {
       data: chartData,
       axis: axis,
       rAccessor: (d: IChartDataPoint) => d.count,
-      hoverAnnotation: true,
     };
 
-    const graph = <OrdinalFrame {...computedConfig} />;
+    const graph = <OrdinalFrame {...computedConfig} hoverAnnotation={[]} />;
 
     return (
-      <div className={'graph-container'}>
+      <div>
         <ChartHeader metric={metricSetPair.name} />
         <ChartLegend />
-        <div className={'canary-chart'}>{graph}</div>
+        <div className={'graph-container'}>
+          <div className={'canary-chart'}>{graph}</div>
+          <Tooltip {...this.state.tooltip} />
+        </div>
       </div>
     );
   }
