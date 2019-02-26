@@ -80,31 +80,15 @@
     d3-collection "1"
     d3-interpolate "1"
 
-<<<<<<< HEAD
 "@spinnaker/amazon@^0.0.173":
   version "0.0.173"
   resolved "https://registry.yarnpkg.com/@spinnaker/amazon/-/amazon-0.0.173.tgz#6a41a7169ea375582d9e201426f4ff0de909ed0f"
   integrity sha512-D5AGFKFkGpTYJsaTnj2Ismmy5OuTzBtRZ7/Rh108AsMW3j/0LLgCUqwsAwOn6IDlHYYCGw0BBG1SE+A/y9CPug==
 
-<<<<<<< HEAD
 "@spinnaker/core@0.0.335":
   version "0.0.335"
   resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.335.tgz#11f2917e6f9abeb1ca3e39f9c50bbb2ad2f3edec"
   integrity sha512-Uqo6bqLOCJePVc6CLVbRNeNRdleFQuDuB/ekVrj9uC4355tnIxZ/xBFqVUsWswSw184hRKcLplE+KOwrLC5dbA==
-=======
-"@spinnaker/core@0.0.318":
-  version "0.0.318"
-  resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.318.tgz#f68e873d48230801a81d44e4519401bfe92593c1"
->>>>>>> checkpoint
-=======
-"@spinnaker/amazon@^0.0.118":
-  version "0.0.118"
-  resolved "https://registry.yarnpkg.com/@spinnaker/amazon/-/amazon-0.0.118.tgz#c3f5f6dc14dbbe3363cba622e9e0390b81f6d879"
-
-"@spinnaker/core@^0.0.338":
-  version "0.0.338"
-  resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.338.tgz#2536de204ddcaf77ce1d09ab036392c85daba96e"
->>>>>>> viz checkpoint
 
 "@spinnaker/styleguide@^1.0.1":
   version "1.0.1"
@@ -11097,11 +11081,7 @@ semiotic-mark@0.3.1:
     roughjs-es5 "0.1.0"
 
 "semiotic@file:.yalc/semiotic":
-<<<<<<< HEAD
   version "1.16.7-0997e75c"
-=======
-  version "1.16.5-c5664f88"
->>>>>>> checkpoint
   dependencies:
     "@mapbox/polylabel" "1"
     d3-array "^1.2.0"

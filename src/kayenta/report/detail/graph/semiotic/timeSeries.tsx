@@ -69,7 +69,6 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
 
   createChartHoverHandler = (dataSets: IChartDataSet[]) => {
     return (d: any) => {
-      const { config } = this.props;
       if (d) {
         const timestampMillis = d.timestampMillis;
         const tooltipRows = dataSets
@@ -104,8 +103,8 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         this.setState({
           tooltip: {
             content: tooltipContent,
-            x: d.voronoiX + config.margin.left,
-            y: d.voronoiY + config.margin.top,
+            x: d.voronoiX + this.margin.left,
+            y: d.voronoiY + this.margin.top,
           },
         });
       } else this.setState({ tooltip: null });
@@ -241,11 +240,13 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     );
 
     return (
-      <div className={'graph-container'}>
+      <div>
         <ChartHeader metric={metricSetPair.name} />
         <ChartLegend />
-        <div className={'time-series-chart'}>{graph}</div>
-        <Tooltip {...this.state.tooltip} />
+        <div className={'graph-container'}>
+          <div className={'time-series-chart'}>{graph}</div>
+          <Tooltip {...this.state.tooltip} />
+        </div>
         <div className={'zoom-icon'}>
           <i className="fas fa-search-plus" />
         </div>
