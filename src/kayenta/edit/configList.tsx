@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { sortBy } from 'lodash';
-import { UISref, UISrefActive } from '@uirouter/react';
+import { UISref } from '@uirouter/react';
 
 import { ICanaryState } from 'kayenta/reducers';
 import { ICanaryConfigSummary } from 'kayenta/domain/ICanaryConfigSummary';
@@ -23,18 +23,16 @@ function ConfigList({ configs, selectedConfigId, application }: IConfigListState
     <section className="config-list">
       <ul className="tabs-vertical list-unstyled" style={{ wordBreak: 'break-all' }}>
         {configs.map(config => (
-          <li key={config.id} className={config.id === selectedConfigId ? 'selected' : ''}>
-            <UISrefActive class="active">
-              <UISref to=".configDetail" params={{ id: config.id, new: false, copy: false }}>
-                <a className="heading-4">{config.name}</a>
-              </UISref>
-            </UISrefActive>
-            <div className="body-small color-text-caption caption" style={{ marginTop: '5px', marginBottom: '0' }}>
-              Edited: <FormattedDate dateIso={config.updatedTimestampIso} />
-              <br />
-              <OwnedBy owningApplications={config.applications} currentApplication={application} />
-            </div>
-          </li>
+          <UISref key={config.id} to=".configDetail" params={{ id: config.id, new: false, copy: false }}>
+            <li className={config.id === selectedConfigId ? 'selected' : ''}>
+              <span className="heading-4 color-text-primary">{config.name}</span>
+              <div className="body-small color-text-caption caption" style={{ marginTop: '5px', marginBottom: '0' }}>
+                Edited: <FormattedDate dateIso={config.updatedTimestampIso} />
+                <br />
+                <OwnedBy owningApplications={config.applications} currentApplication={application} />
+              </div>
+            </li>
+          </UISref>
         ))}
       </ul>
       <CreateConfigButton />
