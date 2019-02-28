@@ -9,6 +9,8 @@ import CreateConfigButton from './createConfigButton';
 import FormattedDate from 'kayenta/layout/formattedDate';
 import { OwnedBy } from './ownedBy';
 
+import './configList.less';
+
 interface IConfigListStateProps {
   configs: ICanaryConfigSummary[];
   selectedConfigId: string;
@@ -21,18 +23,20 @@ interface IConfigListStateProps {
 function ConfigList({ configs, selectedConfigId, application }: IConfigListStateProps) {
   return (
     <section className="config-list">
-      <ul className="tabs-vertical list-unstyled" style={{ wordBreak: 'break-all' }}>
+      <ul className="tabs-vertical list-unstyled " style={{ wordBreak: 'break-all' }}>
         {configs.map(config => (
-          <UISref key={config.id} to=".configDetail" params={{ id: config.id, new: false, copy: false }}>
-            <li className={config.id === selectedConfigId ? 'selected' : ''}>
-              <span className="heading-4 color-text-primary">{config.name}</span>
-              <div className="body-small color-text-caption caption" style={{ marginTop: '5px', marginBottom: '0' }}>
-                Edited: <FormattedDate dateIso={config.updatedTimestampIso} />
-                <br />
-                <OwnedBy owningApplications={config.applications} currentApplication={application} />
-              </div>
-            </li>
-          </UISref>
+          <li key={config.id} className={config.id === selectedConfigId ? 'selected' : ''}>
+            <UISref to=".configDetail" params={{ id: config.id, new: false, copy: false }}>
+              <a>
+                <div className="heading-4 color-text-primary">{config.name}</div>
+                <div className="body-small color-text-caption caption" style={{ marginTop: '5px', marginBottom: '0' }}>
+                  Edited: <FormattedDate dateIso={config.updatedTimestampIso} />
+                  <br />
+                  <OwnedBy owningApplications={config.applications} currentApplication={application} />
+                </div>
+              </a>
+            </UISref>
+          </li>
         ))}
       </ul>
       <CreateConfigButton />
