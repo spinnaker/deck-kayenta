@@ -7,9 +7,11 @@
   .visualization-layer {
     .background-graphics {
       .axis-tick-lines {
-        stroke-dasharray: 2;
         stroke: @grid-color;
-        opacity: 0.5;
+        opacity: 0.1;
+      }
+      .axis-title text {
+        letter-spacing: 1.5px;
       }
     }
     .axis.axis-labels {
@@ -19,6 +21,9 @@
       .x.bottom {
         stroke: @axis-color;
         fill: none;
+      }
+      .axis-title.left.y text {
+        letter-spacing: 1.5px;
       }
     }
   }
