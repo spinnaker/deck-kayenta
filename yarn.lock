@@ -83,9 +83,9 @@
   version "0.0.118"
   resolved "https://registry.yarnpkg.com/@spinnaker/amazon/-/amazon-0.0.118.tgz#c3f5f6dc14dbbe3363cba622e9e0390b81f6d879"
 
-"@spinnaker/core@^0.0.338":
-  version "0.0.338"
-  resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.338.tgz#2536de204ddcaf77ce1d09ab036392c85daba96e"
+"@spinnaker/core@^0.0.342":
+  version "0.0.342"
+  resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.342.tgz#baa35da7ded90c66ea39eb86d5031d114d825de4"
 
 "@spinnaker/styleguide@^1.0.1":
   version "1.0.1"
