@@ -1,7 +1,8 @@
 import * as React from 'react';
 
 import Graph from './graph/graph';
-import MetricResultStats from './metricResultStats';
+// import MetricResultStats from './metricResultStats';
+import MetricResultActions from './metricResultActions';
 import GraphTypeSelector from './graphTypeSelector';
 //TR: main entrypoint to develop the viz
 /*
@@ -12,6 +13,7 @@ export default () => (
   <section className="vertical flex-1" style={{ overflowY: 'auto' }}>
     <Graph />
     <GraphTypeSelector />
-    <MetricResultStats />
+    <MetricResultActions />
+    {/*}<MetricResultStats />*/}
   </section>
 );

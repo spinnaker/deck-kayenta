@@ -1,8 +1,11 @@
 import * as React from 'react';
-import { connect, Dispatch } from 'react-redux';
+// import { connect, Dispatch } from 'react-redux';
+import * as classnames from 'classnames';
+import { CopyToClipboard } from '@spinnaker/core';
 
 // import { ICanaryState } from 'kayenta/reducers';
 // import * as Creators from 'kayenta/actions/creators';
+import './metricResultActions.less';
 
 // interface IGraphTypeSelectorStateProps {
 //   selected: GraphType;
@@ -12,8 +15,27 @@ import { connect, Dispatch } from 'react-redux';
 //   selectGraphType: (type: GraphType) => void;
 // }
 
-const GraphTypeSelector = ({
+const MetricResultActions = () => {
+  const actions = [
+    <button className="primary">
+      <i className="far fa-clipboard" />
+      {'Copy this Metric URL'}
+    </button>,
+    <button className="primary">
+      <i className="fas fa-chart-line" />
+      {'Explore More Data in Atlas'}
+    </button>,
+    <CopyToClipboard displayText={false} text={'test'} toolTip={'copy atlas url'} />,
+  ].map(action => {
+    return <li className={'action'}>{action}</li>;
+  });
 
+  return (
+    <div>
+      <ul className={classnames('actions-layout', 'list-inline')}>{actions}</ul>
+    </div>
+  );
+};
 
 // const GraphTypeSelector = ({
 //   selected,
@@ -51,3 +73,5 @@ const GraphTypeSelector = ({
 //   mapStateToProps,
 //   mapDispatchToProps,
 // )(GraphTypeSelector);
+
+export default MetricResultActions;
