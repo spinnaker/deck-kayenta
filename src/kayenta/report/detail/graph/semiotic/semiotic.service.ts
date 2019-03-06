@@ -11,3 +11,12 @@ export interface IMargin {
   left?: number;
   right?: number;
 }
+
+export interface ISummaryStatistics {
+  [prop: string]: ISummaryStatisticsValue;
+}
+
+export interface ISummaryStatisticsValue {
+  value: number;
+  label: string;
+}

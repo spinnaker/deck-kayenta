@@ -1,17 +1,20 @@
 ///<reference path="./declarations/semiotic.d.ts" />
 
 import * as React from 'react';
-import { OrdinalFrame } from 'semiotic';
+import { OrdinalFrame, Annotation } from 'semiotic';
 import { histogram, extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
+// import * as classNames from 'classnames';
 
 import * as utils from './utils';
 import { vizConfig } from './config';
 import { ISemioticChartProps, IMargin } from './semiotic.service';
 import './graph.less';
+import './histogram.less';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
 import Tooltip from './tooltip';
+import CircleIcon from './circleIcon';
 
 interface IInputDataPoint {
   value: number;
@@ -35,9 +38,9 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
   };
 
   private margin: IMargin = {
-    top: 10,
+    top: 20,
     bottom: 20,
-    left: 40,
+    left: 60,
     right: 10,
   };
 
@@ -76,16 +79,12 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
       chartData.push(baselineBin);
       chartData.push(canaryBin);
     });
-    console.log('histogram data');
-    console.log(histogramData);
     return chartData;
   };
 
-  createChartHoverHandler = (dataSet: IChartDataPoint[]) => {
-    console.log(dataSet);
+  createChartHoverHandler = (chartData: IChartDataPoint[]) => {
     return (d: any): void => {
-      console.log('d+++');
-      console.log(d);
+      const x1Max: number = Math.max(...chartData.map((cd: IChartDataPoint) => cd.x1));
 
       if (d && d.type === 'column-hover') {
         const xyData = d.column.xyData;
@@ -96,28 +95,28 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
         const { x0, x1 } = d.summary[0].data;
         const tooltipRows = d.summary.map((s: any) => {
           const { group, count } = s.data;
-          const labelStyle = {
-            color: vizConfig.colors[group],
-            fontSize: 14,
-          };
           const valueStyle = {
             fontWeight: 'bold',
           } as React.CSSProperties;
 
           return (
             <div id={group}>
-              <span style={labelStyle}>&#9679;</span>
+              <CircleIcon group={group} />
               <span>{` ${group} count: `}</span>
               <span style={valueStyle}>{count}</span>
             </div>
           );
         });
+
+        let label = `For metric value more than / equal to ${utils.formatMetricValue(x0)} `;
+        label +=
+          x1 === x1Max
+            ? `and less than / equal to ${utils.formatMetricValue(x1)}`
+            : `and less than ${utils.formatMetricValue(x1)}`;
+
         const tooltipContent = (
           <div>
-            <div>
-              {`For metric value greater than ${utils.formatMetricValue(x0)} ` +
-                `and less than or equal to ${utils.formatMetricValue(x1)}`}
-            </div>
+            <div>{label}</div>
             {tooltipRows}
           </div>
         );
@@ -133,6 +132,45 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     };
   };
 
+  defineAnnotations = (chartData: IChartDataPoint[]) => {
+    const annotations = [] as any[];
+    chartData.forEach((d: IChartDataPoint) => {
+      if (d.count > 0) {
+        annotations.push({
+          type: 'bar-value-custom',
+          ...d,
+        });
+      }
+    });
+    return annotations;
+  };
+
+  customAnnotationFunction: any = (args: any): any => {
+    const { d, i, categories } = args;
+
+    if (d.type === 'bar-value-custom') {
+      const { x, y, width } = categories[d.x1].xyData.find((c: any) => c.piece.data.group === d.group).xy;
+
+      const noteData = {
+        x: x + width / 2,
+        y: y,
+        nx: x + width / 2,
+        ny: y - 1,
+        note: {
+          label: `${d.count}`,
+          wrap: 100,
+          align: 'middle',
+          orientation: 'topBottom',
+          padding: 0,
+          color: vizConfig.colors[d.group],
+          lineType: 'horizontal',
+        },
+        className: `bar-annotation`,
+      };
+      return <Annotation key={i} noteData={noteData} />;
+    } else return null;
+  };
+
   render(): any {
     console.log('Histogram...');
     console.log(this.props);
@@ -140,11 +178,19 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
 
     const chartData = this.generateChartData();
 
-    const axis = {
-      orient: 'left',
-      tickFormat: (d: number) => (d === 0 ? null : Math.abs(d)),
-    };
+    const axis = [
+      {
+        orient: 'left',
+        label: 'measurement count',
+        tickFormat: (d: number) => (d === 0 ? null : Math.abs(d)),
+      },
+      // {
+      //   orient: 'bottom',
+      //   label: 'bucket',
+      // }
+    ];
 
+    const annotations = this.defineAnnotations(chartData);
     const chartHoverHandler = this.createChartHoverHandler(chartData);
     const computedConfig = {
       size: [parentWidth, vizConfig.height],
@@ -163,9 +209,12 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
       data: chartData,
       axis: axis,
       rAccessor: (d: IChartDataPoint) => d.count,
+      annotations,
     };
 
-    const graph = <OrdinalFrame {...computedConfig} hoverAnnotation={[]} />;
+    const graph = (
+      <OrdinalFrame {...computedConfig} hoverAnnotation={[]} svgAnnotationRules={this.customAnnotationFunction} />
+    );
 
     return (
       <div>

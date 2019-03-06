@@ -17,6 +17,7 @@ import ChartLegend from './chartLegend';
 import { ISemioticChartProps, IMargin } from './semiotic.service';
 import './graph.less';
 import { vizConfig } from './config';
+import CircleIcon from './circleIcon';
 
 moment.tz.setDefault(defaultTimeZone);
 
@@ -30,7 +31,6 @@ interface IChartDataSet {
   label: string;
   coordinates: IDataPoint[];
 }
-
 interface ITimeSeriesState {
   tooltip: any;
   userBrushExtent: any;
@@ -45,11 +45,9 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   private margin: IMargin = {
     top: 10,
     bottom: 40,
-    left: 40,
+    left: 60,
     right: 10,
   };
-
-  componentDidUpdate() {}
 
   formatTSData = (values: number[], scope: IMetricSetScope, properties: object) => {
     const stepMillis = scope.stepMillis;
@@ -69,7 +67,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
 
   createChartHoverHandler = (dataSets: IChartDataSet[]) => {
     return (d: any) => {
-      if (d) {
+      if (d && d.timestampMillis) {
         const timestampMillis = d.timestampMillis;
         const tooltipRows = dataSets
           .map(ds => {
@@ -82,10 +80,10 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
           })
           .sort((a: any, b: any) => b.value - a.value)
           .map((o: any) => {
-            const labelStyle = { color: o.color };
             return (
-              <div id={o.label}>
-                <span style={labelStyle}>{`${o.label}: `}</span>
+              <div id={o.label} key={o.label}>
+                <CircleIcon group={o.label} />
+                <span>{`${o.label}: `}</span>
                 <span>{o.value}</span>
               </div>
             );
@@ -144,18 +142,6 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     const data = [baselineData, canaryData] as IChartDataSet[];
     const tsExtent = extent(baselineData.coordinates.map(c => c.timestampMillis));
 
-    /* data format
-      [
-        {
-          attribute1: val1,
-          attribute2: val2,
-          coordinates: [
-            { timestampMillis: 129393812093, value: 0}
-          ]
-        }
-      ]
-    */
-
     const lineStyleFunc = (ds: IChartDataSet) => {
       return {
         stroke: ds.color,
@@ -167,6 +153,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     const axes = [
       {
         orient: 'left',
+        label: 'metric value',
         tickFormat: (d: number) => {
           return utils.formatMetricValue(d);
         },
