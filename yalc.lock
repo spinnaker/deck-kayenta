@@ -2,7 +2,7 @@
   "version": "v1",
   "packages": {
     "semiotic": {
-      "signature": "c5664f88838f6fb915fb0abab62c5c60",
+      "signature": "0997e75c28a9e5c441cd7d5bc8b7425c",
       "file": true,
       "replaced": "^1.16.4"
     }
