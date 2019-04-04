@@ -82,7 +82,7 @@
     "reselect": "^3.0.1",
     "rxjs": "^5.4.2",
     "select2-bootstrap-css": "git://github.com/t0m/select2-bootstrap-css.git#v1.3.1",
-    "semiotic": "^1.17.0",
+    "semiotic": "^1.19.2",
     "source-map": "^0.4.4",
     "source-sans-pro": "^2.0.10",
     "spel2js": "^0.2.3",
