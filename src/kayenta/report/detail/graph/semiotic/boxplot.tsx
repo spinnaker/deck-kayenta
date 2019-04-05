@@ -1,8 +1,11 @@
 ///<reference path="./declarations/semiotic.d.ts" />
+///<reference path="./declarations/labella.d.ts" />
 
 import * as React from 'react';
 import { OrdinalFrame, Annotation } from 'semiotic';
+// import { OrdinalFrame } from 'semiotic';
 import { extent } from 'd3-array';
+import { Node, Force } from 'labella';
 
 import * as utils from './utils';
 import { vizConfig } from './config';
@@ -133,15 +136,15 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
   defineAnnotations = () => {
     const annotations = [] as any[];
     const groups = ['baseline', 'canary'];
-    const summaryKeys = ['q1area', 'median', 'q3area'] as string[];
+    // const summaryKeys = ['q1area', 'median', 'q3area'] as string[];
     groups.forEach(g => {
-      summaryKeys.forEach(k => {
-        annotations.push({
-          type: 'summary-custom',
-          group: g,
-          summaryKey: k,
-        });
+      // summaryKeys.forEach(k => {
+      annotations.push({
+        type: 'summary-custom',
+        group: g,
+        summaryKeys: ['q1area', 'median', 'q3area'],
       });
+      // });
     });
     return annotations;
   };
@@ -149,30 +152,23 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
   customAnnotationFunction: any = (args: any): any => {
     const {
       d,
-      i,
       orFrameState: { pieceDataXY },
       categories,
     } = args;
-    // console.log('args+++')
-    // console.log(args)
-    // console.log(args.oScale('canary'))
-    // console.log(args.rScale(0.15))
-    // console.log(args.rScale(0.2))
-    // console.log(args.rScale(0.4))
 
+    const { config } = this.props;
     if (d.type === 'summary-custom') {
       const summaryData = pieceDataXY.filter((sd: any) => sd.key === d.group);
-      const median = summaryData.find((sd: any) => sd.summaryPieceName === 'median');
-      const q1 = summaryData.find((sd: any) => sd.summaryPieceName === 'q1area');
-      const q3 = summaryData.find((sd: any) => sd.summaryPieceName === 'q3area');
       const boxPlotWidth = categories.baseline.width;
 
-      const createNoteElement = (dataPoint: any, label: string) => {
+      const createNoteElement = (posY: number, dataPoint: any) => {
+        const name = dataPoint.summaryPieceName;
+        const label = name === 'median' ? 'median' : name === 'q1area' ? '25th %-ile' : '75th %-ile';
         const noteData = {
           x: dataPoint.x,
-          y: dataPoint.y,
+          y: posY,
           dx: boxPlotWidth / 2,
-          dy: dataPoint.summaryPieceName === 'median' ? 0 : dataPoint.summaryPieceName === 'q1area' ? 30 : -30,
+          dy: 0,
           note: {
             label: `${label}: ${utils.formatMetricValue(dataPoint.value)}`,
             wrap: 100,
@@ -183,22 +179,27 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
           },
           className: `boxplot-annotation`,
         };
-        return <Annotation key={i} noteData={noteData} />;
+        return <Annotation key={name} noteData={noteData} />;
       };
 
-      let label;
+      let nodes: any[] = [];
+      d.summaryKeys.forEach((summaryKey: string) => {
+        const pieceData = summaryData.find((sd: any) => sd.summaryPieceName === summaryKey);
+        if (pieceData) {
+          nodes.push(new Node(pieceData.y, 20, { summaryKey, pieceData }));
+        }
+      });
+      const forceOptions = {
+        minPos: this.margin.top,
+        maxPos: config.height - this.margin.bottom,
+      };
+      const force = new Force(forceOptions).nodes(nodes).compute();
 
-      if (d.summaryKey === 'median') {
-        if (median.value === q1.value && median.value === q3.value) label = '25th %-ile, median & 75th %-ile';
-        else if (median.value === q1.value) label = '25th %-ile & median';
-        else if (median.value === q3.value) label = 'median & 75th %-ile';
-        else label = 'median';
-        return createNoteElement(median, label);
-      } else if (d.summaryKey === 'q1area') {
-        return median.value === q1.value ? null : createNoteElement(q1, '25th %-ile');
-      } else if (d.summaryKey === 'q3area') {
-        return median.value === q3.value ? null : createNoteElement(q3, '75th %-ile');
-      }
+      let annotations: any[] = [];
+      force.nodes().forEach((n: any) => {
+        annotations.push(createNoteElement(n.currentPos, n.data.pieceData));
+      });
+      return annotations;
     } else return null;
   };
 
@@ -208,12 +209,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     const { metricSetPair, config, parentWidth } = this.props;
 
     const { chartData } = this.generateChartData();
-
-    console.log('chartData');
-    console.log(chartData);
-
     const chartHoverHandler = this.createChartHoverHandler();
-
     const annotations = this.defineAnnotations();
 
     const computedConfig = {
