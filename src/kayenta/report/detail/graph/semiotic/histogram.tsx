@@ -88,10 +88,10 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
 
       if (d && d.type === 'column-hover') {
         const xyData = d.column.xyData;
-        const x = xyData[1].xy.x;
+        const x = xyData[1].xy.x + this.margin.left;
         const halfHeight1 = xyData[0].xy.height / 2;
         const halfHeight2 = xyData[1].xy.height / 2;
-        const y = vizConfig.height - this.margin.bottom - Math.min(halfHeight1, halfHeight2) - 10;
+        const y = vizConfig.height - this.margin.bottom - Math.min(halfHeight1, halfHeight2);
         const { x0, x1 } = d.summary[0].data;
         const tooltipRows = d.summary.map((s: any) => {
           const { group, count } = s.data;
@@ -100,7 +100,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
           } as React.CSSProperties;
 
           return (
-            <div id={group}>
+            <div id={group} key={group}>
               <CircleIcon group={group} />
               <span>{` ${group} count: `}</span>
               <span style={valueStyle}>{count}</span>
@@ -124,8 +124,8 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
         this.setState({
           tooltip: {
             content: tooltipContent,
-            x: x + this.margin.left,
-            y: y + this.margin.top,
+            x: x,
+            y: y,
           },
         });
       } else this.setState({ tooltip: null });
@@ -184,10 +184,6 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
         label: 'measurement count',
         tickFormat: (d: number) => (d === 0 ? null : Math.abs(d)),
       },
-      // {
-      //   orient: 'bottom',
-      //   label: 'bucket',
-      // }
     ];
 
     const annotations = this.defineAnnotations(chartData);
@@ -203,6 +199,9 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
       style: (d: IChartDataPoint) => {
         return {
           fill: vizConfig.colors[d.group],
+          strokeWidth: 1,
+          stroke: vizConfig.colors.background,
+          strokeOpacity: 1,
         };
       },
       customHoverBehavior: chartHoverHandler,

@@ -22,7 +22,6 @@ export default class Tooltip extends React.Component<ITooltipProps> {
 
   render() {
     const { x, y, content } = this.props;
-
     const tooltipTargetStyle = {
       left: x ? x : 0,
       top: y ? y : 0,

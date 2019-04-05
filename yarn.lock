@@ -7469,7 +7469,7 @@ labeled-stream-splicer@^2.0.0:
     isarray "~0.0.1"
     stream-splicer "^2.0.0"
 
-labella@1.1.4:
+labella@1.1.4, labella@^1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/labella/-/labella-1.1.4.tgz#c6cc5a340e8df340eb335633683ea59b828c322d"
 
