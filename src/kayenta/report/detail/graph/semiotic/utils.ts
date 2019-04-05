@@ -2,8 +2,10 @@ import { format } from 'd3-format';
 import { quantile } from 'd3-array';
 import { ISummaryStatistics } from './semiotic.service';
 
-export const formatMetricValue = (value: number) => {
-  if (Math.abs(value) > Math.pow(10, 24)) {
+export const formatMetricValue = (value: number | null) => {
+  if (typeof value !== 'number') {
+    return '';
+  } else if (Math.abs(value) > Math.pow(10, 24)) {
     return format('-.3~e')(value);
   } else return format('-.3~s')(value);
   // return format('-.3~e')(value)
@@ -33,5 +35,6 @@ export const calculateSummaryStatistics = (values: number[]): ISummaryStatistics
       label: 'Maximum',
     },
   };
+
   return output;
 };
