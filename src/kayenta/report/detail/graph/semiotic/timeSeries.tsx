@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { scaleUtc } from 'd3-scale';
-import { extent } from 'd3-array';
-import { MinimapXYFrame } from 'semiotic';
+// import { extent } from 'd3-array';
+import { MinimapXYFrame, XYFrame } from 'semiotic';
 import * as moment from 'moment-timezone';
 import { SETTINGS } from '@spinnaker/core';
 const { defaultTimeZone } = SETTINGS;
@@ -46,8 +46,11 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     top: 10,
     bottom: 40,
     left: 60,
-    right: 10,
+    right: 20,
   };
+
+  // Only show minimap if there are many data points
+  private minimapDataPointsThreshold: number = 60;
 
   formatTSData = (values: number[], scope: IMetricSetScope, properties: object) => {
     const stepMillis = scope.stepMillis;
@@ -58,7 +61,8 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
           value: typeof v === 'number' ? v : null,
         };
       })
-      .filter(d => d.value);
+      .filter(d => typeof d.value === 'number');
+
     return {
       ...properties,
       coordinates: dataPoints,
@@ -120,7 +124,6 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     console.log(this.props);
     const { metricSetPair, config, parentWidth } = this.props;
     const { userBrushExtent } = this.state;
-
     const baselineDataProps = {
       color: vizConfig.colors.baseline,
       label: 'baseline',
@@ -140,7 +143,13 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       canaryDataProps,
     );
     const data = [baselineData, canaryData] as IChartDataSet[];
-    const tsExtent = extent(baselineData.coordinates.map(c => c.timestampMillis));
+    const startTimeMillis = metricSetPair.scopes.control.startTimeMillis;
+    // const tsExtent = extent(baselineData.coordinates.map(c => c.timestampMillis));
+    const tsExtent = [
+      startTimeMillis,
+      startTimeMillis + (metricSetPair.values.control.length - 1) * metricSetPair.scopes.control.stepMillis,
+    ];
+    const shouldDisplayMinimap = metricSetPair.values.control.length > this.minimapDataPointsThreshold;
 
     const lineStyleFunc = (ds: IChartDataSet) => {
       return {
@@ -150,7 +159,9 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       };
     };
 
-    const axes = [
+    let graphTS;
+
+    const axesMain = [
       {
         orient: 'left',
         label: 'metric value',
@@ -185,8 +196,9 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     ];
 
     const xExtentMainFrame = userBrushExtent ? userBrushExtent : [new Date(tsExtent[0]), new Date(tsExtent[1])];
+    const chartHoverHandler = this.createChartHoverHandler(data);
 
-    const sharedConfig = {
+    const commonTSConfig = {
       lines: data,
       lineType: lineType,
       lineStyle: lineStyleFunc,
@@ -194,49 +206,70 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       yAccessor: 'value',
     };
 
-    const minimapSize = [parentWidth, 60];
-    const minimapConfig = {
-      ...sharedConfig,
+    const mainTSFrameProps = Object.assign({}, commonTSConfig, {
       xScaleType: scaleUtc(),
-      yBrushable: false,
-      brushEnd: this.onBrushEnd,
-      size: minimapSize,
-      xBrushExtent: tsExtent,
-      margin: {
-        top: 6,
-        bottom: 6,
-        left: 45,
-        right: 10,
-      },
-    };
-    const chartHoverHandler = this.createChartHoverHandler(data);
+      // size:[parentWidth, config.height - minimapSize[1]],
+      hoverAnnotation: hoverAnnotations,
+      customHoverBehavior: chartHoverHandler,
+      xExtent: xExtentMainFrame,
+      axes: axesMain,
+      margin: this.margin,
+      matte: true,
+    });
 
-    const graph = (
-      <MinimapXYFrame
-        {...sharedConfig}
-        xScaleType={scaleUtc()}
-        size={[parentWidth, config.height - minimapSize[1]]}
-        hoverAnnotation={hoverAnnotations}
-        customHoverBehavior={chartHoverHandler}
-        minimap={minimapConfig}
-        xExtent={xExtentMainFrame}
-        axes={axes}
-        margin={this.margin}
-        matte={true}
-      />
-    );
+    if (shouldDisplayMinimap) {
+      const axesMinimap = [
+        {
+          orient: 'left',
+          tickFormat: (): void => null,
+        },
+        {
+          orient: 'bottom',
+          ticks: 8,
+        },
+      ];
+
+      const minimapSize = [parentWidth, 60];
+      const minimapConfig = {
+        ...commonTSConfig,
+        xScaleType: scaleUtc(),
+        yBrushable: false,
+        brushEnd: this.onBrushEnd,
+        size: minimapSize,
+        axes: axesMinimap,
+        xBrushExtent: tsExtent,
+        margin: {
+          top: 6,
+          bottom: 6,
+          left: 60,
+          right: 20,
+        },
+      };
+
+      graphTS = (
+        <MinimapXYFrame
+          {...mainTSFrameProps}
+          size={[parentWidth, config.height - minimapSize[1]]}
+          minimap={minimapConfig}
+        />
+      );
+    } else {
+      graphTS = <XYFrame {...mainTSFrameProps} size={[parentWidth, config.height]} />;
+    }
 
     return (
       <div>
         <ChartHeader metric={metricSetPair.name} />
         <ChartLegend />
         <div className={'graph-container'}>
-          <div className={'time-series-chart'}>{graph}</div>
+          <div className={'time-series-chart'}>{graphTS}</div>
           <Tooltip {...this.state.tooltip} />
         </div>
-        <div className={'zoom-icon'}>
-          <i className="fas fa-search-plus" />
-        </div>
+        {shouldDisplayMinimap ? (
+          <div className={'zoom-icon'}>
+            <i className="fas fa-search-plus" />
+          </div>
+        ) : null}
       </div>
     );
   }
