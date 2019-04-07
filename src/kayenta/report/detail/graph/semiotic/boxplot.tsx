@@ -63,11 +63,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
   };
 
   createChartHoverHandler = () => {
-    // console.log(dataSet);
     return (d: any): void => {
-      // console.log('d+++');
-      // console.log(d);
-
       if (d && d.type === 'frame-hover') {
         const points = d.points;
 

@@ -1,77 +1,82 @@
 import * as React from 'react';
-// import { connect, Dispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import * as classnames from 'classnames';
 import { CopyToClipboard } from '@spinnaker/core';
 
-// import { ICanaryState } from 'kayenta/reducers';
-// import * as Creators from 'kayenta/actions/creators';
+import { ICanaryMetricConfig } from 'kayenta/domain/ICanaryConfig';
+import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
+import { CanarySettings } from 'kayenta/canary.settings';
+import { ICanaryState } from 'kayenta/reducers';
+import { selectedMetricConfigSelector } from 'kayenta/selectors';
+import metricStoreConfigStore from 'kayenta/metricStore/metricStoreConfig.service';
 import './metricResultActions.less';
 
-// interface IGraphTypeSelectorStateProps {
-//   selected: GraphType;
-// }
-//
-// interface IGraphTypeSelectorDispatchProps {
-//   selectGraphType: (type: GraphType) => void;
-// }
+export interface IMetricResultStatsStateProps {
+  metricConfig: ICanaryMetricConfig;
+  metricSetPair: IMetricSetPair;
+}
 
-const MetricResultActions = () => {
-  const actions = [
-    <button className="primary">
-      <i className="far fa-clipboard" />
-      {'Copy this Metric URL'}
-    </button>,
-    <button className="primary">
-      <i className="fas fa-chart-line" />
-      {'Explore More Data in Atlas'}
-    </button>,
-    <CopyToClipboard displayText={false} text={'test'} toolTip={'copy atlas url'} />,
-  ].map(action => {
-    return <li className={'action'}>{action}</li>;
-  });
+const buildAtlasGraphUrl = (metricSetPair: IMetricSetPair) => {
+  const { attributes, scopes, values } = metricSetPair;
+  const { atlasGraphBaseUrl } = CanarySettings;
 
-  return (
-    <div>
-      <ul className={classnames('actions-layout', 'list-inline')}>{actions}</ul>
-    </div>
-  );
+  // TODO: If the control and experiment have different baseURLs, generate two links instead of a combined one.
+  const backend = encodeURIComponent(attributes.control.baseURL);
+  const query = `${attributes.experiment.query},Canary,:legend,:freeze,${attributes.control.query},Baseline,:legend`;
+
+  const startTime = Math.min(scopes.control.startTimeMillis, scopes.experiment.startTimeMillis);
+  const controlEndTime = scopes.control.startTimeMillis + values.control.length * scopes.control.stepMillis;
+  const experimentEndTime = scopes.experiment.startTimeMillis + values.experiment.length * scopes.experiment.stepMillis;
+  const endTime = Math.max(controlEndTime, experimentEndTime);
+
+  return `${atlasGraphBaseUrl}?backend=${backend}&g.q=${query}&g.s=${startTime}&g.e=${endTime}&g.w=651&mode=png&axis=0`;
 };
 
-// const GraphTypeSelector = ({
-//   selected,
-//   selectGraphType,
-// }: IGraphTypeSelectorStateProps & IGraphTypeSelectorDispatchProps) => {
-//   return (
-//     <ul className="list-inline">
-//       <li>
-//         <label className="label uppercase color-text-primary" style={{ paddingLeft: 0 }}>
-//           Graph:
-//         </label>
-//       </li>
-//       {Object.values(GraphType).map(type => (
-//         <li
-//           style={selected === type ? { textDecoration: 'underline' } : null}
-//           key={type}
-//           onClick={() => selectGraphType(type)}
-//         >
-//           <a className="small clickable">{type}</a>
-//         </li>
-//       ))}
-//     </ul>
-//   );
-// };
+class MetricResultActions extends React.Component<IMetricResultStatsStateProps> {
+  render() {
+    const { metricSetPair, metricConfig } = this.props;
+    const atlasURL = buildAtlasGraphUrl(metricSetPair);
+    const atlasQuery = metricStoreConfigStore.getDelegate(metricConfig.query.type).queryFinder(metricConfig);
 
-// const mapStateToProps = (state: ICanaryState): IGraphTypeSelectorStateProps => ({
-//   selected: state.selectedRun.graphType,
-// });
-//
-// const mapDispatchToProps = (dispatch: Dispatch<ICanaryState>): IGraphTypeSelectorDispatchProps => ({
-//   selectGraphType: (type: GraphType) => dispatch(Creators.selectGraphType({ type })),
-// });
-//
-// export default connect(
-//   mapStateToProps,
-//   mapDispatchToProps,
-// )(GraphTypeSelector);
+    // Mask CopyToClipboard component as a larger button, fire event when clicked
+    const copyToClipboard = (
+      <div className={'copy-button-container'}>
+        <CopyToClipboard displayText={false} text={atlasQuery} toolTip={'copy atlas url'} />
+        <button className="primary copy-button" key={'copy-link'}>
+          <i className="glyphicon glyphicon-copy  copy-icon" />
+          {'Copy this Metric URL'}
+        </button>
+      </div>
+    );
 
-export default MetricResultActions;
+    const openAtlas = (
+      <a href={atlasURL} target="_blank">
+        <button className="primary" key={'open-atlas'}>
+          <i className="fas fa-chart-line" />
+          {'Explore More Data in Atlas'}
+        </button>
+      </a>
+    );
+
+    const actions = [copyToClipboard, openAtlas].map((action, i) => {
+      return (
+        <li className={'action'} key={i}>
+          {action}
+        </li>
+      );
+    });
+
+    return (
+      <div className={'metric-result-actions'}>
+        <ul className={classnames('actions-layout', 'list-inline')}>{actions}</ul>
+      </div>
+    );
+  }
+}
+
+const mapStateToProps = (state: ICanaryState): IMetricResultStatsStateProps => ({
+  metricConfig: selectedMetricConfigSelector(state),
+  metricSetPair: state.selectedRun.metricSetPair.pair,
+});
+
+export default connect(mapStateToProps)(MetricResultActions);

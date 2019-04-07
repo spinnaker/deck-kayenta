@@ -2,14 +2,12 @@ import * as React from 'react';
 import { round } from 'lodash';
 import { connect } from 'react-redux';
 
-// import { CanarySettings } from 'kayenta/canary.settings';
 import { ICanaryAnalysisResultsStats } from 'kayenta/domain';
 import { ICanaryExecutionStatusResult } from 'kayenta/domain/ICanaryExecutionStatusResult';
 import { ICanaryMetricConfig } from 'kayenta/domain/ICanaryConfig';
 import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
 import { runSelector, selectedMetricConfigSelector } from 'kayenta/selectors';
 import { ICanaryState } from 'kayenta/reducers';
-// import metricStoreConfigStore from 'kayenta/metricStore/metricStoreConfig.service';
 import FormattedDate from 'kayenta/layout/formattedDate';
 import { ITableColumn, NativeTable } from 'kayenta/layout/table';
 
@@ -32,22 +30,6 @@ const getStats = (run: ICanaryExecutionStatusResult, id: string, target: string)
     return null;
   }
 };
-
-// const buildAtlasGraphUrl = (metricSetPair: IMetricSetPair) => {
-//   const { attributes, scopes, values } = metricSetPair;
-//   const { atlasGraphBaseUrl } = CanarySettings;
-//
-//   // TODO: If the control and experiment have different baseURLs, generate two links instead of a combined one.
-//   const backend = encodeURIComponent(attributes.control.baseURL);
-//   const query = `${attributes.experiment.query},Canary,:legend,:freeze,${attributes.control.query},Baseline,:legend`;
-//
-//   const startTime = Math.min(scopes.control.startTimeMillis, scopes.experiment.startTimeMillis);
-//   const controlEndTime = scopes.control.startTimeMillis + values.control.length * scopes.control.stepMillis;
-//   const experimentEndTime = scopes.experiment.startTimeMillis + values.experiment.length * scopes.experiment.stepMillis;
-//   const endTime = Math.max(controlEndTime, experimentEndTime);
-//
-//   return `${atlasGraphBaseUrl}?backend=${backend}&g.q=${query}&g.s=${startTime}&g.e=${endTime}&g.w=651&mode=png&axis=0`;
-// };
 
 interface IResultMetadataRow {
   label: string;
@@ -106,30 +88,6 @@ const MetricResultStats = ({ metricConfig, metricSetPair, run }: IMetricResultSt
   ];
 
   const metadataRows: IResultMetadataRow[] = [
-    // {
-    //   label: 'name',
-    //   getContent: () => <p>{metricConfig.name}</p>,
-    // },
-    // {
-    //   label: 'explore data',
-    //   getContent: () => {
-    //     if (service !== 'atlas') {
-    //       return null;
-    //     }
-    //
-    //     return (
-    //       <p>
-    //         <a className="small" href={buildAtlasGraphUrl(metricSetPair)} target="_blank">
-    //           Atlas UI
-    //         </a>
-    //       </p>
-    //     );
-    //   },
-    // },
-    // {
-    //   label: 'query',
-    //   getContent: () => <p>{metricStoreConfigStore.getDelegate(metricConfig.query.type).queryFinder(metricConfig)}</p>,
-    // },
     {
       label: 'classification reason',
       getContent: () => {

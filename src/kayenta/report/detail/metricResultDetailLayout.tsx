@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import Graph from './graph/graph';
-// import MetricResultStats from './metricResultStats';
+import MetricResultStats from './metricResultStats';
 import MetricResultActions from './metricResultActions';
 import GraphTypeSelector from './graphTypeSelector';
 //TR: main entrypoint to develop the viz
@@ -14,6 +14,6 @@ export default () => (
     <Graph />
     <GraphTypeSelector />
     <MetricResultActions />
-    {/*}<MetricResultStats />*/}
+    <MetricResultStats />
   </section>
 );
