@@ -32,47 +32,44 @@ const buildAtlasGraphUrl = (metricSetPair: IMetricSetPair) => {
   return `${atlasGraphBaseUrl}?backend=${backend}&g.q=${query}&g.s=${startTime}&g.e=${endTime}&g.w=651&mode=png&axis=0`;
 };
 
-class MetricResultActions extends React.Component<IMetricResultStatsStateProps> {
-  render() {
-    const { metricSetPair, metricConfig } = this.props;
-    const atlasURL = buildAtlasGraphUrl(metricSetPair);
-    const atlasQuery = metricStoreConfigStore.getDelegate(metricConfig.query.type).queryFinder(metricConfig);
+const MetricResultActions = ({ metricSetPair, metricConfig }: IMetricResultStatsStateProps) => {
+  const atlasURL = buildAtlasGraphUrl(metricSetPair);
+  const atlasQuery = metricStoreConfigStore.getDelegate(metricConfig.query.type).queryFinder(metricConfig);
 
-    // Mask CopyToClipboard component as a larger button, fire event when clicked
-    const copyToClipboard = (
-      <div className={'copy-button-container'}>
-        <CopyToClipboard displayText={false} text={atlasQuery} toolTip={'copy atlas url'} />
-        <button className="primary copy-button" key={'copy-link'}>
-          <i className="glyphicon glyphicon-copy  copy-icon" />
-          {'Copy this Metric URL'}
-        </button>
-      </div>
-    );
+  // Mask CopyToClipboard component as a larger button, fire event when clicked
+  const copyToClipboard = (
+    <div className={'copy-button-container'}>
+      <CopyToClipboard displayText={false} text={atlasQuery} toolTip={'copy atlas url'} />
+      <button className="primary copy-button" key={'copy-link'}>
+        <i className="glyphicon glyphicon-copy  copy-icon" />
+        {'Copy this Metric URL'}
+      </button>
+    </div>
+  );
 
-    const openAtlas = (
-      <a href={atlasURL} target="_blank">
-        <button className="primary" key={'open-atlas'}>
-          <i className="fas fa-chart-line" />
-          {'Explore More Data in Atlas'}
-        </button>
-      </a>
-    );
+  const openAtlas = (
+    <a href={atlasURL} target="_blank">
+      <button className="primary" key={'open-atlas'}>
+        <i className="fas fa-chart-line" />
+        {'Explore More Data in Atlas'}
+      </button>
+    </a>
+  );
 
-    const actions = [copyToClipboard, openAtlas].map((action, i) => {
-      return (
-        <li className={'action'} key={i}>
-          {action}
-        </li>
-      );
-    });
-
+  const actions = [copyToClipboard, openAtlas].map((action, i) => {
     return (
-      <div className={'metric-result-actions'}>
-        <ul className={classnames('actions-layout', 'list-inline')}>{actions}</ul>
-      </div>
+      <li className={'action'} key={i}>
+        {action}
+      </li>
     );
-  }
-}
+  });
+
+  return (
+    <div className={'metric-result-actions'}>
+      <ul className={classnames('actions-layout', 'list-inline')}>{actions}</ul>
+    </div>
+  );
+};
 
 const mapStateToProps = (state: ICanaryState): IMetricResultStatsStateProps => ({
   metricConfig: selectedMetricConfigSelector(state),

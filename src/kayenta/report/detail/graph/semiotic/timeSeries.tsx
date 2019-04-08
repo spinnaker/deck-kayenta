@@ -18,6 +18,7 @@ import { ISemioticChartProps, IMargin } from './semiotic.service';
 import './graph.less';
 import { vizConfig } from './config';
 import CircleIcon from './circleIcon';
+import DifferenceArea from './differenceArea';
 
 moment.tz.setDefault(defaultTimeZone);
 
@@ -44,7 +45,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
 
   private margin: IMargin = {
     top: 10,
-    bottom: 40,
+    bottom: 24,
     left: 60,
     right: 20,
   };
@@ -124,6 +125,8 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     console.log(this.props);
     const { metricSetPair, config, parentWidth } = this.props;
     const { userBrushExtent } = this.state;
+    let graphTS;
+    const differenceAreaHeight = 60;
     const baselineDataProps = {
       color: vizConfig.colors.baseline,
       label: 'baseline',
@@ -144,13 +147,11 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     );
     const data = [baselineData, canaryData] as IChartDataSet[];
     const startTimeMillis = metricSetPair.scopes.control.startTimeMillis;
-    // const tsExtent = extent(baselineData.coordinates.map(c => c.timestampMillis));
     const tsExtent = [
       startTimeMillis,
       startTimeMillis + (metricSetPair.values.control.length - 1) * metricSetPair.scopes.control.stepMillis,
     ];
     const shouldDisplayMinimap = metricSetPair.values.control.length > this.minimapDataPointsThreshold;
-
     const lineStyleFunc = (ds: IChartDataSet) => {
       return {
         stroke: ds.color,
@@ -158,9 +159,6 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         strokeOpacity: 0.8,
       };
     };
-
-    let graphTS;
-
     const axesMain = [
       {
         orient: 'left',
@@ -208,7 +206,6 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
 
     const mainTSFrameProps = Object.assign({}, commonTSConfig, {
       xScaleType: scaleUtc(),
-      // size:[parentWidth, config.height - minimapSize[1]],
       hoverAnnotation: hoverAnnotations,
       customHoverBehavior: chartHoverHandler,
       xExtent: xExtentMainFrame,
@@ -239,8 +236,8 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         axes: axesMinimap,
         xBrushExtent: tsExtent,
         margin: {
-          top: 6,
-          bottom: 6,
+          top: 0,
+          bottom: 0,
           left: 60,
           right: 20,
         },
@@ -249,7 +246,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       graphTS = (
         <MinimapXYFrame
           {...mainTSFrameProps}
-          size={[parentWidth, config.height - minimapSize[1]]}
+          size={[parentWidth, config.height - minimapSize[1] - differenceAreaHeight - 37]}
           minimap={minimapConfig}
         />
       );
@@ -260,6 +257,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     return (
       <div>
         <ChartHeader metric={metricSetPair.name} />
+        <div className={'chart-title'}>{'Time Series'}</div>
         <ChartLegend />
         <div className={'graph-container'}>
           <div className={'time-series-chart'}>{graphTS}</div>
@@ -270,6 +268,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
             <i className="fas fa-search-plus" />
           </div>
         ) : null}
+        <DifferenceArea {...this.props} height={differenceAreaHeight} />
       </div>
     );
   }

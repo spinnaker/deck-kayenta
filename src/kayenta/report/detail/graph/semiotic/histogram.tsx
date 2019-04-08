@@ -216,8 +216,9 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     );
 
     return (
-      <div>
+      <div className={'histogram'}>
         <ChartHeader metric={metricSetPair.name} />
+        <div className={'chart-title'}>{'Histogram'}</div>
         <ChartLegend />
         <div className={'graph-container'}>
           <div className={'canary-chart'}>{graph}</div>
