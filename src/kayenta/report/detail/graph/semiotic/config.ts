@@ -9,5 +9,5 @@ export const vizConfig: IVizConfig = {
     canary: '#e26a6a',
     background: '#f8f8f8',
   },
-  height: 450,
+  height: 400,
 };

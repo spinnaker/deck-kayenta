@@ -152,7 +152,6 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
       categories,
     } = args;
 
-    const { config } = this.props;
     if (d.type === 'summary-custom') {
       const summaryData = pieceDataXY.filter((sd: any) => sd.key === d.group);
       const boxPlotWidth = categories.baseline.width;
@@ -187,7 +186,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
       });
       const forceOptions = {
         minPos: this.margin.top,
-        maxPos: config.height - this.margin.bottom,
+        maxPos: vizConfig.height - this.margin.bottom,
       };
       const force = new Force(forceOptions).nodes(nodes).compute();
 
@@ -202,14 +201,14 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
   render(): any {
     console.log('Box plot...');
     console.log(this.props);
-    const { metricSetPair, config, parentWidth } = this.props;
+    const { metricSetPair, parentWidth } = this.props;
 
     const { chartData } = this.generateChartData();
     const chartHoverHandler = this.createChartHoverHandler();
     const annotations = this.defineAnnotations();
 
     const computedConfig = {
-      size: [parentWidth, config.height],
+      size: [parentWidth, vizConfig.height],
       margin: this.margin,
       projection: 'vertical',
       summaryType: 'boxplot',
