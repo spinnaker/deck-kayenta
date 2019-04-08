@@ -193,7 +193,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
       margin: this.margin,
       projection: 'vertical',
       type: 'clusterbar',
-      oLabel: (v: number) => <text textAnchor={'middle'}>{utils.formatMetricValue(v)}</text>,
+      oLabel: (v: string) => <text textAnchor={'middle'}>{utils.formatMetricValue(parseFloat(v))}</text>,
       oPadding: 20,
       oAccessor: (d: IChartDataPoint) => d.x1,
       style: (d: IChartDataPoint) => {

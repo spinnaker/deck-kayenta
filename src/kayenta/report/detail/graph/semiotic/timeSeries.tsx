@@ -51,7 +51,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   };
 
   // Only show minimap if there are many data points
-  private minimapDataPointsThreshold: number = 60;
+  private minimapDataPointsThreshold: number = 240;
 
   formatTSData = (values: number[], scope: IMetricSetScope, properties: object) => {
     const stepMillis = scope.stepMillis;
@@ -123,10 +123,11 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   render(): any {
     console.log('TimeSeries...');
     console.log(this.props);
-    const { metricSetPair, config, parentWidth } = this.props;
+    const { metricSetPair, parentWidth } = this.props;
     const { userBrushExtent } = this.state;
     let graphTS;
     const differenceAreaHeight = 60;
+    const totalDifferenceAreaSectionHeight = differenceAreaHeight + 37;
     const baselineDataProps = {
       color: vizConfig.colors.baseline,
       label: 'baseline',
@@ -246,12 +247,14 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       graphTS = (
         <MinimapXYFrame
           {...mainTSFrameProps}
-          size={[parentWidth, config.height - minimapSize[1] - differenceAreaHeight - 37]}
+          size={[parentWidth, vizConfig.height - minimapSize[1] - totalDifferenceAreaSectionHeight]}
           minimap={minimapConfig}
         />
       );
     } else {
-      graphTS = <XYFrame {...mainTSFrameProps} size={[parentWidth, config.height]} />;
+      graphTS = (
+        <XYFrame {...mainTSFrameProps} size={[parentWidth, vizConfig.height - totalDifferenceAreaSectionHeight]} />
+      );
     }
 
     return (
