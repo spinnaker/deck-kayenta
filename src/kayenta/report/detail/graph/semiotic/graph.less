@@ -25,59 +25,49 @@
       .axis-title.left.y text {
         letter-spacing: 1.5px;
       }
+      .x.axis.bottom text.axis-label {
+        transform: translateY(-10px);
+      }
     }
   }
-}
 
-.chart-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-  .prefix {
-    font-weight: 600;
+    .prefix {
+      font-weight: 600;
+    }
   }
-}
 
-.graph-container {
-  position: relative;
-}
-
-.time-series-chart {
-  .xyframe-matte {
-    fill: @background-color;
+  .chart-title {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    font-size: 12px;
   }
-  .x.axis.bottom text.axis-label {
-    transform: translateY(-4px);
+
+  .graph-container {
+    position: relative;
   }
-}
 
-.box-plot-chart {
-  .piece {
-    opacity: 0.8 !important;
+  .time-series-chart {
+    .xyframe-matte {
+      fill: @background-color;
+    }
   }
-  // .piece.baseline{
-  //   stroke: #c1d4db;
-  //
-  // }
-  // .piece.canary{
-  //   stroke: #eebb3c;
-  // }
-  // .foreground-graphics {
-  //   .ordinal-labels {
-  //     text {
-  //       display: none;
-  //     }
-  //   }
-  // }
-}
 
-.zoom-icon {
-  bottom: 20px;
-  left: 25px;
-  position: absolute;
-  color: var(--dove-gray);
-}
+  .box-plot-chart {
+    .piece {
+      opacity: 0.8 !important;
+    }
+  }
 
-.semiotic-legend-svg {
+  .zoom-icon {
+    bottom: 115px;
+    left: 25px;
+    position: absolute;
+    color: var(--dove-gray);
+  }
 }

@@ -21,17 +21,3 @@ export default ({ metric }: IChartHeaderProps) => {
     </div>
   );
 };
-
-// export default class ChartHeader extends React.Component<IChartHeaderProps> {
-//   render(){
-//       const {prefix, metric} = this.props
-//       return (
-//         <div className={'chart-header'}>
-//           <span className={classNames('heading-6', 'color-text-primary', 'uppercase', 'prefix')}>
-//             {`${prefix} `}
-//           </span>
-//           <span>&nbsp;{`${metric}`}</span>
-//         </div>
-//       )
-//   }
-// }

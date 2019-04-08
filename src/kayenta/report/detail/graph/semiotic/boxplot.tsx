@@ -258,6 +258,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     return (
       <div className={'box-graph-container'}>
         <ChartHeader metric={metricSetPair.name} />
+        <div className={'chart-title'}>{'Box Whisker and Swarm Plot'}</div>
         <ChartLegend />
         <div className={'graph-container'}>
           <div className={'box-plot-chart'}>{graph}</div>
