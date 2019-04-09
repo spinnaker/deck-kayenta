@@ -32,11 +32,23 @@ interface IChartDataSet {
   label: string;
   coordinates: IDataPoint[];
 }
-interface ITimeSeriesState {
-  tooltip: any;
-  userBrushExtent: any;
+
+interface ITooltip {
+  content: JSX.Element;
+  x: number;
+  y: number;
 }
 
+interface ITimeSeriesState {
+  tooltip: ITooltip;
+  userBrushExtent: number[];
+}
+
+/*There are 3 vizualisations inside this component:
+1. The main Timeseries chart
+2. The minimap chart for users to zoom/ pan the main timeseries. Only show this if there are many data points
+3. The difference chart that displays the diff between canary and baseline
+*/
 export default class TimeSeries extends React.Component<ISemioticChartProps, ITimeSeriesState> {
   state: ITimeSeriesState = {
     tooltip: null,
@@ -49,9 +61,6 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     left: 60,
     right: 20,
   };
-
-  // Only show minimap if there are many data points
-  private minimapDataPointsThreshold: number = 240;
 
   formatTSData = (values: number[], scope: IMetricSetScope, properties: object) => {
     const stepMillis = scope.stepMillis;
@@ -94,10 +103,8 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
             );
           });
 
-        const style = {};
-
         const tooltipContent = (
-          <div style={style}>
+          <div>
             <div>{moment(d.data.timestampMillis).format('YYYY-MM-DD HH:mm:ss z')}</div>
             {tooltipRows}
           </div>
@@ -114,20 +121,19 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     };
   };
 
+  //Handle user brush action
   onBrushEnd = (e: any) => {
     this.setState({
       userBrushExtent: e,
     });
   };
 
-  render(): any {
-    console.log('TimeSeries...');
-    console.log(this.props);
+  render() {
     const { metricSetPair, parentWidth } = this.props;
     const { userBrushExtent } = this.state;
+    const { minimapDataPointsThreshold, differenceAreaHeight, differenceAreaHeaderHeight } = vizConfig.timeSeries;
     let graphTS;
-    const differenceAreaHeight = 60;
-    const totalDifferenceAreaSectionHeight = differenceAreaHeight + 37;
+    const totalDifferenceAreaSectionHeight = differenceAreaHeight + differenceAreaHeaderHeight;
     const baselineDataProps = {
       color: vizConfig.colors.baseline,
       label: 'baseline',
@@ -152,7 +158,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       startTimeMillis,
       startTimeMillis + (metricSetPair.values.control.length - 1) * metricSetPair.scopes.control.stepMillis,
     ];
-    const shouldDisplayMinimap = metricSetPair.values.control.length > this.minimapDataPointsThreshold;
+    const shouldDisplayMinimap = metricSetPair.values.control.length > minimapDataPointsThreshold;
     const lineStyleFunc = (ds: IChartDataSet) => {
       return {
         stroke: ds.color,
@@ -227,7 +233,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         },
       ];
 
-      const minimapSize = [parentWidth, 60];
+      const minimapSize = [parentWidth, 40];
       const minimapConfig = {
         ...commonTSConfig,
         xScaleType: scaleUtc(),
