@@ -2,24 +2,15 @@
 
 import * as React from 'react';
 import { scaleUtc } from 'd3-scale';
-// // import { extent } from 'd3-array';
 import { XYFrame } from 'semiotic';
 import * as moment from 'moment-timezone';
 import { SETTINGS } from '@spinnaker/core';
 const { defaultTimeZone } = SETTINGS;
 import { curveStepAfter } from 'd3-shape';
-// import { IMetricSetScope } from 'kayenta/domain/IMetricSetPair';
 import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
-//
-import * as utils from './utils';
-// import Tooltip from './tooltip';
-// import ChartHeader from './chartHeader';
-// import ChartLegend from './chartLegend';
 import { ISemioticChartProps, IMargin } from './semiotic.service';
-// import './graph.less';
 import { vizConfig } from './config';
 import './differenceArea.less';
-// import CircleIcon from './circleIcon';
 
 moment.tz.setDefault(defaultTimeZone);
 
@@ -29,6 +20,7 @@ interface IDataPoint {
 }
 
 interface IChartDataSet {
+  label: string;
   color: string;
   coordinates: IDataPoint[];
 }
@@ -50,42 +42,60 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
       values: { experiment, control },
       scopes,
     } = metricSetPair;
-    console.log(metricSetPair);
     const stepMillis = scopes.control.stepMillis;
-    let dataPoints = control.map((c, i) => {
+    let differenceDataPoints: IDataPoint[] = [];
+    let baselineReferenceDataPoints: IDataPoint[] = [];
+    control.forEach((c, i) => {
       let e = experiment[i];
-      return {
-        timestampMillis: scopes.control.startTimeMillis + i * stepMillis,
+      let timestampMillis = scopes.control.startTimeMillis + i * stepMillis;
+      differenceDataPoints.push({
+        timestampMillis,
         value: typeof c !== 'number' || typeof e !== 'number' ? 0 : e - c,
-      };
+      });
+      baselineReferenceDataPoints.push({
+        timestampMillis,
+        value: 0,
+      });
     });
 
-    return dataPoints;
+    return [
+      {
+        label: 'difference',
+        color: vizConfig.colors.canary,
+        coordinates: differenceDataPoints,
+      },
+      {
+        label: 'baselineReference',
+        color: vizConfig.colors.baseline,
+        coordinates: baselineReferenceDataPoints,
+      },
+    ];
   };
 
   public render() {
-    console.log('Diff bar...');
-    console.log(this.props);
-    // const { metricSetPair, config, parentWidth } = this.props;
     const { metricSetPair, parentWidth, height } = this.props;
-    // const { userBrushExtent } = this.state;
-
     const chartData = this.formatDifferenceTSData(metricSetPair);
-    console.log(chartData);
-
     const lineStyleFunc = (ds: IChartDataSet) => {
-      return {
-        fill: ds.color,
-        fillOpacity: 0.8,
-      };
+      return ds.label === 'difference'
+        ? {
+            fill: ds.color,
+            fillOpacity: 0.6,
+          }
+        : {
+            stroke: ds.color,
+            strokeOpacity: 1,
+            strokeWidth: 2,
+            strokeDasharray: 5,
+          };
     };
 
     const axes = [
       {
         orient: 'left',
-        tickFormat: (d: number) => {
-          return utils.formatMetricValue(d);
+        tickFormat: () => {
+          return `\u0394 = 0`;
         },
+        tickValues: [0],
       },
       {
         orient: 'bottom',
@@ -97,7 +107,7 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
     ];
 
     const computedConfig = {
-      lines: [{ coordinates: chartData, color: vizConfig.colors.canary }],
+      lines: chartData,
       size: [parentWidth, height],
       margin: this.margin,
       lineType: {
