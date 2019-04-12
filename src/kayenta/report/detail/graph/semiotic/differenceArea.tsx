@@ -4,15 +4,14 @@ import * as React from 'react';
 import { scaleUtc } from 'd3-scale';
 import { XYFrame } from 'semiotic';
 import * as moment from 'moment-timezone';
-import { SETTINGS } from '@spinnaker/core';
-const { defaultTimeZone } = SETTINGS;
 import { curveStepAfter } from 'd3-shape';
+import * as _ from 'lodash';
+
 import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
 import { ISemioticChartProps, IMargin } from './semiotic.service';
 import { vizConfig } from './config';
 import './differenceArea.less';
-
-moment.tz.setDefault(defaultTimeZone);
+import * as utils from './utils';
 
 interface IDataPoint {
   timestampMillis: number;
@@ -32,7 +31,7 @@ interface IDifferenceAreaProps extends ISemioticChartProps {
 export default class DifferenceArea extends React.Component<IDifferenceAreaProps> {
   private margin: IMargin = {
     top: 0,
-    bottom: 24,
+    bottom: 40,
     left: 60,
     right: 20,
   };
@@ -74,7 +73,20 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
 
   public render() {
     const { metricSetPair, parentWidth, height } = this.props;
-    const chartData = this.formatDifferenceTSData(metricSetPair);
+
+    //test data
+    let metricSetPairTest = _.cloneDeep(metricSetPair);
+    let newData = new Array(1440).fill(0.2);
+    metricSetPairTest.values.control = metricSetPairTest.values.control.concat(newData);
+    metricSetPairTest.values.experiment = metricSetPairTest.values.experiment.concat(newData);
+
+    const startTimeMillis = metricSetPairTest.scopes.control.startTimeMillis;
+    const millisSet = metricSetPairTest.values.control.map((_, i: number) => {
+      return startTimeMillis + i * metricSetPairTest.scopes.control.stepMillis;
+    });
+    console.log(millisSet);
+
+    const chartData = this.formatDifferenceTSData(metricSetPairTest);
     const lineStyleFunc = (ds: IChartDataSet) => {
       return ds.label === 'difference'
         ? {
@@ -99,10 +111,19 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
       },
       {
         orient: 'bottom',
-        ticks: 8,
+        tickValues: utils.calculateDateTimeTicks(millisSet),
         tickFormat: (d: number) => {
-          return moment(d).format('h:mma');
+          const text = utils.dateTimeTickFormatter(d).map((s: string) => (
+            <text textAnchor={'middle'} className={'axis-label'}>
+              {s}
+            </text>
+          ));
+          return <g className={'axis-label'}>{text}</g>;
         },
+        // tickFormat: utils.dateTimeTickFormatter
+        // tickFormat: (d: number) => {
+        //   return moment(d).format('h:mma');
+        // },
       },
     ];
 

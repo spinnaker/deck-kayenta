@@ -9,11 +9,7 @@ import { Node, Force } from 'labella';
 
 import * as utils from './utils';
 import { vizConfig } from './config';
-import {
-  ISemioticChartProps,
-  IMargin,
-  // ISummaryStatistics,
-} from './semiotic.service';
+import { ISemioticChartProps, IMargin, ITooltip } from './semiotic.service';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
 import './graph.less';
@@ -28,7 +24,7 @@ interface IChartDataPoint {
 }
 
 interface IBoxPlotState {
-  tooltip: any;
+  tooltip: ITooltip;
 }
 
 export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPlotState> {
@@ -132,15 +128,12 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
   defineAnnotations = () => {
     const annotations = [] as any[];
     const groups = ['baseline', 'canary'];
-    // const summaryKeys = ['q1area', 'median', 'q3area'] as string[];
     groups.forEach(g => {
-      // summaryKeys.forEach(k => {
       annotations.push({
         type: 'summary-custom',
         group: g,
         summaryKeys: ['q1area', 'median', 'q3area'],
       });
-      // });
     });
     return annotations;
   };
@@ -202,7 +195,6 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     console.log('Box plot...');
     console.log(this.props);
     const { metricSetPair, parentWidth } = this.props;
-
     const { chartData } = this.generateChartData();
     const chartHoverHandler = this.createChartHoverHandler();
     const annotations = this.defineAnnotations();
@@ -214,13 +206,18 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
       summaryType: 'boxplot',
       oLabel: false,
       oPadding: 160,
+      style: (d: IChartDataPoint) => {
+        return {
+          fill: d.color,
+          fillOpacity: 0.7,
+        };
+      },
       summaryStyle: (d: IChartDataPoint) => {
         return {
           fill: d.color,
-          fillOpacity: 0.3,
+          fillOpacity: 0.4,
           stroke: '#6a6a6a',
           strokeWidth: 2,
-          opacity: 0.8,
         };
       },
       pieceClass: (d: IChartDataPoint) => `piece ${d.group}`,
@@ -249,18 +246,17 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         axis={axis}
         oAccessor={(d: IChartDataPoint) => d.group}
         rAccessor={(d: IChartDataPoint) => d.value}
-        style={(d: IChartDataPoint) => ({ fill: d.color, opacity: 0.8 })}
         svgAnnotationRules={this.customAnnotationFunction}
+        summaryClass={'boxplot-summary'}
       />
     );
 
     return (
-      <div className={'box-graph-container'}>
+      <div className={'boxplot'}>
         <ChartHeader metric={metricSetPair.name} />
-        <div className={'chart-title'}>{'Box Whisker and Swarm Plot'}</div>
         <ChartLegend />
         <div className={'graph-container'}>
-          <div className={'box-plot-chart'}>{graph}</div>
+          <div className={'boxplot-chart'}>{graph}</div>
           <Tooltip {...this.state.tooltip} />
         </div>
       </div>

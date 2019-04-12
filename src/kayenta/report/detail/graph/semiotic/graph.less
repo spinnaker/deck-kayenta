@@ -28,6 +28,9 @@
       .x.axis.bottom text.axis-label {
         transform: translateY(-10px);
       }
+      .x.axis.bottom text.axis-label:nth-child(2) {
+        transform: translateY(5px);
+      }
     }
   }
 
@@ -50,24 +53,5 @@
 
   .graph-container {
     position: relative;
-  }
-
-  .time-series-chart {
-    .xyframe-matte {
-      fill: @background-color;
-    }
-  }
-
-  .box-plot-chart {
-    .piece {
-      opacity: 0.8 !important;
-    }
-  }
-
-  .zoom-icon {
-    bottom: 115px;
-    left: 25px;
-    position: absolute;
-    color: var(--dove-gray);
   }
 }
