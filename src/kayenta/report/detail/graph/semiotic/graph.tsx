@@ -10,16 +10,10 @@ import BoxPlot from './boxplot';
 import './graph.less';
 
 export default class SemioticGraph extends React.Component<IMetricSetPairGraphProps> {
-  // private static commonChartConfig = {
-  //   height: 415,
-  // };
-
   private fetchChart = (parentWidth: number) => {
     const { type } = this.props;
-
     const chartProps = {
       ...this.props,
-      // config: SemioticGraph.commonChartConfig,
       parentWidth,
     };
 
@@ -39,8 +33,6 @@ export default class SemioticGraph extends React.Component<IMetricSetPairGraphPr
   };
 
   public render() {
-    console.log('semiotic graph render');
-    console.log(this.props);
     const containerStyle = {};
     return (
       <div style={containerStyle} className={'semiotic-graph'}>

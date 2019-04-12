@@ -1,15 +1,15 @@
-interface IStringConfig {
+interface IColorConfig {
   [propName: string]: string;
 }
 
-interface INumberConfig {
+interface ITimeSeriesConfig {
   [propName: string]: number;
 }
 
 interface IVizConfig {
-  readonly colors: IStringConfig;
+  readonly colors: IColorConfig;
   readonly height: number;
-  readonly timeSeries: INumberConfig;
+  readonly timeSeries: ITimeSeriesConfig;
 }
 
 export const vizConfig: IVizConfig = {
@@ -21,7 +21,8 @@ export const vizConfig: IVizConfig = {
   height: 400,
   timeSeries: {
     minimapDataPointsThreshold: 240,
-    differenceAreaHeight: 60,
+    minimapHeight: 40,
+    differenceAreaHeight: 80,
     differenceAreaHeaderHeight: 37,
   },
 };

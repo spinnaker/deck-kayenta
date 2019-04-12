@@ -49,7 +49,6 @@ const ResultMetadataRow = ({ row }: { row: IResultMetadataRow }) => {
   );
 };
 
-// const MetricResultStats = ({ metricConfig, metricSetPair, run, service }: IMetricResultStatsStateProps) => {
 const MetricResultStats = ({ metricConfig, metricSetPair, run }: IMetricResultStatsStateProps) => {
   const tableColumns: Array<ITableColumn<string>> = [
     {
@@ -75,15 +74,15 @@ const MetricResultStats = ({ metricConfig, metricSetPair, run }: IMetricResultSt
     },
     {
       label: 'avg',
-      getContent: target => <span>{round(getStats(run, metricSetPair.id, target).mean, 2)}</span>,
+      getContent: target => <span>{round(getStats(run, metricSetPair.id, target).mean, 3)}</span>,
     },
     {
       label: 'max',
-      getContent: target => <span>{round(getStats(run, metricSetPair.id, target).max, 2)}</span>,
+      getContent: target => <span>{round(getStats(run, metricSetPair.id, target).max, 3)}</span>,
     },
     {
       label: 'min',
-      getContent: target => <span>{round(getStats(run, metricSetPair.id, target).min, 2)}</span>,
+      getContent: target => <span>{round(getStats(run, metricSetPair.id, target).min, 3)}</span>,
     },
   ];
 

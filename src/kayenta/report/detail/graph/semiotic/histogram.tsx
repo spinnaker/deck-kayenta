@@ -4,11 +4,10 @@ import * as React from 'react';
 import { OrdinalFrame, Annotation } from 'semiotic';
 import { histogram, extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
-// import * as classNames from 'classnames';
 
 import * as utils from './utils';
 import { vizConfig } from './config';
-import { ISemioticChartProps, IMargin } from './semiotic.service';
+import { ISemioticChartProps, IMargin, ITooltip } from './semiotic.service';
 import './graph.less';
 import './histogram.less';
 import ChartHeader from './chartHeader';
@@ -28,8 +27,12 @@ interface IChartDataPoint {
   x1: number;
 }
 
+interface IAnnotationData extends IChartDataPoint {
+  type: string;
+}
+
 interface IHistogramState {
-  tooltip: any;
+  tooltip: ITooltip;
 }
 
 export default class Histogram extends React.Component<ISemioticChartProps, IHistogramState> {
@@ -51,9 +54,15 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     }));
   };
 
+  /*
+  * Semiotic actually supports histogram as a "summary type" out of the box, but the customization is
+  * currently limited (e.g. it can't display cross-axis ticks & labels)
+  * Hence we're manually generating histogram data using D3 and display it as
+  * a grouped bar chart in semiotic
+  */
+
   generateChartData = () => {
     const { metricSetPair } = this.props;
-
     const filterFunc = (v: IInputDataPoint) => typeof v.value === 'number';
     const baselineInput = this.decorateData(metricSetPair.values.control, 'baseline');
     const canaryInput = this.decorateData(metricSetPair.values.experiment, 'canary');
@@ -71,6 +80,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
 
     let chartData: IChartDataPoint[] = [];
 
+    // Convert it to ordinal data format for semiotic
     histogramData.forEach(h => {
       const { x0, x1 } = h;
       const baselineBin = { group: 'baseline', x0: x0, x1: x1, count: 0 };
@@ -79,9 +89,11 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
       chartData.push(baselineBin);
       chartData.push(canaryBin);
     });
+
     return chartData;
   };
 
+  // Function factory to handle hover event
   createChartHoverHandler = (chartData: IChartDataPoint[]) => {
     return (d: any): void => {
       const x1Max: number = Math.max(...chartData.map((cd: IChartDataPoint) => cd.x1));
@@ -132,8 +144,9 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     };
   };
 
+  // generate bar value annotations object
   defineAnnotations = (chartData: IChartDataPoint[]) => {
-    const annotations = [] as any[];
+    const annotations = [] as IAnnotationData[];
     chartData.forEach((d: IChartDataPoint) => {
       if (d.count > 0) {
         annotations.push({
@@ -145,12 +158,11 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     return annotations;
   };
 
-  customAnnotationFunction: any = (args: any): any => {
+  // function to actually handle the annotation object
+  customAnnotationFunction = (args: any): JSX.Element | null => {
     const { d, i, categories } = args;
-
     if (d.type === 'bar-value-custom') {
       const { x, y, width } = categories[d.x1].xyData.find((c: any) => c.piece.data.group === d.group).xy;
-
       const noteData = {
         x: x + width / 2,
         y: y,
@@ -171,13 +183,9 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     } else return null;
   };
 
-  render(): any {
-    console.log('Histogram...');
-    console.log(this.props);
+  render() {
     const { metricSetPair, parentWidth } = this.props;
-
     const chartData = this.generateChartData();
-
     const axis = [
       {
         orient: 'left',
@@ -218,7 +226,6 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     return (
       <div className={'histogram'}>
         <ChartHeader metric={metricSetPair.name} />
-        <div className={'chart-title'}>{'Histogram'}</div>
         <ChartLegend />
         <div className={'graph-container'}>
           <div className={'canary-chart'}>{graph}</div>

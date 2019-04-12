@@ -1,19 +1,29 @@
 .histogram {
-  .bar-annotation {
-    text {
+  .graph-container {
+    position: relative;
+    .bar-annotation {
+      text {
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .annotation-connector {
+        display: none;
+      }
+      .note-line {
+        display: none;
+      }
+    }
+    g.ordinal-labels {
+      stroke: var(--color-text-primary);
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 200;
     }
-    .annotation-connector {
-      display: none;
+    .secondary-axis {
+      position: absolute;
+      line {
+        stroke-width: 1px;
+        stroke: pink;
+      }
     }
-    .note-line {
-      display: none;
-    }
-  }
-  g.ordinal-labels {
-    stroke: var(--color-text-primary);
-    font-size: 12px;
-    font-weight: 200;
   }
 }

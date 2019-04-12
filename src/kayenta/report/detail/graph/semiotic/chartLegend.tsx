@@ -18,11 +18,11 @@ export default () => {
     <div className={'semiotic-legend'}>
       <div className={'legend-item'}>
         <div className={'legend-icon'} style={baselineIconStyle} />
-        <div>{'baseline'}</div>
+        <div>{'Baseline'}</div>
       </div>
       <div className={'legend-item'}>
         <div className={'legend-icon'} style={canaryIconStyle} />
-        <div>{'canary'}</div>
+        <div>{'Canary'}</div>
       </div>
     </div>
   );

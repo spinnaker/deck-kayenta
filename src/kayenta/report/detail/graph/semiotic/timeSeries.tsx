@@ -2,20 +2,20 @@
 
 import * as React from 'react';
 import { scaleUtc } from 'd3-scale';
-// import { extent } from 'd3-array';
 import { MinimapXYFrame, XYFrame } from 'semiotic';
 import * as moment from 'moment-timezone';
 import { SETTINGS } from '@spinnaker/core';
 const { defaultTimeZone } = SETTINGS;
 import { curveStepAfter } from 'd3-shape';
 import { IMetricSetScope } from 'kayenta/domain/IMetricSetPair';
+import * as _ from 'lodash';
 
 import * as utils from './utils';
 import Tooltip from './tooltip';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
-import { ISemioticChartProps, IMargin } from './semiotic.service';
-import './graph.less';
+import { ISemioticChartProps, IMargin, ITooltip } from './semiotic.service';
+import './timeSeries.less';
 import { vizConfig } from './config';
 import CircleIcon from './circleIcon';
 import DifferenceArea from './differenceArea';
@@ -33,15 +33,15 @@ interface IChartDataSet {
   coordinates: IDataPoint[];
 }
 
-interface ITooltip {
-  content: JSX.Element;
-  x: number;
-  y: number;
-}
-
 interface ITimeSeriesState {
   tooltip: ITooltip;
   userBrushExtent: number[];
+}
+
+interface ITooltipDataPoint {
+  color: string;
+  label: string;
+  value: number | null;
 }
 
 /*There are 3 vizualisations inside this component:
@@ -55,9 +55,16 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     userBrushExtent: null,
   };
 
-  private margin: IMargin = {
+  private marginMain: IMargin = {
     top: 10,
-    bottom: 24,
+    bottom: 40,
+    left: 60,
+    right: 20,
+  };
+
+  private marginMinimap: IMargin = {
+    top: 0,
+    bottom: 0,
     left: 60,
     right: 20,
   };
@@ -79,49 +86,63 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     };
   };
 
+  // function factory to create a hover handler function based on the datasets
   createChartHoverHandler = (dataSets: IChartDataSet[]) => {
     return (d: any) => {
       if (d && d.timestampMillis) {
-        const timestampMillis = d.timestampMillis;
+        const ts = d.timestampMillis;
+        const dataPoints: { [group: string]: IDataPoint | undefined } = {
+          canary: dataSets.find(o => o.label === 'canary').coordinates.find(c => c.timestampMillis === ts),
+          baseline: dataSets.find(o => o.label === 'baseline').coordinates.find(c => c.timestampMillis === ts),
+        };
+
+        const canaryMinusBaseline =
+          dataPoints.canary && dataPoints.baseline ? dataPoints.canary.value - dataPoints.baseline.value : null;
+
         const tooltipRows = dataSets
-          .map(ds => {
-            const dataPoint = ds.coordinates.find(o => o.timestampMillis === timestampMillis);
-            return {
-              color: ds.color,
-              label: ds.label,
-              value: dataPoint ? utils.formatMetricValue(dataPoint.value) : null,
-            };
-          })
-          .sort((a: any, b: any) => b.value - a.value)
-          .map((o: any) => {
+          .map(
+            (ds: IChartDataSet): ITooltipDataPoint => {
+              return {
+                color: ds.color,
+                label: ds.label,
+                value: dataPoints[ds.label] ? dataPoints[ds.label].value : null,
+              };
+            },
+          )
+          .sort((a: ITooltipDataPoint, b: ITooltipDataPoint) => b.value - a.value)
+          .map((o: ITooltipDataPoint) => {
             return (
               <div id={o.label} key={o.label}>
                 <CircleIcon group={o.label} />
                 <span>{`${o.label}: `}</span>
-                <span>{o.value}</span>
+                <span>{utils.formatMetricValue(o.value)}</span>
               </div>
             );
-          });
-
+          })
+          .concat([
+            <div id={'diff'} key={'diff'}>
+              <span>{`${'Canary - Baseline'}: `}</span>
+              <span>{utils.formatMetricValue(canaryMinusBaseline)}</span>
+            </div>,
+          ]);
         const tooltipContent = (
           <div>
             <div>{moment(d.data.timestampMillis).format('YYYY-MM-DD HH:mm:ss z')}</div>
             {tooltipRows}
           </div>
         );
-
         this.setState({
           tooltip: {
             content: tooltipContent,
-            x: d.voronoiX + this.margin.left,
-            y: d.voronoiY + this.margin.top,
+            x: d.voronoiX + this.marginMain.left,
+            y: d.voronoiY + this.marginMain.top,
           },
         });
       } else this.setState({ tooltip: null });
     };
   };
 
-  //Handle user brush action
+  //Handle user brush action event from semiotic
   onBrushEnd = (e: any) => {
     this.setState({
       userBrushExtent: e,
@@ -131,16 +152,31 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   render() {
     const { metricSetPair, parentWidth } = this.props;
     const { userBrushExtent } = this.state;
-    const { minimapDataPointsThreshold, differenceAreaHeight, differenceAreaHeaderHeight } = vizConfig.timeSeries;
+    const {
+      minimapDataPointsThreshold,
+      differenceAreaHeight,
+      differenceAreaHeaderHeight,
+      minimapHeight,
+    } = vizConfig.timeSeries;
     let graphTS;
+
+    console.log('metricSetPair+++');
+    console.log(metricSetPair);
+
+    //test data
+    let metricSetPairTest = _.cloneDeep(metricSetPair);
+    let newData = new Array(1440).fill(0.2);
+    metricSetPairTest.values.control = metricSetPairTest.values.control.concat(newData);
+    metricSetPairTest.values.experiment = metricSetPairTest.values.experiment.concat(newData);
+
     const totalDifferenceAreaSectionHeight = differenceAreaHeight + differenceAreaHeaderHeight;
     const baselineDataProps = {
       color: vizConfig.colors.baseline,
       label: 'baseline',
     };
     const baselineData = this.formatTSData(
-      metricSetPair.values.control,
-      metricSetPair.scopes.control,
+      metricSetPairTest.values.control,
+      metricSetPairTest.scopes.control,
       baselineDataProps,
     );
     const canaryDataProps = {
@@ -148,17 +184,22 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       label: 'canary',
     };
     const canaryData = this.formatTSData(
-      metricSetPair.values.experiment,
-      metricSetPair.scopes.experiment,
+      metricSetPairTest.values.experiment,
+      metricSetPairTest.scopes.experiment,
       canaryDataProps,
     );
     const data = [baselineData, canaryData] as IChartDataSet[];
     const startTimeMillis = metricSetPair.scopes.control.startTimeMillis;
-    const tsExtent = [
-      startTimeMillis,
-      startTimeMillis + (metricSetPair.values.control.length - 1) * metricSetPair.scopes.control.stepMillis,
-    ];
-    const shouldDisplayMinimap = metricSetPair.values.control.length > minimapDataPointsThreshold;
+    const millisSet = metricSetPairTest.values.control.map((_, i: number) => {
+      return startTimeMillis + i * metricSetPairTest.scopes.control.stepMillis;
+    });
+    const extentTS = [millisSet[0], millisSet[millisSet.length - 1]];
+
+    // If there's no user extent defined, set the entire extent as default
+    const xExtentMain = userBrushExtent ? userBrushExtent : [new Date(extentTS[0]), new Date(extentTS[1])];
+    const millisSetMain = millisSet.filter((ms: number) => ms >= xExtentMain[0] && ms <= xExtentMain[1]);
+
+    const shouldDisplayMinimap = metricSetPairTest.values.control.length > minimapDataPointsThreshold;
     const lineStyleFunc = (ds: IChartDataSet) => {
       return {
         stroke: ds.color,
@@ -176,9 +217,14 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       },
       {
         orient: 'bottom',
-        ticks: 8,
+        tickValues: utils.calculateDateTimeTicks(millisSetMain),
         tickFormat: (d: number) => {
-          return moment(d).format('h:mma');
+          const text = utils.dateTimeTickFormatter(d).map((s: string) => (
+            <text textAnchor={'middle'} className={'axis-label'}>
+              {s}
+            </text>
+          ));
+          return <g className={'axis-label'}>{text}</g>;
         },
       },
     ];
@@ -200,7 +246,6 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       },
     ];
 
-    const xExtentMainFrame = userBrushExtent ? userBrushExtent : [new Date(tsExtent[0]), new Date(tsExtent[1])];
     const chartHoverHandler = this.createChartHoverHandler(data);
 
     const commonTSConfig = {
@@ -209,17 +254,18 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       lineStyle: lineStyleFunc,
       xAccessor: (d: IDataPoint) => moment(d.timestampMillis).toDate(),
       yAccessor: 'value',
+      xScaleType: scaleUtc(),
     };
 
-    const mainTSFrameProps = Object.assign({}, commonTSConfig, {
-      xScaleType: scaleUtc(),
+    const mainTSFrameProps = {
+      ...commonTSConfig,
       hoverAnnotation: hoverAnnotations,
       customHoverBehavior: chartHoverHandler,
-      xExtent: xExtentMainFrame,
+      xExtent: xExtentMain,
       axes: axesMain,
-      margin: this.margin,
+      margin: this.marginMain,
       matte: true,
-    });
+    };
 
     if (shouldDisplayMinimap) {
       const axesMinimap = [
@@ -229,25 +275,19 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         },
         {
           orient: 'bottom',
-          ticks: 8,
+          tickValues: utils.calculateDateTimeTicks(millisSet),
         },
       ];
 
-      const minimapSize = [parentWidth, 40];
+      const minimapSize = [parentWidth, minimapHeight];
       const minimapConfig = {
         ...commonTSConfig,
-        xScaleType: scaleUtc(),
         yBrushable: false,
         brushEnd: this.onBrushEnd,
         size: minimapSize,
         axes: axesMinimap,
-        xBrushExtent: tsExtent,
-        margin: {
-          top: 0,
-          bottom: 0,
-          left: 60,
-          right: 20,
-        },
+        xBrushExtent: extentTS,
+        margin: this.marginMinimap,
       };
 
       graphTS = (
@@ -264,9 +304,8 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     }
 
     return (
-      <div>
+      <div className={'time-series'}>
         <ChartHeader metric={metricSetPair.name} />
-        <div className={'chart-title'}>{'Time Series'}</div>
         <ChartLegend />
         <div className={'graph-container'}>
           <div className={'time-series-chart'}>{graphTS}</div>

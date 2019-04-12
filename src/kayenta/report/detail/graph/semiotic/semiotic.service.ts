@@ -12,6 +12,12 @@ export interface IMargin {
   right?: number;
 }
 
+export interface ITooltip {
+  content: JSX.Element;
+  x: number;
+  y: number;
+}
+
 export interface ISummaryStatistics {
   [prop: string]: ISummaryStatisticsValue;
 }
