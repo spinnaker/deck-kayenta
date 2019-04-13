@@ -120,10 +120,6 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
           ));
           return <g className={'axis-label'}>{text}</g>;
         },
-        // tickFormat: utils.dateTimeTickFormatter
-        // tickFormat: (d: number) => {
-        //   return moment(d).format('h:mma');
-        // },
       },
     ];
 
