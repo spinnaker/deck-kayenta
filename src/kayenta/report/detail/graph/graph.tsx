@@ -13,7 +13,7 @@ interface IMetricSetPairGraphStateProps {
   graphType: GraphType;
 }
 
-const GRAPH_IMPLEMENTATIONS = ['chartjs', 'plotly', 'semiotic'];
+const GRAPH_IMPLEMENTATIONS = ['semiotic'];
 
 const MetricSetPairGraph = ({ pair, result, graphType }: IMetricSetPairGraphStateProps) => {
   const delegates = GRAPH_IMPLEMENTATIONS.map(name => metricSetPairGraphService.getDelegate(name)).filter(d => !!d);

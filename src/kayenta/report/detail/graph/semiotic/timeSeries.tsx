@@ -210,8 +210,8 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         tickValues: utils.calculateDateTimeTicks(millisSetMain),
         tickFormat: (d: number) => {
           //custom labels as we want two lines when showing date + hour
-          const text = utils.dateTimeTickFormatter(d).map((s: string) => (
-            <text textAnchor={'middle'} className={'axis-label'}>
+          const text = utils.dateTimeTickFormatter(d).map((s: string, i: number) => (
+            <text textAnchor={'middle'} className={'axis-label'} key={i}>
               {s}
             </text>
           ));
