@@ -9,6 +9,7 @@ export interface ICircleIconProps {
   group: string;
 }
 
+// simple component to show circle icons in tooltips
 export default ({ group }: ICircleIconProps) => {
   const iconStyle = {
     color: vizConfig.colors[group],
