@@ -111,8 +111,8 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
         tickValues: utils.calculateDateTimeTicks(millisSet),
         tickFormat: (d: number) => {
           //custom labels
-          const text = utils.dateTimeTickFormatter(d).map((s: string) => (
-            <text textAnchor={'middle'} className={'axis-label'}>
+          const text = utils.dateTimeTickFormatter(d).map((s: string, i: number) => (
+            <text textAnchor={'middle'} className={'axis-label'} key={i}>
               {s}
             </text>
           ));

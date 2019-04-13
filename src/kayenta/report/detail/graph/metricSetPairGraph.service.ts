@@ -7,9 +7,7 @@ import { buildDelegateService } from 'kayenta/service/delegateFactory';
 // e.g., amplitude vs. time, histogram, etc.
 export enum GraphType {
   TimeSeries = 'Time Series',
-  TimeSeries2 = 'Time Series 2',
   Histogram = 'Histogram',
-  Histogram2 = 'Histogram 2',
   BoxPlot = 'Beeswarm Box Plot',
 }
 
