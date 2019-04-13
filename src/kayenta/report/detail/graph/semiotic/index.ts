@@ -1,5 +1,5 @@
 import { GraphType, metricSetPairGraphService } from '../metricSetPairGraph.service';
-import SemioticGraph from './graph';
+import SemioticGraph from './semioticGraph';
 
 const supportedGraphTypes: GraphType[] = [GraphType.TimeSeries2, GraphType.Histogram2, GraphType.BoxPlot];
 // Semiotic component registration

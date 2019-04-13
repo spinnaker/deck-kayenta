@@ -8,7 +8,6 @@ import { scaleLinear } from 'd3-scale';
 import * as utils from './utils';
 import { vizConfig } from './config';
 import { ISemioticChartProps, IMargin, ITooltip } from './semiotic.service';
-import './graph.less';
 import './histogram.less';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
@@ -80,7 +79,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
 
     let chartData: IChartDataPoint[] = [];
 
-    // Convert it to ordinal data format for semiotic
+    // Convert it to ordinal data format for bar chart in semiotic
     histogramData.forEach(h => {
       const { x0, x1 } = h;
       const baselineBin = { group: 'baseline', x0: x0, x1: x1, count: 0 };
@@ -217,11 +216,10 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
       axis: axis,
       rAccessor: (d: IChartDataPoint) => d.count,
       annotations,
+      svgAnnotationRules: this.customAnnotationFunction,
     };
 
-    const graph = (
-      <OrdinalFrame {...computedConfig} hoverAnnotation={[]} svgAnnotationRules={this.customAnnotationFunction} />
-    );
+    const graph = <OrdinalFrame {...computedConfig} hoverAnnotation={[]} />;
 
     return (
       <div className={'histogram'}>

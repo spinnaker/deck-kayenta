@@ -8,7 +8,6 @@ import { SETTINGS } from '@spinnaker/core';
 const { defaultTimeZone } = SETTINGS;
 import { curveStepAfter } from 'd3-shape';
 import { IMetricSetScope } from 'kayenta/domain/IMetricSetPair';
-import * as _ from 'lodash';
 
 import * as utils from './utils';
 import Tooltip from './tooltip';
@@ -160,23 +159,14 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     } = vizConfig.timeSeries;
     let graphTS;
 
-    console.log('metricSetPair+++');
-    console.log(metricSetPair);
-
-    //test data
-    let metricSetPairTest = _.cloneDeep(metricSetPair);
-    let newData = new Array(1440).fill(0.2);
-    metricSetPairTest.values.control = metricSetPairTest.values.control.concat(newData);
-    metricSetPairTest.values.experiment = metricSetPairTest.values.experiment.concat(newData);
-
     const totalDifferenceAreaSectionHeight = differenceAreaHeight + differenceAreaHeaderHeight;
     const baselineDataProps = {
       color: vizConfig.colors.baseline,
       label: 'baseline',
     };
     const baselineData = this.formatTSData(
-      metricSetPairTest.values.control,
-      metricSetPairTest.scopes.control,
+      metricSetPair.values.control,
+      metricSetPair.scopes.control,
       baselineDataProps,
     );
     const canaryDataProps = {
@@ -184,14 +174,14 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       label: 'canary',
     };
     const canaryData = this.formatTSData(
-      metricSetPairTest.values.experiment,
-      metricSetPairTest.scopes.experiment,
+      metricSetPair.values.experiment,
+      metricSetPair.scopes.experiment,
       canaryDataProps,
     );
     const data = [baselineData, canaryData] as IChartDataSet[];
     const startTimeMillis = metricSetPair.scopes.control.startTimeMillis;
-    const millisSet = metricSetPairTest.values.control.map((_, i: number) => {
-      return startTimeMillis + i * metricSetPairTest.scopes.control.stepMillis;
+    const millisSet = metricSetPair.values.control.map((_, i: number) => {
+      return startTimeMillis + i * metricSetPair.scopes.control.stepMillis;
     });
     const extentTS = [millisSet[0], millisSet[millisSet.length - 1]];
 
@@ -199,7 +189,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     const xExtentMain = userBrushExtent ? userBrushExtent : [new Date(extentTS[0]), new Date(extentTS[1])];
     const millisSetMain = millisSet.filter((ms: number) => ms >= xExtentMain[0] && ms <= xExtentMain[1]);
 
-    const shouldDisplayMinimap = metricSetPairTest.values.control.length > minimapDataPointsThreshold;
+    const shouldDisplayMinimap = metricSetPair.values.control.length > minimapDataPointsThreshold;
     const lineStyleFunc = (ds: IChartDataSet) => {
       return {
         stroke: ds.color,
@@ -219,6 +209,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         orient: 'bottom',
         tickValues: utils.calculateDateTimeTicks(millisSetMain),
         tickFormat: (d: number) => {
+          //custom labels as we want two lines when showing date + hour
           const text = utils.dateTimeTickFormatter(d).map((s: string) => (
             <text textAnchor={'middle'} className={'axis-label'}>
               {s}
@@ -316,7 +307,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
             <i className="fas fa-search-plus" />
           </div>
         ) : null}
-        <DifferenceArea {...this.props} height={differenceAreaHeight} />
+        <DifferenceArea {...this.props} height={differenceAreaHeight} headerHeight={differenceAreaHeaderHeight} />
       </div>
     );
   }

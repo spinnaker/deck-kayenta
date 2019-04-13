@@ -5,7 +5,6 @@ import { scaleUtc } from 'd3-scale';
 import { XYFrame } from 'semiotic';
 import * as moment from 'moment-timezone';
 import { curveStepAfter } from 'd3-shape';
-import * as _ from 'lodash';
 
 import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
 import { ISemioticChartProps, IMargin } from './semiotic.service';
@@ -26,7 +25,13 @@ interface IChartDataSet {
 
 interface IDifferenceAreaProps extends ISemioticChartProps {
   height: number;
+  headerHeight: number;
 }
+
+/*
+* Supplemental visualization in the time series view to highlight
+* Canary difference to baseline at any given timestamp
+*/
 
 export default class DifferenceArea extends React.Component<IDifferenceAreaProps> {
   private margin: IMargin = {
@@ -72,21 +77,13 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
   };
 
   public render() {
-    const { metricSetPair, parentWidth, height } = this.props;
-
-    //test data
-    let metricSetPairTest = _.cloneDeep(metricSetPair);
-    let newData = new Array(1440).fill(0.2);
-    metricSetPairTest.values.control = metricSetPairTest.values.control.concat(newData);
-    metricSetPairTest.values.experiment = metricSetPairTest.values.experiment.concat(newData);
-
-    const startTimeMillis = metricSetPairTest.scopes.control.startTimeMillis;
-    const millisSet = metricSetPairTest.values.control.map((_, i: number) => {
-      return startTimeMillis + i * metricSetPairTest.scopes.control.stepMillis;
+    const { metricSetPair, parentWidth, height, headerHeight } = this.props;
+    const startTimeMillis = metricSetPair.scopes.control.startTimeMillis;
+    const millisSet = metricSetPair.values.control.map((_, i: number) => {
+      return startTimeMillis + i * metricSetPair.scopes.control.stepMillis;
     });
-    console.log(millisSet);
 
-    const chartData = this.formatDifferenceTSData(metricSetPairTest);
+    const chartData = this.formatDifferenceTSData(metricSetPair);
     const lineStyleFunc = (ds: IChartDataSet) => {
       return ds.label === 'difference'
         ? {
@@ -113,6 +110,7 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
         orient: 'bottom',
         tickValues: utils.calculateDateTimeTicks(millisSet),
         tickFormat: (d: number) => {
+          //custom labels
           const text = utils.dateTimeTickFormatter(d).map((s: string) => (
             <text textAnchor={'middle'} className={'axis-label'}>
               {s}
@@ -140,7 +138,9 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
 
     return (
       <div className={'difference-area'}>
-        <div className={'chart-title'}>{'Canary Value Differences from Baseline'}</div>
+        <div className={'chart-title'} style={{ height: headerHeight }}>
+          {'Canary Value Differences from Baseline'}
+        </div>
         <XYFrame {...computedConfig} />
       </div>
     );

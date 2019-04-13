@@ -7,7 +7,7 @@ import { IMetricSetPairGraphProps, GraphType } from '../metricSetPairGraph.servi
 import TimeSeries from './timeSeries';
 import Histogram from './histogram';
 import BoxPlot from './boxplot';
-import './graph.less';
+import './semioticGraph.less';
 
 export default class SemioticGraph extends React.Component<IMetricSetPairGraphProps> {
   private fetchChart = (parentWidth: number) => {

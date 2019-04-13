@@ -3,7 +3,6 @@
 
 import * as React from 'react';
 import { OrdinalFrame, Annotation } from 'semiotic';
-// import { OrdinalFrame } from 'semiotic';
 import { extent } from 'd3-array';
 import { Node, Force } from 'labella';
 
@@ -12,7 +11,6 @@ import { vizConfig } from './config';
 import { ISemioticChartProps, IMargin, ITooltip } from './semiotic.service';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
-import './graph.less';
 import './boxplot.less';
 import Tooltip from './tooltip';
 import CircleIcon from './circleIcon';
@@ -58,11 +56,11 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     return { chartData };
   };
 
+  // Generate tooltip content that shows the summary statistics of a boxplot
   createChartHoverHandler = () => {
     return (d: any): void => {
       if (d && d.type === 'frame-hover') {
         const points = d.points;
-
         let data: any = {
           baseline: [] as any[],
           canary: [] as any[],
@@ -74,7 +72,6 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         });
 
         const summaryLabels = data.baseline.map((b: any) => b.label);
-
         const summaryKeysColumn = [
           <div className={'header'} key={'summary'}>
             {'Summary'}
@@ -192,8 +189,6 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
   };
 
   render(): any {
-    console.log('Box plot...');
-    console.log(this.props);
     const { metricSetPair, parentWidth } = this.props;
     const { chartData } = this.generateChartData();
     const chartHoverHandler = this.createChartHoverHandler();

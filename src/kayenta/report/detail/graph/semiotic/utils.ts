@@ -1,9 +1,6 @@
-// import * as React from 'react';
 import { format } from 'd3-format';
 import * as moment from 'moment-timezone';
-// import { timeHour } from 'd3-time';
 import { scaleUtc } from 'd3-scale';
-// import { timeFormat } from 'd3-time-format';
 import { quantile } from 'd3-array';
 import { ISummaryStatistics } from './semiotic.service';
 

@@ -15,7 +15,7 @@ export default () => {
   };
 
   return (
-    <div className={'semiotic-legend'}>
+    <div className={'chart-legend'}>
       <div className={'legend-item'}>
         <div className={'legend-icon'} style={baselineIconStyle} />
         <div>{'Baseline'}</div>
