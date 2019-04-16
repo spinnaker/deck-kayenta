@@ -23,6 +23,6 @@ export const vizConfig: IVizConfig = {
     minimapDataPointsThreshold: 240,
     minimapHeight: 40,
     differenceAreaHeight: 80,
-    differenceAreaHeaderHeight: 37,
+    differenceAreaHeaderHeight: 17,
   },
 };
