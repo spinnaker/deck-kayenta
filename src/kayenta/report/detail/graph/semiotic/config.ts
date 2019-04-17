@@ -20,7 +20,7 @@ export const vizConfig: IVizConfig = {
   },
   height: 400,
   timeSeries: {
-    minimapDataPointsThreshold: 240,
+    minimapDataPointsThreshold: 50,
     minimapHeight: 40,
     differenceAreaHeight: 80,
     differenceAreaHeaderHeight: 17,

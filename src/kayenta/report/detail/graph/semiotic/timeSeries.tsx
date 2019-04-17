@@ -8,6 +8,7 @@ import { SETTINGS } from '@spinnaker/core';
 const { defaultTimeZone } = SETTINGS;
 import { curveStepAfter } from 'd3-shape';
 import { IMetricSetScope } from 'kayenta/domain/IMetricSetPair';
+import * as _ from 'lodash';
 
 import * as utils from './utils';
 import Tooltip from './tooltip';
@@ -18,18 +19,30 @@ import './timeSeries.less';
 import { vizConfig } from './config';
 import CircleIcon from './circleIcon';
 import DifferenceArea from './differenceArea';
+import SecondaryTSXAxis from './secondaryTSXAxis';
 
 moment.tz.setDefault(defaultTimeZone);
+
+interface IDataProps {
+  label: string;
+  color: string;
+}
 
 interface IDataPoint {
   timestampMillis: number;
   value: number | null;
+  normalizedTimestampMillis?: number;
 }
 
 interface IChartDataSet {
   color: string;
   label: string;
   coordinates: IDataPoint[];
+  // dataPointCount: number,
+  startTimeMillis: number;
+  endTimeMillis: number;
+  stepMillis: number;
+  millisSet: number[];
 }
 
 interface ITimeSeriesState {
@@ -41,6 +54,13 @@ interface ITooltipDataPoint {
   color: string;
   label: string;
   value: number | null;
+  ts: number;
+}
+
+interface IDataSetsAttribute {
+  isStartTimeMillisEqual: boolean;
+  startTimeMillisOffset: number;
+  maxDataCount: number;
 }
 
 /*There are 3 vizualisations inside this component:
@@ -68,31 +88,63 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     right: 20,
   };
 
-  formatTSData = (values: number[], scope: IMetricSetScope, properties: object) => {
+  /*
+  *  Generate chart Data
+  * In cases where the start Millis is different betwen canary and baseline, we want to:
+  * 1) If data point count is different, extend the shorter dataset to match the longer one (i.e. match the x extent)
+  * 2) normalize canary timestamp to match baseline timestamps (needed for the tooltip's
+  * voronoi overlay logic in semiotic to work properly)
+  */
+  formatTSData = (
+    values: number[],
+    scope: IMetricSetScope,
+    properties: IDataProps,
+    dataSetsAttr: IDataSetsAttribute,
+  ) => {
+    const { isStartTimeMillisEqual, startTimeMillisOffset, maxDataCount } = dataSetsAttr;
+
     const stepMillis = scope.stepMillis;
-    let dataPoints = values
-      .map((v, i) => {
+    let millisSet: number[] = [];
+    let dataPointsLength = values.length;
+    let dataPoints = Array(maxDataCount)
+      .fill(0)
+      .map((_: number, i: number) => {
+        const ts = scope.startTimeMillis + i * stepMillis;
+        const value = i < dataPointsLength ? values[i] : null;
+        millisSet.push(ts);
         return {
-          timestampMillis: scope.startTimeMillis + i * stepMillis,
-          value: typeof v === 'number' ? v : null,
+          timestampMillis: ts,
+          // if canary has an offset, shift it back to match with baseline
+          normalizedTimestampMillis:
+            !isStartTimeMillisEqual && properties.label === 'canary' ? ts - startTimeMillisOffset : ts,
+          value: typeof value === 'number' ? value : null,
         };
-      })
-      .filter(d => typeof d.value === 'number');
+      });
 
     return {
       ...properties,
-      coordinates: dataPoints,
+      coordinates: dataPoints.filter(d => typeof d.value === 'number'),
+      // filteredCoordinates : dataPoints,
+      // dataPointCount: dataPoints.length,
+      startTimeMillis: scope.startTimeMillis,
+      endTimeMillis: scope.startTimeMillis + (dataPoints.length - 1) * stepMillis,
+      stepMillis,
+      millisSet,
     };
   };
 
+  calculateDifferenceChartData = () => {};
+
   // function factory to create a hover handler function based on the datasets
-  createChartHoverHandler = (dataSets: IChartDataSet[]) => {
+  createChartHoverHandler = (dataSets: IChartDataSet[], dataSetsAttr: IDataSetsAttribute) => {
+    const { isStartTimeMillisEqual } = dataSetsAttr;
     return (d: any) => {
-      if (d && d.timestampMillis) {
-        const ts = d.timestampMillis;
+      if (d && d.normalizedTimestampMillis) {
+        const tsBaseline = d.normalizedTimestampMillis;
+        const tsCanary = tsBaseline + dataSetsAttr.startTimeMillisOffset;
         const dataPoints: { [group: string]: IDataPoint | undefined } = {
-          canary: dataSets.find(o => o.label === 'canary').coordinates.find(c => c.timestampMillis === ts),
-          baseline: dataSets.find(o => o.label === 'baseline').coordinates.find(c => c.timestampMillis === ts),
+          canary: dataSets.find(o => o.label === 'canary').coordinates.find(c => c.timestampMillis === tsCanary),
+          baseline: dataSets.find(o => o.label === 'baseline').coordinates.find(c => c.timestampMillis === tsBaseline),
         };
 
         const canaryMinusBaseline =
@@ -101,32 +153,47 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         const tooltipRows = dataSets
           .map(
             (ds: IChartDataSet): ITooltipDataPoint => {
+              console.log(ds);
+              console.log(ds.label === 'baseline' ? tsBaseline : tsCanary);
               return {
                 color: ds.color,
                 label: ds.label,
                 value: dataPoints[ds.label] ? dataPoints[ds.label].value : null,
+                ts: ds.label === 'baseline' ? tsBaseline : tsCanary,
               };
             },
           )
           .sort((a: ITooltipDataPoint, b: ITooltipDataPoint) => b.value - a.value)
           .map((o: ITooltipDataPoint) => {
+            // if there's an ts offset, timestamp should be displayed for each group
+            const tsRow = isStartTimeMillisEqual ? null : (
+              <div className={'tooltip-ts'}>{moment(o.ts).format('YYYY-MM-DD HH:mm:ss z')}</div>
+            );
             return (
-              <div id={o.label} key={o.label}>
-                <CircleIcon group={o.label} />
-                <span>{`${o.label}: `}</span>
-                <span>{utils.formatMetricValue(o.value)}</span>
+              <div className={isStartTimeMillisEqual ? '' : 'tooltip-dual-axis-row'}>
+                {tsRow}
+                <div id={o.label} key={o.label}>
+                  <CircleIcon group={o.label} />
+                  <span>{`${o.label}: `}</span>
+                  <span>{utils.formatMetricValue(o.value)}</span>
+                </div>
               </div>
             );
           })
           .concat([
-            <div id={'diff'} key={'diff'}>
+            <div id={'diff'} key={'diff'} className={'tooltip-row'}>
               <span>{`${'Canary - Baseline'}: `}</span>
               <span>{utils.formatMetricValue(canaryMinusBaseline)}</span>
             </div>,
           ]);
         const tooltipContent = (
           <div>
-            <div>{moment(d.data.timestampMillis).format('YYYY-MM-DD HH:mm:ss z')}</div>
+            {/* if no dual axes, display timestamp row at the top level */}
+            {isStartTimeMillisEqual ? (
+              <div key={'ts'} className={'tooltip-ts'}>
+                {moment(tsBaseline).format('YYYY-MM-DD HH:mm:ss z')}
+              </div>
+            ) : null}
             {tooltipRows}
           </div>
         );
@@ -149,7 +216,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   };
 
   render() {
-    const { metricSetPair, parentWidth } = this.props;
+    let { metricSetPair, parentWidth } = this.props;
     const { userBrushExtent } = this.state;
     const {
       minimapDataPointsThreshold,
@@ -160,7 +227,28 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     let graphTS;
 
     const totalDifferenceAreaSectionHeight = differenceAreaHeight + differenceAreaHeaderHeight;
-    const baselineDataProps = {
+
+    // Test data
+    const testOffset = 240000 + 18000000;
+    metricSetPair = _.cloneDeep(metricSetPair);
+    metricSetPair.scopes.experiment.startTimeMillis = metricSetPair.scopes.experiment.startTimeMillis + testOffset;
+    Object.values(metricSetPair.values.experiment).forEach((d: any) => {
+      d = d + testOffset;
+    });
+
+    console.log('metricSetPair+++');
+    console.log(metricSetPair);
+
+    const isStartTimeMillisEqual =
+      metricSetPair.scopes.control.startTimeMillis === metricSetPair.scopes.experiment.startTimeMillis;
+    const baselineStartTimeMillis = metricSetPair.scopes.control.startTimeMillis;
+    const canaryStartTimeMillis = metricSetPair.scopes.experiment.startTimeMillis;
+    const dataSetsAttributes = {
+      isStartTimeMillisEqual: baselineStartTimeMillis === canaryStartTimeMillis,
+      startTimeMillisOffset: canaryStartTimeMillis - baselineStartTimeMillis,
+      maxDataCount: Math.max(metricSetPair.values.control.length, metricSetPair.values.experiment.length),
+    };
+    const baselineDataProps: IDataProps = {
       color: vizConfig.colors.baseline,
       label: 'baseline',
     };
@@ -168,8 +256,9 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       metricSetPair.values.control,
       metricSetPair.scopes.control,
       baselineDataProps,
+      dataSetsAttributes,
     );
-    const canaryDataProps = {
+    const canaryDataProps: IDataProps = {
       color: vizConfig.colors.canary,
       label: 'canary',
     };
@@ -177,18 +266,20 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       metricSetPair.values.experiment,
       metricSetPair.scopes.experiment,
       canaryDataProps,
+      dataSetsAttributes,
     );
     const data = [baselineData, canaryData] as IChartDataSet[];
-    const startTimeMillis = metricSetPair.scopes.control.startTimeMillis;
-    const millisSet = metricSetPair.values.control.map((_, i: number) => {
-      return startTimeMillis + i * metricSetPair.scopes.control.stepMillis;
-    });
-    const extentTS = [millisSet[0], millisSet[millisSet.length - 1]];
+    // TODO: calculate differenceChartData
 
-    // If there's no user extent defined, set the entire extent as default
+    const millisSet = baselineData.millisSet;
+    const extentTS = [baselineData.startTimeMillis, baselineData.endTimeMillis];
+
+    // If there's no user extent defined, set the entire extent as the default for the main chart
     const xExtentMain = userBrushExtent ? userBrushExtent : [new Date(extentTS[0]), new Date(extentTS[1])];
     const millisSetMain = millisSet.filter((ms: number) => ms >= xExtentMain[0] && ms <= xExtentMain[1]);
-
+    const millisSetMainCanary = dataSetsAttributes.isStartTimeMillisEqual
+      ? millisSetMain
+      : millisSetMain.map((ms: number) => ms + dataSetsAttributes.startTimeMillisOffset);
     const shouldDisplayMinimap = metricSetPair.values.control.length > minimapDataPointsThreshold;
     const lineStyleFunc = (ds: IChartDataSet) => {
       return {
@@ -237,13 +328,13 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       },
     ];
 
-    const chartHoverHandler = this.createChartHoverHandler(data);
+    const chartHoverHandler = this.createChartHoverHandler(data, dataSetsAttributes);
 
     const commonTSConfig = {
       lines: data,
       lineType: lineType,
       lineStyle: lineStyleFunc,
-      xAccessor: (d: IDataPoint) => moment(d.timestampMillis).toDate(),
+      xAccessor: (d: IDataPoint) => moment(d.normalizedTimestampMillis).toDate(),
       yAccessor: 'value',
       xScaleType: scaleUtc(),
     };
@@ -294,12 +385,31 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       );
     }
 
+    // const shouldUseDualAxis = !isStartTimeMillisEqual && baselineData.coordinates.length>0
+    //   && canaryData.coordinates.length>0
+    // console.log('shouldUseDualAxis+++')
+    // console.log(shouldUseDualAxis)
+
+    const secondaryXAxis =
+      !isStartTimeMillisEqual && baselineData.coordinates.length > 0 && canaryData.coordinates.length > 0 ? (
+        <SecondaryTSXAxis
+          margin={{ left: this.marginMain.left, right: this.marginMain.right, top: 0, bottom: 0 }}
+          width={parentWidth}
+          axisTickLineHeight={4}
+          millisSet={millisSetMainCanary}
+          axisTickLabelHeight={32}
+          axisLabelHeight={16}
+          axisLabel={'canary'}
+        />
+      ) : null;
+
     return (
       <div className={'time-series'}>
         <ChartHeader metric={metricSetPair.name} />
         <ChartLegend />
         <div className={'graph-container'}>
           <div className={'time-series-chart'}>{graphTS}</div>
+          {secondaryXAxis}
           <Tooltip {...this.state.tooltip} />
         </div>
         {shouldDisplayMinimap ? (

@@ -14,23 +14,24 @@
         letter-spacing: 1.5px;
       }
     }
-    .axis.axis-labels {
-      font-size: 12px;
-      font-weight: 200;
-      .y.left,
-      .x.bottom {
-        stroke: @axis-color;
-        fill: none;
-      }
-      .axis-title.left.y text {
-        letter-spacing: 1.5px;
-      }
-      .x.axis.bottom text.axis-label {
-        transform: translateY(-10px);
-      }
-      .x.axis.bottom text.axis-label:nth-child(2) {
-        transform: translateY(5px);
-      }
+  }
+
+  .axis {
+    font-size: 12px;
+    font-weight: 200;
+    .axis.y.left,
+    .axis.x.bottom {
+      stroke: @axis-color;
+      fill: none;
+    }
+    .axis-title.left.y text {
+      letter-spacing: 1.5px;
+    }
+    .x.axis.bottom text.axis-label {
+      transform: translateY(-10px);
+    }
+    .x.axis.bottom text.axis-label:nth-child(2) {
+      transform: translateY(5px);
     }
   }
 
