@@ -8,26 +8,14 @@ import { IMargin } from './semiotic.service';
 import * as utils from './utils';
 import CustomAxisTickLabel from './customAxisTickLabel';
 import './secondaryTSXAxis.less';
+import { vizConfig } from './config';
 
-// interface IDataPoint {
-//   timestampMillis: number;
-//   value: number;
-// }
-//
-// interface IChartDataSet {
-//   label: string;
-//   color: string;
-//   coordinates: IDataPoint[];
-// }
-//
 interface ISecondaryTSXAxisProps {
   margin: IMargin;
   width: number;
-  axisTickLineHeight: number;
   millisSet: number[];
   axisLabel?: string;
-  axisTickLabelHeight: number;
-  axisLabelHeight: number;
+  bottomOffset: number;
 }
 
 /*
@@ -36,55 +24,38 @@ interface ISecondaryTSXAxisProps {
 * on the main graph component
 */
 export default class secondaryTSXAxis extends React.Component<ISecondaryTSXAxisProps> {
-  static defaultProps: ISecondaryTSXAxisProps = {
-    margin: {
-      top: 0,
-      bottom: 0,
-      left: 60,
-      right: 20,
-    },
-    width: 200, // total width for this component
-    axisTickLineHeight: 4, // height of the tick lines above the axis line
-    millisSet: [0],
-    axisTickLabelHeight: 32,
-    axisLabelHeight: 16,
-  };
-
   public render() {
-    const {
-      margin,
-      width,
-      axisTickLabelHeight,
-      axisTickLineHeight,
-      millisSet,
-      axisLabel,
-      axisLabelHeight,
-    } = this.props;
+    const { margin, width, millisSet, axisLabel, bottomOffset } = this.props;
+
+    const { axisTickLineHeight, axisTickLabelHeight, axisLabelHeight } = vizConfig.timeSeries;
 
     const extent = [millisSet[0], millisSet[millisSet.length - 1]].map((ms: number) => new Date(ms));
     const totalAxisHeight = axisTickLabelHeight + axisTickLineHeight + (axisLabel ? axisLabelHeight : 0);
     const netWidth = width - margin.left - margin.right;
     const range = [0, netWidth];
     const containerStyle = {
-      margin: `${margin.top}px ${margin.right}px ${margin.bottom}px ${margin.left}px`,
+      bottom: bottomOffset,
     };
 
+    const svgWrapperStyle = {
+      transform: `translateX(${margin.left}px)`,
+    };
     return (
-      <div className={'secondary-ts-x-axis'} style={containerStyle}>
-        <svg className={'axis'} width={netWidth} height={totalAxisHeight}>
+      <svg className={'axis secondary-ts-x-axis'} width={width} height={totalAxisHeight} style={containerStyle}>
+        <g className={'wrapper'} style={svgWrapperStyle}>
           <Axis
-            className={'x axis bottom'}
+            className={'x axis bottom canary-dual-axis'}
             size={[netWidth, axisTickLineHeight]}
             scale={scaleUtc()
               .domain(extent)
               .range(range)}
             orient={'bottom'}
-            label={'canary'}
+            label={'Canary'}
             tickValues={utils.calculateDateTimeTicks(millisSet)}
             tickFormat={(d: number) => <CustomAxisTickLabel millis={d} />}
           />
-        </svg>
-      </div>
+        </g>
+      </svg>
     );
   }
 }

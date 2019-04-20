@@ -1,11 +1,11 @@
-@background-color: var(--alabaster);
+@import './config.less';
 
 .time-series {
   .xyframe-matte {
     fill: @background-color;
   }
   .zoom-icon {
-    bottom: 124px;
+    bottom: 10px;
     left: 30px;
     position: absolute;
     color: var(--dove-gray);
@@ -19,6 +19,18 @@
   .axis-title.x.axis.bottom {
     text {
       transform: translateY(-8px);
+    }
+  }
+  .canary-dual-axis {
+    .axis-label,
+    .axis-title text {
+      stroke: @canary-color;
+    }
+  }
+  .baseline-dual-axis {
+    .axis-label,
+    .axis-title text {
+      stroke: @baseline-color;
     }
   }
 }

@@ -3,7 +3,7 @@ interface IColorConfig {
 }
 
 interface ITimeSeriesConfig {
-  [propName: string]: number;
+  [propName: string]: any;
 }
 
 interface IVizConfig {
@@ -20,9 +20,10 @@ export const vizConfig: IVizConfig = {
   },
   height: 400,
   timeSeries: {
-    minimapDataPointsThreshold: 50,
+    minimapDataPointsThreshold: 40,
     minimapHeight: 40,
-    differenceAreaHeight: 80,
-    differenceAreaHeaderHeight: 17,
+    axisTickLineHeight: 4,
+    axisTickLabelHeight: 32,
+    axisLabelHeight: 16,
   },
 };
