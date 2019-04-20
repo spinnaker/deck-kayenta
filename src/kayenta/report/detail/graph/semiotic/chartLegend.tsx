@@ -1,11 +1,20 @@
 ///<reference path="./declarations/semiotic.d.ts" />
 
 import * as React from 'react';
+import * as classNames from 'classnames';
 
 import { vizConfig } from './config';
 import './chartLegend.less';
 
-export default () => {
+interface IChartLegendProps {
+  isClickable?: boolean;
+  onClickHandler?: { (group: string): void };
+  showGroup?: { [group: string]: boolean };
+}
+
+export default (props: IChartLegendProps) => {
+  const { onClickHandler, showGroup = { baseline: true, canary: true }, isClickable = false } = props;
+
   const baselineIconStyle = {
     backgroundColor: vizConfig.colors.baseline,
   };
@@ -14,13 +23,18 @@ export default () => {
     backgroundColor: vizConfig.colors.canary,
   };
 
+  const handleClick = (group: string) => (onClickHandler ? () => onClickHandler(group) : undefined);
+
+  const legendItemClass = classNames('legend-item', `${isClickable ? 'clickable' : ''}`);
+  const legendItemClassCanary = classNames(legendItemClass, showGroup.canary ? '' : 'deselected');
+  const legendItemClassBaseline = classNames(legendItemClass, showGroup.baseline ? '' : 'deselected');
   return (
     <div className={'chart-legend'}>
-      <div className={'legend-item'}>
+      <div className={legendItemClassBaseline} onClick={handleClick('baseline')}>
         <div className={'legend-icon'} style={baselineIconStyle} />
         <div>{'Baseline'}</div>
       </div>
-      <div className={'legend-item'}>
+      <div className={legendItemClassCanary} onClick={handleClick('canary')}>
         <div className={'legend-icon'} style={canaryIconStyle} />
         <div>{'Canary'}</div>
       </div>
