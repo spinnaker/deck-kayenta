@@ -4,8 +4,8 @@ import { scaleUtc } from 'd3-scale';
 import { quantile } from 'd3-array';
 import { ISummaryStatistics } from './semiotic.service';
 
-export const formatMetricValue = (value: number | null) => {
-  if (typeof value !== 'number') {
+export const formatMetricValue = (value: any) => {
+  if (typeof value !== 'number' || isNaN(value)) {
     return 'N/A';
   } else if (Math.abs(value) > Math.pow(10, 24)) {
     return format('-.3~e')(value);

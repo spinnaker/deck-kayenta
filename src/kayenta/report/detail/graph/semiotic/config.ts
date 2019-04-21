@@ -20,7 +20,7 @@ export const vizConfig: IVizConfig = {
   },
   height: 400,
   timeSeries: {
-    minimapDataPointsThreshold: 40,
+    minimapDataPointsThreshold: 240,
     minimapHeight: 40,
     axisTickLineHeight: 4,
     axisTickLabelHeight: 32,
