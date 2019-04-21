@@ -26,16 +26,16 @@ interface IChartDataSet {
   coordinates: IDataPoint[];
 }
 
-// interface IDifferenceAreaProps extends ISemioticChartProps{
-//   height: number;
-//   headerHeight: number;
-// }
+interface IFormattedData {
+  chartData: IChartDataSet[];
+  xExtent: number[];
+  millisSet: number[];
+}
 
 /*
 * Supplemental visualization in the time series view to highlight
 * Canary difference to baseline at any given timestamp
 */
-
 export default class DifferenceArea extends React.Component<ISemioticChartProps> {
   private margin: IMargin = {
     left: 60,
@@ -51,23 +51,35 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
       scopes,
     } = metricSetPair;
 
+    const output = {} as IFormattedData;
     const stepMillis = scopes.control.stepMillis;
+    const maxDataPoints = Math.max(experiment.length, control.length);
+    let millisSetValidValues = [] as number[];
+    let millisSetUnfiltered = [] as number[];
     let differenceDataPoints: IDataPoint[] = [];
     let baselineReferenceDataPoints: IDataPoint[] = [];
-    control.forEach((c, i) => {
-      let e = experiment[i];
-      let timestampMillis = scopes.control.startTimeMillis + i * stepMillis;
-      differenceDataPoints.push({
-        timestampMillis,
-        value: typeof c !== 'number' || typeof e !== 'number' ? 0 : e - c,
+    Array(maxDataPoints)
+      .fill(0)
+      .forEach((_, i) => {
+        let e = experiment[i];
+        let c = control[i];
+        let timestampMillis = scopes.control.startTimeMillis + i * stepMillis;
+        millisSetUnfiltered.push(timestampMillis);
+        if (typeof c === 'number' || typeof e === 'number') {
+          millisSetValidValues.push(timestampMillis);
+          baselineReferenceDataPoints.push({
+            timestampMillis,
+            value: 0,
+          });
+          if (typeof c === 'number' && typeof e === 'number') {
+            differenceDataPoints.push({
+              timestampMillis,
+              value: e - c,
+            });
+          }
+        }
       });
-      baselineReferenceDataPoints.push({
-        timestampMillis,
-        value: 0,
-      });
-    });
-
-    return [
+    output.chartData = [
       {
         label: 'difference',
         color: vizConfig.colors.canary,
@@ -79,6 +91,15 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
         coordinates: baselineReferenceDataPoints,
       },
     ];
+
+    // set the xExtent to be between the earliest and latest timestamp with valid numerical value
+    // This needs to be explicitly stated to align the time window with the minimap's
+    output.xExtent = [millisSetValidValues[0], millisSetValidValues[millisSetValidValues.length - 1]];
+
+    //all millis values within the xExtent range. Required for custom tick labelling
+    output.millisSet = millisSetUnfiltered.filter((ms: number) => ms >= output.xExtent[0] && ms <= output.xExtent[1]);
+
+    return output;
   };
 
   public render() {
@@ -86,27 +107,14 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
 
     const { axisTickLineHeight, axisTickLabelHeight, axisLabelHeight } = vizConfig.timeSeries;
 
-    // Test data ====================
-    const testOffset = 240000 + 18000000;
-    metricSetPair = _.cloneDeep(metricSetPair);
-    metricSetPair.scopes.experiment.startTimeMillis = metricSetPair.scopes.experiment.startTimeMillis + testOffset;
-    Object.values(metricSetPair.values.experiment).forEach((d: any) => {
-      d = d + testOffset;
-    });
-
-    const { scopes, values } = metricSetPair;
-
     /*
     * Generate the data needed for the graph components
     */
-    const startTimeMillis = scopes.control.startTimeMillis;
-    const millisSet = values.control.map((_, i: number) => {
-      return startTimeMillis + i * scopes.control.stepMillis;
-    });
-
+    const { scopes } = metricSetPair;
+    const { chartData, xExtent, millisSet } = this.formatDifferenceTSData(metricSetPair);
     const millisOffset = scopes.experiment.startTimeMillis - scopes.control.startTimeMillis;
     const millisSetCanary = millisOffset === 0 ? millisSet : millisSet.map((ms: number) => ms + millisOffset);
-    const chartData = this.formatDifferenceTSData(metricSetPair);
+
     const shouldUseSecondaryXAxis = millisOffset !== 0;
 
     /*
@@ -171,6 +179,7 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
       yAccessor: 'value',
       xScaleType: scaleUtc(),
       axes: axes,
+      xExtent,
     };
 
     return (
