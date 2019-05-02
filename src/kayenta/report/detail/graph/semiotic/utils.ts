@@ -4,14 +4,25 @@ import { scaleUtc } from 'd3-scale';
 import { quantile } from 'd3-array';
 import { ISummaryStatistics } from './semiotic.service';
 
+/*
+Formatter for any metric values. If the value is not a valid number (typically NaN),
+we want to display "N/A" to highlight that there was no valid measurement.
+Else, the format is made as close as possible to Atlas' formats:
+SI notation is used when the exponent is between -24 and 24 (inclusive),
+and exponential notation otherwise. Both with 3 digits of precision
+*/
 export const formatMetricValue = (value: any) => {
   if (typeof value !== 'number' || isNaN(value)) {
     return 'N/A';
-  } else if (Math.abs(value) > Math.pow(10, 24)) {
+  } else if (Math.abs(value) >= Math.pow(10, 25)) {
     return format('-.3~e')(value);
   } else return format('-.3~s')(value);
 };
 
+/*
+Formatter for timestamps. If the timestamp value is a date boundary (e.g. 04-01-2019 00:00:00),
+an additional date label is returned, otherwise only a single label showing hour & minute is returned
+*/
 export const dateTimeTickFormatter = (d: number) => {
   const m = moment(d);
   if (

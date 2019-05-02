@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as classNames from 'classnames';
 
 export interface IChartHeaderProps {
   metric: string;
@@ -8,11 +7,11 @@ export interface IChartHeaderProps {
 export default ({ metric }: IChartHeaderProps) => {
   return (
     <div className={'chart-header'}>
-      <h6 className={classNames('heading-6', 'color-text-primary')}>
-        <span className={classNames('uppercase', 'prefix')}>{`metric name:`}</span>
+      <h6 className="heading-6 color-text-primary">
+        <span className="uppercase prefix">metric name:</span>
         <span>
           &nbsp;
-          {`${metric}`}
+          {metric}
         </span>
       </h6>
     </div>

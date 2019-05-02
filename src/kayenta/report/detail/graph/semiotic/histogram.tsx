@@ -1,5 +1,3 @@
-///<reference path="./declarations/semiotic.d.ts" />
-
 import * as React from 'react';
 import { OrdinalFrame, Annotation } from 'semiotic';
 import { histogram, extent } from 'd3-array';
@@ -77,7 +75,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
       .domain(domain)
       .value((d: IInputDataPoint) => d.value)(combinedInput);
 
-    let chartData: IChartDataPoint[] = [];
+    const chartData: IChartDataPoint[] = [];
 
     // Convert it to ordinal data format for bar chart in semiotic
     histogramData.forEach(h => {
@@ -95,9 +93,8 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
   // Function factory to handle hover event
   createChartHoverHandler = (chartData: IChartDataPoint[]) => {
     return (d: any): void => {
-      const x1Max: number = Math.max(...chartData.map((cd: IChartDataPoint) => cd.x1));
-
       if (d && d.type === 'column-hover') {
+        const x1Max: number = Math.max(...chartData.map((cd: IChartDataPoint) => cd.x1));
         const xyData = d.column.xyData;
         const x = xyData[1].xy.x + this.margin.left;
         const halfHeight1 = xyData[0].xy.height / 2;
@@ -111,7 +108,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
           } as React.CSSProperties;
 
           return (
-            <div id={group} key={group}>
+            <div key={group}>
               <CircleIcon group={group} />
               <span>{` ${group} count: `}</span>
               <span style={valueStyle}>{count}</span>

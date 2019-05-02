@@ -1,6 +1,3 @@
-///<reference path="./declarations/semiotic.d.ts" />
-///<reference path="./declarations/labella.d.ts" />
-
 import * as React from 'react';
 import { OrdinalFrame, Annotation } from 'semiotic';
 import { extent } from 'd3-array';
@@ -61,7 +58,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     return (d: any): void => {
       if (d && d.type === 'frame-hover') {
         const points = d.points;
-        let data: any = {
+        const data: any = {
           baseline: [] as any[],
           canary: [] as any[],
         };
@@ -74,7 +71,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         const summaryLabels = data.baseline.map((b: any) => b.label);
         const summaryKeysColumn = [
           <div className={'header'} key={'summary'}>
-            {'Summary'}
+            Summary
           </div>,
           ...summaryLabels.map((label: any) => {
             return <div key={label}>{label}</div>;
@@ -84,7 +81,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         const baselineColumn = [
           <div className={'header'} key={'baseline'}>
             <CircleIcon group={'baseline'} />
-            {'Baseline'}
+            Baseline
           </div>,
           data.baseline.map((b: any, k: string) => {
             return <div key={k}>{utils.formatMetricValue(b.value)}</div>;
@@ -94,7 +91,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         const canaryColumn = [
           <div className={'header'} key={'canary'}>
             <CircleIcon group={'canary'} />
-            {'Canary'}
+            Canary
           </div>,
           data.canary.map((b: any, k: string) => {
             return <div key={k}>{utils.formatMetricValue(b.value)}</div>;
@@ -123,16 +120,13 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
   };
 
   defineAnnotations = () => {
-    const annotations = [] as any[];
-    const groups = ['baseline', 'canary'];
-    groups.forEach(g => {
-      annotations.push({
+    return ['baseline', 'canary'].map((g: string) => {
+      return {
         type: 'summary-custom',
         group: g,
         summaryKeys: ['q1area', 'median', 'q3area'],
-      });
+      };
     });
-    return annotations;
   };
 
   customAnnotationFunction: any = (args: any): any => {
@@ -145,10 +139,14 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     if (d.type === 'summary-custom') {
       const summaryData = pieceDataXY.filter((sd: any) => sd.key === d.group);
       const boxPlotWidth = categories.baseline.width;
-
+      const statLabelMap: { [stat: string]: string } = {
+        median: 'median',
+        q1area: '25th %-ile',
+        q3area: '75th %-ile',
+      };
       const createNoteElement = (posY: number, dataPoint: any) => {
         const name = dataPoint.summaryPieceName;
-        const label = name === 'median' ? 'median' : name === 'q1area' ? '25th %-ile' : '75th %-ile';
+        const label = statLabelMap[name];
         const noteData = {
           x: dataPoint.x,
           y: posY,
@@ -167,7 +165,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         return <Annotation key={name} noteData={noteData} />;
       };
 
-      let nodes: any[] = [];
+      const nodes: any[] = [];
       d.summaryKeys.forEach((summaryKey: string) => {
         const pieceData = summaryData.find((sd: any) => sd.summaryPieceName === summaryKey);
         if (pieceData) {
@@ -180,7 +178,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
       };
       const force = new Force(forceOptions).nodes(nodes).compute();
 
-      let annotations: any[] = [];
+      const annotations: any[] = [];
       force.nodes().forEach((n: any) => {
         annotations.push(createNoteElement(n.currentPos, n.data.pieceData));
       });

@@ -25,9 +25,9 @@ export default (props: IChartLegendProps) => {
 
   const handleClick = (group: string) => (onClickHandler ? () => onClickHandler(group) : undefined);
 
-  const legendItemClass = classNames('legend-item', `${isClickable ? 'clickable' : ''}`);
-  const legendItemClassCanary = classNames(legendItemClass, showGroup.canary ? '' : 'deselected');
-  const legendItemClassBaseline = classNames(legendItemClass, showGroup.baseline ? '' : 'deselected');
+  const legendItemClass = classNames('legend-item', { clickable: isClickable });
+  const legendItemClassCanary = classNames(legendItemClass, { deselected: !showGroup.canary });
+  const legendItemClassBaseline = classNames(legendItemClass, { deselected: !showGroup.baseline });
   return (
     <div className={'chart-legend'}>
       <div className={legendItemClassBaseline} onClick={handleClick('baseline')}>

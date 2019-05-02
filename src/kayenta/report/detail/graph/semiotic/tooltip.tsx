@@ -5,6 +5,8 @@ export interface ITooltipProps {
   x?: number;
   y?: number;
   content?: any;
+  // unique ids are needed if we want to show multiple tooltip objects at once
+  id?: string;
 }
 
 /*
@@ -25,7 +27,7 @@ export default class Tooltip extends React.Component<ITooltipProps> {
   }
 
   render() {
-    const { x, y, content } = this.props;
+    const { x, y, content, id = 'tooltip' } = this.props;
     const tooltipTargetStyle = {
       left: x ? x : 0,
       top: y ? y : 0,
@@ -43,8 +45,8 @@ export default class Tooltip extends React.Component<ITooltipProps> {
 
     return (
       <div style={containerStyle}>
-        <div data-tip={'tooltip'} style={tooltipTargetStyle} ref={el => (this.tooltipTarget = el)} />
-        <ReactTooltip type={'light'} border={true}>
+        <div data-tip data-for={id} style={tooltipTargetStyle} ref={el => (this.tooltipTarget = el)} />
+        <ReactTooltip id={id} type={'light'} border={true}>
           {content ? content : null}
         </ReactTooltip>
       </div>

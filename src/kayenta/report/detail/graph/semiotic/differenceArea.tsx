@@ -1,5 +1,3 @@
-///<reference path="./declarations/semiotic.d.ts" />
-
 import * as React from 'react';
 import { scaleUtc } from 'd3-scale';
 import { XYFrame } from 'semiotic';
@@ -26,12 +24,6 @@ interface IChartDataSet {
   coordinates: IDataPoint[];
 }
 
-interface IFormattedData {
-  chartData: IChartDataSet[];
-  xExtent: number[];
-  millisSet: number[];
-}
-
 /*
 * Supplemental visualization in the time series view to highlight
 * Canary difference to baseline at any given timestamp
@@ -51,13 +43,12 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
       scopes,
     } = metricSetPair;
 
-    const output = {} as IFormattedData;
     const stepMillis = scopes.control.stepMillis;
     const maxDataPoints = Math.max(experiment.length, control.length);
-    let millisSetValidValues = [] as number[];
-    let millisSetUnfiltered = [] as number[];
-    let differenceDataPoints: IDataPoint[] = [];
-    let baselineReferenceDataPoints: IDataPoint[] = [];
+    const millisSetValidValues = [] as number[];
+    const millisSetUnfiltered = [] as number[];
+    const differenceDataPoints: IDataPoint[] = [];
+    const baselineReferenceDataPoints: IDataPoint[] = [];
     Array(maxDataPoints)
       .fill(0)
       .forEach((_, i) => {
@@ -79,31 +70,32 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
           }
         }
       });
-    output.chartData = [
-      {
-        label: 'difference',
-        color: vizConfig.colors.canary,
-        coordinates: differenceDataPoints,
-      },
-      {
-        label: 'baselineReference',
-        color: vizConfig.colors.baseline,
-        coordinates: baselineReferenceDataPoints,
-      },
-    ];
+    const xExtent = [millisSetValidValues[0], millisSetValidValues[millisSetValidValues.length - 1]];
+    return {
+      chartData: [
+        {
+          label: 'difference',
+          color: vizConfig.colors.canary,
+          coordinates: differenceDataPoints,
+        },
+        {
+          label: 'baselineReference',
+          color: vizConfig.colors.baseline,
+          coordinates: baselineReferenceDataPoints,
+        },
+      ],
 
-    // set the xExtent to be between the earliest and latest timestamp with valid numerical value
-    // This needs to be explicitly stated to align the time window with the minimap's
-    output.xExtent = [millisSetValidValues[0], millisSetValidValues[millisSetValidValues.length - 1]];
+      // set the xExtent to be between the earliest and latest timestamp with valid numerical value
+      // This needs to be explicitly stated to align the time window with the minimap's
+      xExtent: xExtent,
 
-    //all millis values within the xExtent range. Required for custom tick labelling
-    output.millisSet = millisSetUnfiltered.filter((ms: number) => ms >= output.xExtent[0] && ms <= output.xExtent[1]);
-
-    return output;
+      //all millis values within the xExtent range. Required for custom tick labelling
+      millisSet: millisSetUnfiltered.filter((ms: number) => ms >= xExtent[0] && ms <= xExtent[1]),
+    };
   };
 
   public render() {
-    let { metricSetPair, parentWidth } = this.props;
+    const { metricSetPair, parentWidth } = this.props;
 
     const { axisTickLineHeight, axisTickLabelHeight, axisLabelHeight } = vizConfig.timeSeries;
 
@@ -137,7 +129,7 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
     const axes = [
       {
         orient: 'left',
-        tickFormat: () => `\u0394 = 0`,
+        tickFormat: () => `\u0394 = 0`, // Δ = 0
         tickValues: [0],
       },
       {
@@ -185,7 +177,7 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
     return (
       <div className={'difference-area'}>
         <div className={'chart-title'} style={{ height: this.headerHeight }}>
-          {'Canary Value Differences from Baseline'}
+          Canary Value Differences from Baseline
         </div>
         <XYFrame {...computedConfig} />
         {secondaryAxis}

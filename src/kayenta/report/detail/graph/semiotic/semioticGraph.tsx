@@ -33,9 +33,8 @@ export default class SemioticGraph extends React.Component<IMetricSetPairGraphPr
   };
 
   public render() {
-    const containerStyle = {};
     return (
-      <div style={containerStyle} className={'semiotic-graph'}>
+      <div className="semiotic-graph">
         <ContainerDimensions>{({ width }: { width: number }) => this.fetchChart(width)}</ContainerDimensions>
       </div>
     );

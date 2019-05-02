@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import * as classnames from 'classnames';
 import { CopyToClipboard } from '@spinnaker/core';
 
 import { ICanaryMetricConfig } from 'kayenta/domain/ICanaryConfig';
@@ -38,35 +37,35 @@ const MetricResultActions = ({ metricSetPair, metricConfig }: IMetricResultStats
 
   // Mask CopyToClipboard component as a larger button, fire event when clicked
   const copyToClipboard = (
-    <div className={'copy-button-container'}>
-      <CopyToClipboard displayText={false} text={atlasQuery} toolTip={'copy atlas url'} />
-      <button className="primary copy-button" key={'copy-link'}>
+    <div className="copy-button-container">
+      <CopyToClipboard displayText={false} text={atlasQuery} toolTip={null} />
+      <button className="primary copy-button" key="copy-link">
         <i className="glyphicon glyphicon-copy  copy-icon" />
-        {'Copy this Metric URL'}
+        Copy this Metric URL
       </button>
     </div>
   );
 
   const openAtlas = (
     <a href={atlasURL} target="_blank">
-      <button className="primary" key={'open-atlas'}>
+      <button className="primary">
         <i className="fas fa-chart-line" />
-        {'Explore More Data in Atlas'}
+        Explore More Data in Atlas
       </button>
     </a>
   );
 
   const actions = [copyToClipboard, openAtlas].map((action, i) => {
     return (
-      <li className={'action'} key={i}>
+      <li className="action" key={i}>
         {action}
       </li>
     );
   });
 
   return (
-    <div className={'metric-result-actions'}>
-      <ul className={classnames('actions-layout', 'list-inline')}>{actions}</ul>
+    <div className="metric-result-actions">
+      <ul className="actions-layout list-inline">{actions}</ul>
     </div>
   );
 };

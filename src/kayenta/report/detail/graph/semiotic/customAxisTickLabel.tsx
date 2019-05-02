@@ -1,6 +1,3 @@
-///<reference path="./declarations/semiotic.d.ts" />
-///<reference path="./declarations/d3-legend.d.ts" />
-
 import * as React from 'react';
 
 import * as utils from './utils';

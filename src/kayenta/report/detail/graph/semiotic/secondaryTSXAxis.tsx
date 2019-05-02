@@ -23,7 +23,7 @@ interface ISecondaryTSXAxisProps {
 * Used when canary and baseline have different start time. We can overlay this axis component
 * on the main graph component
 */
-export default class secondaryTSXAxis extends React.Component<ISecondaryTSXAxisProps> {
+export default class SecondaryTSXAxis extends React.Component<ISecondaryTSXAxisProps> {
   public render() {
     const { margin, width, millisSet, axisLabel, bottomOffset } = this.props;
 
