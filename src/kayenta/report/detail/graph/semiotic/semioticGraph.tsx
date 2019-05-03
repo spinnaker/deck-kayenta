@@ -7,15 +7,28 @@ import { IMetricSetPairGraphProps, GraphType } from '../metricSetPairGraph.servi
 import TimeSeries from './timeSeries';
 import Histogram from './histogram';
 import BoxPlot from './boxplot';
+import NoDataSign from './noDataSign';
 import './semioticGraph.less';
 
 export default class SemioticGraph extends React.Component<IMetricSetPairGraphProps> {
   private fetchChart = (parentWidth: number) => {
-    const { type } = this.props;
+    const {
+      type,
+      metricSetPair: {
+        values: { control, experiment },
+      },
+    } = this.props;
     const chartProps = {
       ...this.props,
       parentWidth,
     };
+    console.log('test...');
+    console.log(this.props.metricSetPair);
+    const filterInvalidValues = (data: number[]) => data.filter(v => typeof v === 'number');
+
+    if (filterInvalidValues(control).length === 0 && filterInvalidValues(experiment).length === 0) {
+      return <NoDataSign />;
+    }
 
     switch (type) {
       case GraphType.TimeSeries:

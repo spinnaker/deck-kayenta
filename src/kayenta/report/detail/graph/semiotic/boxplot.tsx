@@ -49,7 +49,6 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     const baselineInput = this.decorateData(metricSetPair.values.control, 'baseline');
     const canaryInput = this.decorateData(metricSetPair.values.experiment, 'canary');
     const chartData = baselineInput.concat(canaryInput).filter(filterFunc);
-
     return { chartData };
   };
 
@@ -137,8 +136,13 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     } = args;
 
     if (d.type === 'summary-custom') {
+      // If no data exists for this group, don't return any annotation elements
+      if (!categories[d.group]) {
+        return null;
+      }
+
       const summaryData = pieceDataXY.filter((sd: any) => sd.key === d.group);
-      const boxPlotWidth = categories.baseline.width;
+      const boxPlotWidth = categories[d.group].width;
       const statLabelMap: { [stat: string]: string } = {
         median: 'median',
         q1area: '25th %-ile',
