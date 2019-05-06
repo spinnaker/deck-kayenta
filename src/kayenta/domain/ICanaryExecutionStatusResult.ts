@@ -1,5 +1,6 @@
 import { ICanaryJudgeResult } from './ICanaryJudgeResult';
-import { ICanaryClassifierThresholdsConfig, ICanaryConfig } from './ICanaryConfig';
+import { ICanaryConfig } from './ICanaryConfig';
+import { ICanaryScoreThresholds } from './ICanaryScoreThresholds';
 
 export const CANARY_EXECUTION_NO_PIPELINE_STATUS = 'no-parent-pipeline-execution';
 
@@ -24,7 +25,7 @@ export interface ICanaryResult {
 }
 
 export interface ICanaryExecutionRequest {
-  thresholds: ICanaryClassifierThresholdsConfig;
+  thresholds: ICanaryScoreThresholds;
   scopes: {
     [scopeName: string]: ICanaryScopePair;
   };
