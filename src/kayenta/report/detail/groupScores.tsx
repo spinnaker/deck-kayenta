@@ -8,7 +8,7 @@ import ClickableHeader from './clickableHeader';
 import * as Creators from 'kayenta/actions/creators';
 import { ICanaryState } from 'kayenta/reducers/index';
 import { IGroupWeights } from 'kayenta/domain/ICanaryConfig';
-import { serializedGroupWeightsSelector, serializedCanaryConfigSelector } from 'kayenta/selectors';
+import { serializedGroupWeightsSelector, canaryExecutionRequestSelector } from 'kayenta/selectors';
 import { mapGroupToColor } from './colors';
 
 export interface IGroupScoresOwnProps {
@@ -56,7 +56,7 @@ const GroupScores = ({
 const mapStateToProps = (state: ICanaryState): IGroupScoresStateProps => ({
   selectedGroup: state.selectedRun.selectedGroup,
   groupWeights: serializedGroupWeightsSelector(state),
-  scoreThresholds: serializedCanaryConfigSelector(state).classifier.scoreThresholds,
+  scoreThresholds: canaryExecutionRequestSelector(state).thresholds,
 });
 
 const mapDispatchToProps = (

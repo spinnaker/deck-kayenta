@@ -21,9 +21,6 @@ export interface ICanaryExecutionStatusResult {
 
 export interface ICanaryResult {
   judgeResult: ICanaryJudgeResult;
-  config: ICanaryConfig; // TODO: deprecated, use same field on parent; remove after 5/1/18
-  canaryExecutionRequest: ICanaryExecutionRequest; // TODO: deprecated, use same field on parent; remove after 5/1/18
-  metricSetPairListId: string; // TODO: deprecated, use same field on parent; remove after 5/1/18
 }
 
 export interface ICanaryExecutionRequest {
