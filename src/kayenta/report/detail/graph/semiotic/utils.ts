@@ -7,7 +7,7 @@ import { ISummaryStatistics } from './semiotic.service';
 /*
 Formatter for any metric values. If the value is not a valid number (typically NaN),
 we want to display "N/A" to highlight that there was no valid measurement.
-Else, the format is made as close as possible to Atlas' formats:
+Else, the format is made as close as possible to Atlas graph formats:
 SI notation is used when the exponent is between -24 and 24 (inclusive),
 and exponential notation otherwise. Both with 3 digits of precision
 */

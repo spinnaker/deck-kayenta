@@ -6,10 +6,15 @@ interface ITimeSeriesConfig {
   [propName: string]: any;
 }
 
+interface IDataGroup {
+  [group: string]: string;
+}
+
 interface IVizConfig {
   readonly colors: IColorConfig;
   readonly height: number;
   readonly timeSeries: ITimeSeriesConfig;
+  readonly dataGroupMap: IDataGroup;
 }
 
 export const vizConfig: IVizConfig = {
@@ -20,10 +25,15 @@ export const vizConfig: IVizConfig = {
   },
   height: 400,
   timeSeries: {
-    minimapDataPointsThreshold: 240,
+    // minimapDataPointsThreshold: 240,
+    minimapDataPointsThreshold: 40,
     minimapHeight: 40,
     axisTickLineHeight: 4,
     axisTickLabelHeight: 32,
     axisLabelHeight: 16,
+  },
+  dataGroupMap: {
+    baseline: 'control',
+    canary: 'experiment',
   },
 };

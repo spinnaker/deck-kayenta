@@ -5,7 +5,13 @@ import { Node, Force } from 'labella';
 
 import * as utils from './utils';
 import { vizConfig } from './config';
-import { ISemioticChartProps, IMargin, ITooltip } from './semiotic.service';
+import {
+  ISemioticChartProps,
+  IMargin,
+  ITooltip,
+  ISemioticOrdinalSummaryPiece,
+  ISemioticOrdinalFrameHoverArgs,
+} from './semiotic.service';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
 import './boxplot.less';
@@ -16,6 +22,15 @@ interface IChartDataPoint {
   value: number;
   group: string;
   color: string;
+}
+
+interface IHoverData {
+  value: number;
+  label: string;
+}
+
+interface IHoverDataGroup {
+  [group: string]: IHoverData[];
 }
 
 interface IBoxPlotState {
@@ -54,25 +69,24 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
 
   // Generate tooltip content that shows the summary statistics of a boxplot
   createChartHoverHandler = () => {
-    return (d: any): void => {
+    return (d: ISemioticOrdinalFrameHoverArgs<IChartDataPoint> & ISemioticOrdinalSummaryPiece): void => {
       if (d && d.type === 'frame-hover') {
         const points = d.points;
-        const data: any = {
-          baseline: [] as any[],
-          canary: [] as any[],
+        const data: IHoverDataGroup = {
+          baseline: [],
+          canary: [],
         };
 
-        points.forEach((p: any) => {
-          const dataGroup: any[] = data[p.key];
-          dataGroup.push({ label: p.label, value: p.value });
+        points.forEach((p: ISemioticOrdinalSummaryPiece) => {
+          data[p.key].push({ label: p.label, value: p.value });
         });
 
-        const summaryLabels = data.baseline.map((b: any) => b.label);
+        const summaryLabels = data.baseline.map((b: IHoverData) => b.label);
         const summaryKeysColumn = [
           <div className={'header'} key={'summary'}>
             Summary
           </div>,
-          ...summaryLabels.map((label: any) => {
+          ...summaryLabels.map((label: string) => {
             return <div key={label}>{label}</div>;
           }),
         ];
@@ -82,8 +96,8 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
             <CircleIcon group={'baseline'} />
             Baseline
           </div>,
-          data.baseline.map((b: any, k: string) => {
-            return <div key={k}>{utils.formatMetricValue(b.value)}</div>;
+          data.baseline.map((hd: IHoverData, i: number) => {
+            return <div key={i}>{utils.formatMetricValue(hd.value)}</div>;
           }),
         ];
 
@@ -92,8 +106,8 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
             <CircleIcon group={'canary'} />
             Canary
           </div>,
-          data.canary.map((b: any, k: string) => {
-            return <div key={k}>{utils.formatMetricValue(b.value)}</div>;
+          data.canary.map((hd: IHoverData, i: number) => {
+            return <div key={i}>{utils.formatMetricValue(hd.value)}</div>;
           }),
         ];
 
@@ -190,7 +204,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     } else return null;
   };
 
-  render(): any {
+  render() {
     const { metricSetPair, parentWidth } = this.props;
     const { chartData } = this.generateChartData();
     const chartHoverHandler = this.createChartHoverHandler();

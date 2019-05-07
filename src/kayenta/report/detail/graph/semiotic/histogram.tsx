@@ -5,7 +5,16 @@ import { scaleLinear } from 'd3-scale';
 
 import * as utils from './utils';
 import { vizConfig } from './config';
-import { ISemioticChartProps, IMargin, ITooltip } from './semiotic.service';
+import {
+  ISemioticChartProps,
+  IMargin,
+  ITooltip,
+  ISemioticOrdinalFrameHoverArgs,
+  ISemioticOrdinalPiece,
+  ISemioticOrdinalGroup,
+  ISemioticOrdinalXyData,
+  ISemioticAnnotationArgs,
+} from './semiotic.service';
 import './histogram.less';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
@@ -92,7 +101,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
 
   // Function factory to handle hover event
   createChartHoverHandler = (chartData: IChartDataPoint[]) => {
-    return (d: any): void => {
+    return (d: ISemioticOrdinalFrameHoverArgs<IChartDataPoint>): void => {
       if (d && d.type === 'column-hover') {
         const x1Max: number = Math.max(...chartData.map((cd: IChartDataPoint) => cd.x1));
         const xyData = d.column.xyData;
@@ -101,7 +110,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
         const halfHeight2 = xyData[1].xy.height / 2;
         const y = vizConfig.height - this.margin.bottom - Math.min(halfHeight1, halfHeight2);
         const { x0, x1 } = d.summary[0].data;
-        const tooltipRows = d.summary.map((s: any) => {
+        const tooltipRows = d.summary.map((s: ISemioticOrdinalPiece<IChartDataPoint>) => {
           const { group, count } = s.data;
           const valueStyle = {
             fontWeight: 'bold',
@@ -155,10 +164,14 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
   };
 
   // function to actually handle the annotation object
-  customAnnotationFunction = (args: any): JSX.Element | null => {
+  customAnnotationFunction = (
+    args: ISemioticAnnotationArgs<IAnnotationData, ISemioticOrdinalGroup<IChartDataPoint>>,
+  ): JSX.Element | null => {
     const { d, i, categories } = args;
     if (d.type === 'bar-value-custom') {
-      const { x, y, width } = categories[d.x1].xyData.find((c: any) => c.piece.data.group === d.group).xy;
+      const { x, y, width } = categories[d.x1].xyData.find(
+        (c: ISemioticOrdinalXyData<IChartDataPoint>) => c.piece.data.group === d.group,
+      ).xy;
       const noteData = {
         x: x + width / 2,
         y: y,

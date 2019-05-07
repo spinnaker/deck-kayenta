@@ -22,8 +22,6 @@ export default class SemioticGraph extends React.Component<IMetricSetPairGraphPr
       ...this.props,
       parentWidth,
     };
-    console.log('test...');
-    console.log(this.props.metricSetPair);
     const filterInvalidValues = (data: number[]) => data.filter(v => typeof v === 'number');
 
     if (filterInvalidValues(control).length === 0 && filterInvalidValues(experiment).length === 0) {
