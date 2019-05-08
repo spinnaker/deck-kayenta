@@ -6,7 +6,7 @@ export interface IChartHeaderProps {
 
 export default ({ metric }: IChartHeaderProps) => {
   return (
-    <div className={'chart-header'}>
+    <div className="chart-header">
       <h6 className="heading-6 color-text-primary">
         <span className="uppercase prefix">metric name:</span>
         <span>

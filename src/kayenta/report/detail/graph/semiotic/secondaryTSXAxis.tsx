@@ -41,16 +41,16 @@ export default class SecondaryTSXAxis extends React.Component<ISecondaryTSXAxisP
       transform: `translateX(${margin.left}px)`,
     };
     return (
-      <svg className={'axis secondary-ts-x-axis'} width={width} height={totalAxisHeight} style={containerStyle}>
-        <g className={'wrapper'} style={svgWrapperStyle}>
+      <svg className="axis secondary-ts-x-axis" width={width} height={totalAxisHeight} style={containerStyle}>
+        <g className="wrapper" style={svgWrapperStyle}>
           <Axis
-            className={'x axis bottom canary-dual-axis'}
+            className="x axis bottom canary-dual-axis"
             size={[netWidth, axisTickLineHeight]}
             scale={scaleUtc()
               .domain(extent)
               .range(range)}
-            orient={'bottom'}
-            label={'Canary'}
+            orient="bottom"
+            label="Canary"
             tickValues={utils.calculateDateTimeTicks(millisSet)}
             tickFormat={(d: number) => <CustomAxisTickLabel millis={d} />}
           />

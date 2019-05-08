@@ -29,14 +29,14 @@ export default (props: IChartLegendProps) => {
   const legendItemClassCanary = classNames(legendItemClass, { deselected: !showGroup.canary });
   const legendItemClassBaseline = classNames(legendItemClass, { deselected: !showGroup.baseline });
   return (
-    <div className={'chart-legend'}>
+    <div className="chart-legend">
       <div className={legendItemClassBaseline} onClick={handleClick('baseline')}>
-        <div className={'legend-icon'} style={baselineIconStyle} />
-        <div>{'Baseline'}</div>
+        <div className="legend-icon" style={baselineIconStyle} />
+        <div>Baseline</div>
       </div>
       <div className={legendItemClassCanary} onClick={handleClick('canary')}>
-        <div className={'legend-icon'} style={canaryIconStyle} />
-        <div>{'Canary'}</div>
+        <div className="legend-icon" style={canaryIconStyle} />
+        <div>Canary</div>
       </div>
     </div>
   );

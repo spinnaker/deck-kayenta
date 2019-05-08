@@ -7,7 +7,7 @@ import { IMetricSetPairGraphProps, GraphType } from '../metricSetPairGraph.servi
 import TimeSeries from './timeSeries';
 import Histogram from './histogram';
 import BoxPlot from './boxplot';
-import NoDataSign from './noDataSign';
+import NoValidDataSign from './noValidDataSign';
 import './semioticGraph.less';
 
 export default class SemioticGraph extends React.Component<IMetricSetPairGraphProps> {
@@ -25,7 +25,7 @@ export default class SemioticGraph extends React.Component<IMetricSetPairGraphPr
     const filterInvalidValues = (data: number[]) => data.filter(v => typeof v === 'number');
 
     if (filterInvalidValues(control).length === 0 && filterInvalidValues(experiment).length === 0) {
-      return <NoDataSign />;
+      return <NoValidDataSign />;
     }
 
     switch (type) {

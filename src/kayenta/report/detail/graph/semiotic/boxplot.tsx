@@ -1,17 +1,19 @@
 import * as React from 'react';
-import { OrdinalFrame, Annotation } from 'semiotic';
+import {
+  OrdinalFrame,
+  Annotation,
+  ISemioticOrSummaryPiece,
+  ISemioticOrFrameHoverArgs,
+  ISemioticAnnotationType,
+  ISemioticAnnotationArgs,
+  ISemioticOrGroup,
+} from 'semiotic';
 import { extent } from 'd3-array';
 import { Node, Force } from 'labella';
 
 import * as utils from './utils';
 import { vizConfig } from './config';
-import {
-  ISemioticChartProps,
-  IMargin,
-  ITooltip,
-  ISemioticOrdinalSummaryPiece,
-  ISemioticOrdinalFrameHoverArgs,
-} from './semiotic.service';
+import { ISemioticChartProps, IMargin, ITooltip } from './semiotic.service';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
 import './boxplot.less';
@@ -31,6 +33,12 @@ interface IHoverData {
 
 interface IHoverDataGroup {
   [group: string]: IHoverData[];
+}
+
+interface IAnnotationData {
+  group: string;
+  summaryKeys: string[];
+  type: string;
 }
 
 interface IBoxPlotState {
@@ -59,17 +67,16 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
 
   generateChartData = () => {
     const { metricSetPair } = this.props;
-
     const filterFunc = (v: IChartDataPoint) => typeof v.value === 'number';
     const baselineInput = this.decorateData(metricSetPair.values.control, 'baseline');
     const canaryInput = this.decorateData(metricSetPair.values.experiment, 'canary');
     const chartData = baselineInput.concat(canaryInput).filter(filterFunc);
-    return { chartData };
+    return chartData;
   };
 
   // Generate tooltip content that shows the summary statistics of a boxplot
   createChartHoverHandler = () => {
-    return (d: ISemioticOrdinalFrameHoverArgs<IChartDataPoint> & ISemioticOrdinalSummaryPiece): void => {
+    return (d: ISemioticOrFrameHoverArgs<IChartDataPoint> & ISemioticOrSummaryPiece): void => {
       if (d && d.type === 'frame-hover') {
         const points = d.points;
         const data: IHoverDataGroup = {
@@ -77,7 +84,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
           canary: [],
         };
 
-        points.forEach((p: ISemioticOrdinalSummaryPiece) => {
+        points.forEach((p: ISemioticOrSummaryPiece) => {
           data[p.key].push({ label: p.label, value: p.value });
         });
 
@@ -102,8 +109,8 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         ];
 
         const canaryColumn = [
-          <div className={'header'} key={'canary'}>
-            <CircleIcon group={'canary'} />
+          <div className="header" key="canary">
+            <CircleIcon group="canary" />
             Canary
           </div>,
           data.canary.map((hd: IHoverData, i: number) => {
@@ -112,11 +119,11 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         ];
 
         const tooltipContent = (
-          <div className={'tooltip-container'}>
-            <div className={'columns'}>
-              <div className={'column'}>{summaryKeysColumn}</div>
-              <div className={'column'}>{baselineColumn}</div>
-              <div className={'column'}>{canaryColumn}</div>
+          <div className="tooltip-container">
+            <div className="columns">
+              <div className="column">{summaryKeysColumn}</div>
+              <div className="column">{baselineColumn}</div>
+              <div className="column">{canaryColumn}</div>
             </div>
           </div>
         );
@@ -142,7 +149,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     });
   };
 
-  customAnnotationFunction: any = (args: any): any => {
+  customAnnotationFunction = (args: ISemioticAnnotationArgs<IAnnotationData, ISemioticOrGroup<IChartDataPoint>>) => {
     const {
       d,
       orFrameState: { pieceDataXY },
@@ -155,14 +162,14 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         return null;
       }
 
-      const summaryData = pieceDataXY.filter((sd: any) => sd.key === d.group);
+      const summaryData = pieceDataXY.filter((sd: ISemioticOrSummaryPiece) => sd.key === d.group);
       const boxPlotWidth = categories[d.group].width;
       const statLabelMap: { [stat: string]: string } = {
         median: 'median',
         q1area: '25th %-ile',
         q3area: '75th %-ile',
       };
-      const createNoteElement = (posY: number, dataPoint: any) => {
+      const createNoteElement = (posY: number, dataPoint: ISemioticOrSummaryPiece) => {
         const name = dataPoint.summaryPieceName;
         const label = statLabelMap[name];
         const noteData = {
@@ -178,39 +185,37 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
             orientation: 'topBottom',
             padding: 10,
           },
-          className: `boxplot-annotation`,
+          className: 'boxplot-annotation',
         };
         return <Annotation key={name} noteData={noteData} />;
       };
 
-      const nodes: any[] = [];
-      d.summaryKeys.forEach((summaryKey: string) => {
-        const pieceData = summaryData.find((sd: any) => sd.summaryPieceName === summaryKey);
-        if (pieceData) {
-          nodes.push(new Node(pieceData.y, 20, { summaryKey, pieceData }));
-        }
-      });
+      const nodes = d.summaryKeys
+        .map((summaryKey: string) => {
+          const pieceData = summaryData.find((sd: ISemioticOrSummaryPiece) => sd.summaryPieceName === summaryKey);
+          return pieceData ? new Node<ISemioticOrSummaryPiece>(pieceData.y, 20, pieceData) : null;
+        })
+        .map((v: null | Node<ISemioticOrSummaryPiece>) => v) as Node<ISemioticOrSummaryPiece>[];
+
       const forceOptions = {
         minPos: this.margin.top,
         maxPos: vizConfig.height - this.margin.bottom,
       };
-      const force = new Force(forceOptions).nodes(nodes).compute();
+      const annotations = new Force<ISemioticOrSummaryPiece>(forceOptions)
+        .nodes(nodes)
+        .compute()
+        .nodes()
+        .map((n: Node<ISemioticOrSummaryPiece>) => createNoteElement(n.currentPos, n.data));
 
-      const annotations: any[] = [];
-      force.nodes().forEach((n: any) => {
-        annotations.push(createNoteElement(n.currentPos, n.data.pieceData));
-      });
       return annotations;
     } else return null;
   };
 
-  render() {
-    const { metricSetPair, parentWidth } = this.props;
-    const { chartData } = this.generateChartData();
-    const chartHoverHandler = this.createChartHoverHandler();
-    const annotations = this.defineAnnotations();
+  getChartProps = () => {
+    const { parentWidth } = this.props;
+    const chartData = this.generateChartData();
 
-    const computedConfig = {
+    return {
       size: [parentWidth, vizConfig.height],
       margin: this.margin,
       projection: 'vertical',
@@ -238,36 +243,33 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         iterations: 50,
       },
       rExtent: extent(chartData.map(o => o.value)),
-      customHoverBehavior: chartHoverHandler,
+      customHoverBehavior: this.createChartHoverHandler(),
       hoverAnnotation: false,
-      annotations,
+      annotations: this.defineAnnotations(),
+      summaryHoverAnnotation: [] as ISemioticAnnotationType[],
+      data: chartData,
+      oAccessor: (d: IChartDataPoint) => d.group,
+      rAccessor: (d: IChartDataPoint) => d.value,
+      svgAnnotationRules: this.customAnnotationFunction,
+      summaryClass: 'boxplot-summary',
+      axis: {
+        orient: 'left',
+        label: 'metric value',
+        tickFormat: (d: number) => utils.formatMetricValue(d),
+      },
     };
+  };
 
-    const axis = {
-      orient: 'left',
-      label: 'metric value',
-      tickFormat: (d: number) => utils.formatMetricValue(d),
-    };
-
-    const graph = (
-      <OrdinalFrame
-        {...computedConfig}
-        summaryHoverAnnotation={[]}
-        data={chartData}
-        axis={axis}
-        oAccessor={(d: IChartDataPoint) => d.group}
-        rAccessor={(d: IChartDataPoint) => d.value}
-        svgAnnotationRules={this.customAnnotationFunction}
-        summaryClass={'boxplot-summary'}
-      />
-    );
-
+  render() {
+    const { metricSetPair } = this.props;
     return (
-      <div className={'boxplot'}>
+      <div className="boxplot">
         <ChartHeader metric={metricSetPair.name} />
         <ChartLegend />
-        <div className={'graph-container'}>
-          <div className={'boxplot-chart'}>{graph}</div>
+        <div className="graph-container">
+          <div className="boxplot-chart">
+            <OrdinalFrame {...this.getChartProps()} />
+          </div>
           <Tooltip {...this.state.tooltip} />
         </div>
       </div>

@@ -184,8 +184,8 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
     };
 
     return (
-      <div className={'difference-area'}>
-        <div className={'chart-title'} style={{ height: this.headerHeight }}>
+      <div className="difference-area">
+        <div className="chart-title" style={{ height: this.headerHeight }}>
           Canary Value Differences from Baseline
         </div>
         <XYFrame {...computedConfig} />

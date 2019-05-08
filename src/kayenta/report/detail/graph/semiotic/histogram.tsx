@@ -1,20 +1,20 @@
 import * as React from 'react';
-import { OrdinalFrame, Annotation } from 'semiotic';
+import {
+  OrdinalFrame,
+  Annotation,
+  ISemioticOrFrameHoverArgs,
+  ISemioticOrPiece,
+  ISemioticOrGroup,
+  ISemioticOrXyData,
+  ISemioticAnnotationArgs,
+  ISemioticAnnotationType,
+} from 'semiotic';
 import { histogram, extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
 
 import * as utils from './utils';
 import { vizConfig } from './config';
-import {
-  ISemioticChartProps,
-  IMargin,
-  ITooltip,
-  ISemioticOrdinalFrameHoverArgs,
-  ISemioticOrdinalPiece,
-  ISemioticOrdinalGroup,
-  ISemioticOrdinalXyData,
-  ISemioticAnnotationArgs,
-} from './semiotic.service';
+import { ISemioticChartProps, IMargin, ITooltip } from './semiotic.service';
 import './histogram.less';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
@@ -101,7 +101,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
 
   // Function factory to handle hover event
   createChartHoverHandler = (chartData: IChartDataPoint[]) => {
-    return (d: ISemioticOrdinalFrameHoverArgs<IChartDataPoint>): void => {
+    return (d: ISemioticOrFrameHoverArgs<IChartDataPoint>): void => {
       if (d && d.type === 'column-hover') {
         const x1Max: number = Math.max(...chartData.map((cd: IChartDataPoint) => cd.x1));
         const xyData = d.column.xyData;
@@ -110,7 +110,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
         const halfHeight2 = xyData[1].xy.height / 2;
         const y = vizConfig.height - this.margin.bottom - Math.min(halfHeight1, halfHeight2);
         const { x0, x1 } = d.summary[0].data;
-        const tooltipRows = d.summary.map((s: ISemioticOrdinalPiece<IChartDataPoint>) => {
+        const tooltipRows = d.summary.map((s: ISemioticOrPiece<IChartDataPoint>) => {
           const { group, count } = s.data;
           const valueStyle = {
             fontWeight: 'bold',
@@ -165,12 +165,12 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
 
   // function to actually handle the annotation object
   customAnnotationFunction = (
-    args: ISemioticAnnotationArgs<IAnnotationData, ISemioticOrdinalGroup<IChartDataPoint>>,
+    args: ISemioticAnnotationArgs<IAnnotationData, ISemioticOrGroup<IChartDataPoint>>,
   ): JSX.Element | null => {
     const { d, i, categories } = args;
     if (d.type === 'bar-value-custom') {
       const { x, y, width } = categories[d.x1].xyData.find(
-        (c: ISemioticOrdinalXyData<IChartDataPoint>) => c.piece.data.group === d.group,
+        (c: ISemioticOrXyData<IChartDataPoint>) => c.piece.data.group === d.group,
       ).xy;
       const noteData = {
         x: x + width / 2,
@@ -192,25 +192,16 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     } else return null;
   };
 
-  render() {
-    const { metricSetPair, parentWidth } = this.props;
+  getChartProps = () => {
+    const { parentWidth } = this.props;
     const chartData = this.generateChartData();
-    const axis = [
-      {
-        orient: 'left',
-        label: 'measurement count',
-        tickFormat: (d: number) => (d === 0 ? null : Math.abs(d)),
-      },
-    ];
 
-    const annotations = this.defineAnnotations(chartData);
-    const chartHoverHandler = this.createChartHoverHandler(chartData);
-    const computedConfig = {
+    return {
       size: [parentWidth, vizConfig.height],
       margin: this.margin,
       projection: 'vertical',
       type: 'clusterbar',
-      oLabel: (v: string) => <text textAnchor={'middle'}>{utils.formatMetricValue(parseFloat(v))}</text>,
+      oLabel: (v: string) => <text textAnchor="middle">{utils.formatMetricValue(parseFloat(v))}</text>,
       oPadding: 20,
       oAccessor: (d: IChartDataPoint) => d.x1,
       style: (d: IChartDataPoint) => {
@@ -221,22 +212,33 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
           strokeOpacity: 1,
         };
       },
-      customHoverBehavior: chartHoverHandler,
-      data: chartData,
-      axis: axis,
+      customHoverBehavior: this.createChartHoverHandler(chartData),
+      data: this.generateChartData(),
+      axis: [
+        {
+          orient: 'left',
+          label: 'measurement count',
+          tickFormat: (d: number) => (d === 0 ? null : Math.abs(d)),
+        },
+      ],
       rAccessor: (d: IChartDataPoint) => d.count,
-      annotations,
+      annotations: this.defineAnnotations(chartData),
       svgAnnotationRules: this.customAnnotationFunction,
+      hoverAnnotation: [] as ISemioticAnnotationType[],
     };
+  };
 
-    const graph = <OrdinalFrame {...computedConfig} hoverAnnotation={[]} />;
+  render() {
+    const { metricSetPair } = this.props;
 
     return (
-      <div className={'histogram'}>
+      <div className="histogram">
         <ChartHeader metric={metricSetPair.name} />
         <ChartLegend />
-        <div className={'graph-container'}>
-          <div className={'canary-chart'}>{graph}</div>
+        <div className="graph-container">
+          <div className="canary-chart">
+            <OrdinalFrame {...this.getChartProps()} />
+          </div>
           <Tooltip {...this.state.tooltip} />
         </div>
       </div>

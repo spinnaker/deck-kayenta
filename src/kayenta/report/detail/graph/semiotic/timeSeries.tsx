@@ -1,10 +1,17 @@
 import * as React from 'react';
 import { scaleUtc } from 'd3-scale';
-import { MinimapXYFrame, XYFrame } from 'semiotic';
+import {
+  MinimapXYFrame,
+  XYFrame,
+  ISemioticXYFrameProps,
+  ISemioticMinimapProps,
+  ISemioticXYFrameHoverBaseArgs,
+} from 'semiotic';
 import * as moment from 'moment-timezone';
 import { SETTINGS } from '@spinnaker/core';
 const { defaultTimeZone } = SETTINGS;
 import { curveStepAfter } from 'd3-shape';
+import * as classNames from 'classnames';
 // import { IMetricSetScope } from 'kayenta/domain/IMetricSetPair';
 // import * as _ from 'lodash';
 
@@ -12,14 +19,7 @@ import * as utils from './utils';
 import Tooltip from './tooltip';
 import ChartHeader from './chartHeader';
 import ChartLegend from './chartLegend';
-import {
-  ISemioticChartProps,
-  IMargin,
-  ITooltip,
-  ISemioticXYFrameProps,
-  ISemioticMinimapProps,
-  ISemioticXYFrameHoverBaseArgs,
-} from './semiotic.service';
+import { ISemioticChartProps, IMargin, ITooltip } from './semiotic.service';
 import './timeSeries.less';
 import { vizConfig } from './config';
 import CircleIcon from './circleIcon';
@@ -339,7 +339,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
             margin={{ left: this.marginMain.left, right: this.marginMain.right, top: 0, bottom: 0 }}
             width={parentWidth}
             millisSet={chartData.millisSetMain.map((ms: number) => ms + dataSetsAttributes.startTimeMillisOffset)}
-            axisLabel={'canary'}
+            axisLabel="canary"
             bottomOffset={dataSetsAttributes.shouldDisplayMinimap ? minimapHeight : 0}
           />
         ) : null}
@@ -393,10 +393,10 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
           .map((o: ITooltipDataPoint) => {
             // if there's a ts offset, timestamp should be displayed for each group
             const tsRow = isStartTimeMillisEqual ? null : (
-              <div className={'tooltip-ts'}>{moment(o.ts).format('YYYY-MM-DD HH:mm:ss z')}</div>
+              <div className="tooltip-ts">{moment(o.ts).format('YYYY-MM-DD HH:mm:ss z')}</div>
             );
             return (
-              <div key={o.label} className={isStartTimeMillisEqual ? '' : 'tooltip-dual-axis-row'}>
+              <div key={o.label} className={classNames({ 'tooltip-dual-axis-row': isStartTimeMillisEqual })}>
                 {tsRow}
                 <div id={o.label}>
                   <CircleIcon group={o.label} />
@@ -410,8 +410,8 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         if (tooltipData.length === 2) {
           const canaryMinusBaseline = tooltipData[1].value - tooltipData[0].value;
           tooltipRows = tooltipRows.concat([
-            <div id={'diff'} key={'diff'} className={'tooltip-row'}>
-              <span>{`${'Canary - Baseline'}: `}</span>
+            <div id="diff" key="diff" className="tooltip-row">
+              <span>{'Canary - Baseline:'}</span>
               <span>{utils.formatMetricValue(canaryMinusBaseline)}</span>
             </div>,
           ]);
@@ -421,7 +421,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
           <div>
             {/* if no dual axes, display timestamp row at the top level */}
             {isStartTimeMillisEqual ? (
-              <div key={'ts'} className={'tooltip-ts'}>
+              <div key="ts" className="tooltip-ts">
                 {moment(tooltipData[0].ts).format('YYYY-MM-DD HH:mm:ss z')}
               </div>
             ) : null}

@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 import { vizConfig } from './config';
-import './noDataSign.less';
+import './noValidDataSign.less';
 
 export default () => (
   <div style={{ height: vizConfig.height }} className="no-data-sign">
