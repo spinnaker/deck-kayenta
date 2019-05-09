@@ -1,5 +1,3 @@
-///<reference path="./declarations/semiotic.d.ts" />
-
 import * as React from 'react';
 import { scaleUtc } from 'd3-scale';
 import { Axis } from 'semiotic';

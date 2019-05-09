@@ -1,5 +1,3 @@
-///<reference path="./declarations/react-container-dimensions.d.ts" />
-
 import * as React from 'react';
 import ContainerDimensions from 'react-container-dimensions';
 

@@ -1,5 +1,3 @@
-///<reference path="./declarations/semiotic.d.ts" />
-
 import * as React from 'react';
 
 import { vizConfig } from './config';
