@@ -3,9 +3,7 @@ import { scaleUtc } from 'd3-scale';
 import { XYFrame } from 'semiotic';
 import * as moment from 'moment-timezone';
 import { curveStepAfter } from 'd3-shape';
-// import * as _ from 'lodash';
 
-import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
 import { ISemioticChartProps, IMargin } from './semiotic.service';
 import { vizConfig } from './config';
 import './differenceArea.less';
@@ -24,11 +22,21 @@ interface IChartDataSet {
   coordinates: IDataPoint[];
 }
 
+interface IInterimDataSet {
+  timestamp: number;
+  canary: number | string;
+  baseline: number | string;
+}
+
+interface IDifferenceAreaProps extends ISemioticChartProps {
+  millisBaselineSet: number[];
+}
+
 /*
 * Supplemental visualization in the time series view to highlight
 * Canary difference to baseline at any given timestamp
 */
-export default class DifferenceArea extends React.Component<ISemioticChartProps> {
+export default class DifferenceArea extends React.Component<IDifferenceAreaProps> {
   private margin: IMargin = {
     left: 60,
     right: 20,
@@ -37,7 +45,8 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
   private chartHeight: number = 40; // chart height not including axes height
   private headerHeight: number = 17;
 
-  formatDifferenceTSData = (metricSetPair: IMetricSetPair) => {
+  getChartData = () => {
+    const { metricSetPair, millisBaselineSet } = this.props;
     const {
       values: { experiment, control },
       scopes,
@@ -45,43 +54,31 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
 
     const stepMillis = scopes.control.stepMillis;
     const maxDataPoints = Math.max(experiment.length, control.length);
-    const millisSetUnfiltered = [] as number[];
-    const millisSetValidValues = Array(maxDataPoints)
+
+    // Align data sets in case canary & baseline have different lengths and/or starting time
+    const intDataSet: IInterimDataSet[] = Array(maxDataPoints)
       .fill(0)
       .map((_, i) => {
         const e = experiment[i];
         const c = control[i];
-        const ts = scopes.control.startTimeMillis + i * stepMillis;
-        millisSetUnfiltered.push(ts);
-        return typeof c === 'number' || typeof e === 'number' ? ts : null;
-      })
-      .filter((v: number | null) => v !== null);
-
-    const xExtent = [millisSetValidValues[0], millisSetValidValues[millisSetValidValues.length - 1]];
-
-    const baselineReferenceDataPoints: IDataPoint[] = Array(maxDataPoints)
-      .fill(0)
-      .map((_, i) => {
         return {
-          timestampMillis: scopes.control.startTimeMillis + i * stepMillis,
-          value: 0,
+          timestamp: scopes.control.startTimeMillis + i * stepMillis,
+          canary: e,
+          baseline: c,
         };
       })
-      .filter(v => v.timestampMillis >= xExtent[0] && v.timestampMillis <= xExtent[1]);
+      // filter based on the timestamps of the line chart
+      .filter((ds: IInterimDataSet) => millisBaselineSet.includes(ds.timestamp));
 
-    const differenceDataPoints: IDataPoint[] = Array(maxDataPoints)
-      .fill(0)
-      .map((_, i) => {
-        const e = experiment[i];
-        const c = control[i];
-        return typeof c === 'number' && typeof e === 'number'
-          ? {
-              timestampMillis: scopes.control.startTimeMillis + i * stepMillis,
-              value: e - c,
-            }
-          : null;
-      })
-      .filter(v => v);
+    const baselineReferenceDataPoints: IDataPoint[] = intDataSet.map((ds: IInterimDataSet) => ({
+      timestampMillis: ds.timestamp,
+      value: 0,
+    }));
+
+    const differenceDataPoints: IDataPoint[] = intDataSet.map((ds: IInterimDataSet) => ({
+      timestampMillis: ds.timestamp,
+      value: typeof ds.canary === 'number' && typeof ds.baseline === 'number' ? ds.canary - ds.baseline : 0,
+    }));
 
     return {
       chartData: [
@@ -96,19 +93,12 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
           coordinates: baselineReferenceDataPoints,
         },
       ],
-
-      // set the xExtent to be between the earliest and latest timestamp with valid numerical value
-      // This needs to be explicitly stated to align the time window with the minimap's
-      xExtent: xExtent,
-
-      //all millis values within the xExtent range. Required for custom tick labelling
-      millisSet: millisSetUnfiltered.filter((ms: number) => ms >= xExtent[0] && ms <= xExtent[1]),
     };
   };
 
-  getSecondaryAxis = (millisOffset: number, millisSet: number[]) => {
+  getSecondaryAxis = (millisOffset: number, millisBaselineSet: number[]) => {
     const { parentWidth } = this.props;
-    const millisSetCanary = millisSet.map((ms: number) => ms + millisOffset);
+    const millisSetCanary = millisBaselineSet.map((ms: number) => ms + millisOffset);
 
     return (
       <SecondaryTSXAxis
@@ -130,12 +120,13 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
   };
 
   render() {
-    const { metricSetPair, parentWidth } = this.props;
+    const { metricSetPair, parentWidth, millisBaselineSet } = this.props;
+
     /*
     * Generate the data needed for the graph components
     */
     const { scopes } = metricSetPair;
-    const { chartData, xExtent, millisSet } = this.formatDifferenceTSData(metricSetPair);
+    const { chartData } = this.getChartData();
     const millisOffset = scopes.experiment.startTimeMillis - scopes.control.startTimeMillis;
     const shouldUseSecondaryXAxis = millisOffset !== 0;
 
@@ -174,13 +165,13 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
         },
         {
           orient: 'bottom',
-          tickValues: utils.calculateDateTimeTicks(millisSet),
+          tickValues: utils.calculateDateTimeTicks(millisBaselineSet),
           tickFormat: (d: number) => <CustomAxisTickLabel millis={d} />,
           label: shouldUseSecondaryXAxis ? 'Baseline' : undefined,
           className: shouldUseSecondaryXAxis ? 'baseline-dual-axis' : '',
         },
       ],
-      xExtent,
+      xExtent: [millisBaselineSet[0], millisBaselineSet[millisBaselineSet.length - 1]],
     };
 
     return (
@@ -189,7 +180,7 @@ export default class DifferenceArea extends React.Component<ISemioticChartProps>
           Canary Value Differences from Baseline
         </div>
         <XYFrame {...computedConfig} />
-        {shouldUseSecondaryXAxis ? this.getSecondaryAxis(millisOffset, millisSet) : null}
+        {shouldUseSecondaryXAxis ? this.getSecondaryAxis(millisOffset, millisBaselineSet) : null}
       </div>
     );
   }

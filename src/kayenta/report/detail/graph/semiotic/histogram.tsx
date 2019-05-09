@@ -2,12 +2,12 @@ import * as React from 'react';
 import {
   OrdinalFrame,
   Annotation,
-  ISemioticOrFrameHoverArgs,
-  ISemioticOrPiece,
-  ISemioticOrGroup,
-  ISemioticOrXyData,
+  IOrFrameHoverArgs,
+  IOrPiece,
+  IOrGroup,
+  IOrXyData,
   ISemioticAnnotationArgs,
-  ISemioticAnnotationType,
+  IAnnotationType,
 } from 'semiotic';
 import { histogram, extent } from 'd3-array';
 import { scaleLinear } from 'd3-scale';
@@ -62,11 +62,10 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
 
   /*
   * Semiotic actually supports histogram as a "summary type" out of the box, but the customization is
-  * currently limited (e.g. it can't display cross-axis ticks & labels)
+  * currently limited (e.g. it can't display the y-axis ticks & labels)
   * Hence we're manually generating histogram data using D3 and display it as
   * a grouped bar chart in semiotic
   */
-
   generateChartData = () => {
     const { metricSetPair } = this.props;
     const filterFunc = (v: IInputDataPoint) => typeof v.value === 'number';
@@ -101,7 +100,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
 
   // Function factory to handle hover event
   createChartHoverHandler = (chartData: IChartDataPoint[]) => {
-    return (d: ISemioticOrFrameHoverArgs<IChartDataPoint>): void => {
+    return (d: IOrFrameHoverArgs<IChartDataPoint>): void => {
       if (d && d.type === 'column-hover') {
         const x1Max: number = Math.max(...chartData.map((cd: IChartDataPoint) => cd.x1));
         const xyData = d.column.xyData;
@@ -110,7 +109,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
         const halfHeight2 = xyData[1].xy.height / 2;
         const y = vizConfig.height - this.margin.bottom - Math.min(halfHeight1, halfHeight2);
         const { x0, x1 } = d.summary[0].data;
-        const tooltipRows = d.summary.map((s: ISemioticOrPiece<IChartDataPoint>) => {
+        const tooltipRows = d.summary.map((s: IOrPiece<IChartDataPoint>) => {
           const { group, count } = s.data;
           const valueStyle = {
             fontWeight: 'bold',
@@ -163,14 +162,14 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     return annotations;
   };
 
-  // function to actually handle the annotation object
+  // function to actually create the JSX elements based on the annotation object
   customAnnotationFunction = (
-    args: ISemioticAnnotationArgs<IAnnotationData, ISemioticOrGroup<IChartDataPoint>>,
+    args: ISemioticAnnotationArgs<IAnnotationData, IOrGroup<IChartDataPoint>>,
   ): JSX.Element | null => {
     const { d, i, categories } = args;
     if (d.type === 'bar-value-custom') {
       const { x, y, width } = categories[d.x1].xyData.find(
-        (c: ISemioticOrXyData<IChartDataPoint>) => c.piece.data.group === d.group,
+        (c: IOrXyData<IChartDataPoint>) => c.piece.data.group === d.group,
       ).xy;
       const noteData = {
         x: x + width / 2,
@@ -224,7 +223,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
       rAccessor: (d: IChartDataPoint) => d.count,
       annotations: this.defineAnnotations(chartData),
       svgAnnotationRules: this.customAnnotationFunction,
-      hoverAnnotation: [] as ISemioticAnnotationType[],
+      hoverAnnotation: [] as IAnnotationType[],
     };
   };
 

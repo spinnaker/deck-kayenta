@@ -1,20 +1,14 @@
 import * as React from 'react';
 import { scaleUtc } from 'd3-scale';
-import {
-  MinimapXYFrame,
-  XYFrame,
-  ISemioticXYFrameProps,
-  ISemioticMinimapProps,
-  ISemioticXYFrameHoverBaseArgs,
-} from 'semiotic';
+import { MinimapXYFrame, XYFrame, IXYFrameProps, IMinimapProps, IXYFrameHoverBaseArgs } from 'semiotic';
 import * as moment from 'moment-timezone';
 import { SETTINGS } from '@spinnaker/core';
 const { defaultTimeZone } = SETTINGS;
 import { curveStepAfter } from 'd3-shape';
 import * as classNames from 'classnames';
-// import { IMetricSetScope } from 'kayenta/domain/IMetricSetPair';
-// import * as _ from 'lodash';
+import * as _ from 'lodash';
 
+import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
 import * as utils from './utils';
 import Tooltip from './tooltip';
 import ChartHeader from './chartHeader';
@@ -32,7 +26,8 @@ moment.tz.setDefault(defaultTimeZone);
 interface IDataPoint {
   timestampMillis: number;
   value: number | null;
-  timestampMillisNormalized?: number;
+  timestampMillisBaseline: number;
+  timestampMillisMain: number;
 }
 
 interface IChartDataSet {
@@ -40,13 +35,13 @@ interface IChartDataSet {
   label: string;
   coordinates: IDataPoint[];
   coordinatesUnfiltered: IDataPoint[];
-  startTimeMillis: number;
 }
 
 interface IChartData {
   dataSets: IChartDataSet[];
   xExtentMain: number[];
   millisSetMain: number[];
+  millisSetBaselineAll: number[];
 }
 
 interface ITimeSeriesState {
@@ -64,11 +59,18 @@ interface ITooltipDataPoint {
 }
 
 interface IdataSetsAttributes {
-  isStartTimeMillisEqual: boolean;
   startTimeMillisOffset: number;
   maxDataCount: number;
   shouldDisplayMinimap: boolean;
   shouldUseSecondaryXAxis: boolean;
+}
+
+interface IInterimDataSet {
+  hasValidData: boolean;
+  timestampMillisBaseline: number;
+  timestampMillisMain: number;
+  valueList: number[];
+  timestampMillisList: number[];
 }
 
 /*There are 3 vizualisations inside this component:
@@ -111,8 +113,9 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     this.createGraphs();
   };
 
+  // Only reconstruct the graph components when necessary
   componentDidUpdate = (prevProps: ISemioticChartProps, prevState: ITimeSeriesState) => {
-    let { metricSetPair, parentWidth } = this.props;
+    const { metricSetPair, parentWidth } = this.props;
     const { userBrushExtent, showGroup } = this.state;
     if (
       metricSetPair !== prevProps.metricSetPair ||
@@ -124,17 +127,6 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     }
   };
 
-  // Min & Max Millis determined by user brush extent (if defined), else
-  // derived from the first & last valid (non-"NaN") value
-  getXExtent = (millisSet: number[]) => {
-    const { userBrushExtent } = this.state;
-    if (!userBrushExtent) {
-      return [Math.min(...millisSet), Math.max(...millisSet)];
-    } else {
-      return userBrushExtent.map((d: Date) => d.valueOf());
-    }
-  };
-
   /*
   *  Generate chart Data
   * In cases where the start Millis is different betwen canary and baseline, we want to:
@@ -142,70 +134,83 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   * 2) normalize canary timestamp to match baseline timestamps (needed for the tooltip's
   * voronoi overlay logic in semiotic to work properly)
   */
-  getChartData = (dataSetsAttr: IdataSetsAttributes) => {
-    const { startTimeMillisOffset, maxDataCount, shouldUseSecondaryXAxis } = dataSetsAttr;
-
+  getChartData = (dataSetsAttr: IdataSetsAttributes, metricSetPair: IMetricSetPair) => {
+    const { maxDataCount } = dataSetsAttr;
     const { showGroup } = this.state;
-    const { metricSetPair } = this.props;
     const { dataGroupMap, colors } = vizConfig;
+    const { scopes, values } = metricSetPair;
+    const { userBrushExtent } = this.state;
+    const groups = ['baseline', 'canary'];
+    const isOnlyCanarySelected = showGroup.canary && !showGroup.baseline;
+    const stepMillis = scopes.control.stepMillis;
 
-    // Set of all millis (normalized to baseline)
-    const millisSetMainUnfiltered: number[] = [];
-    const millisSetMainFiltered: Set<number> = new Set();
-
-    const dataSets: IChartDataSet[] = ['baseline', 'canary']
-      .filter((g: string) => showGroup[g])
-      .map((g: string, gi: number) => {
-        const scope = metricSetPair.scopes[dataGroupMap[g]];
-        const values = metricSetPair.values[dataGroupMap[g]];
-        const stepMillis = scope.stepMillis;
-        let dataPointsLength = values.length;
-
-        // Iterate based on max data count to handle cases where baseline and canary have different data point counts
-        // This ensures both primary and secondary x axis have consistent extents so there'll be no missing tick labels
-        const dataPoints = Array(maxDataCount)
-          .fill(0)
-          .map((_: number, i: number) => {
-            const ts = scope.startTimeMillis + i * stepMillis;
-            gi === 0 ? millisSetMainUnfiltered.push(ts) : null;
-            const value = i < dataPointsLength && typeof values[i] === 'number' ? values[i] : undefined;
-            if (typeof value === 'number') {
-              millisSetMainFiltered.add(ts);
-            }
-            // If dual axis is needed, shift canary ts to align with baseline
-            const timestampMillisNormalized =
-              shouldUseSecondaryXAxis && g === 'canary' ? ts - startTimeMillisOffset : ts;
-
-            return {
-              timestampMillis: ts,
-              // normalize canary timestamp if startMillis are different and both are selected
-              timestampMillisNormalized: timestampMillisNormalized,
-              value,
-            };
-          });
+    /*
+    * Deriving timestamps for the main line chart: use baseline's ts if baseline group or both groups are selected,
+    * else use canary ts as reference (since we only show 1 x-axis)
+    * Minimap should still consider both groups (hence using baseline's ts as reference)
+    * as we want to maintain brush state when user toggles groups
+    * Finally we also trim out timestamps with invalid values at both ends of the dataset
+    */
+    const intDataSet: IInterimDataSet[] = _.chain(Array(maxDataCount).fill(0))
+      .map((_, i) => {
+        const valueList = groups.map((g: string) => values[dataGroupMap[g]][i]);
+        const timestampMillisList = groups.map((g: string) => scopes[dataGroupMap[g]].startTimeMillis + i * stepMillis);
 
         return {
-          label: g,
-          color: colors[g],
-          coordinates: dataPoints.filter(d => typeof d.value === 'number'),
-          coordinatesUnfiltered: dataPoints,
-          startTimeMillis: scope.startTimeMillis,
+          hasValidData: valueList.some((v: number | string) => typeof v === 'number'),
+          timestampMillisBaseline: timestampMillisList[0],
+          timestampMillisMain: isOnlyCanarySelected ? timestampMillisList[1] : timestampMillisList[0],
+          valueList,
+          timestampMillisList,
+        };
+      })
+      .dropRightWhile((ds: IInterimDataSet) => !ds.hasValidData)
+      .dropWhile((ds: IInterimDataSet) => !ds.hasValidData)
+      .value();
+
+    const dataSets: IChartDataSet[] = groups.map((g: string, i: number) => {
+      const dataPoints = intDataSet.map((ds: IInterimDataSet) => {
+        return {
+          timestampMillis: ds.timestampMillisList[i], //original ts for this data point
+          timestampMillisBaseline: ds.timestampMillisBaseline,
+          timestampMillisMain: ds.timestampMillisMain,
+          value: ds.valueList[i],
         };
       });
 
-    // Extent (i.e. min & max) of millisSetMainTrimmed
-    const xExtentMain = this.getXExtent([...millisSetMainFiltered]);
+      return {
+        label: g,
+        color: colors[g],
+        coordinates: dataPoints.filter(d => typeof d.value === 'number'),
+        coordinatesUnfiltered: dataPoints,
+      };
+    });
+
+    const millisSetBaselineAll = intDataSet.map((ds: IInterimDataSet) => ds.timestampMillisBaseline);
+
+    // For the main line chart, filter by brush if applicable
+    const intDataSetMain = !userBrushExtent
+      ? intDataSet
+      : intDataSet.filter((ds: IInterimDataSet) => {
+          return (
+            ds.timestampMillisBaseline >= userBrushExtent[0].valueOf() &&
+            ds.timestampMillisBaseline <= userBrushExtent[1].valueOf()
+          );
+        });
+
+    const millisSetMain = intDataSetMain.map((ds: IInterimDataSet) => ds.timestampMillisMain);
 
     return {
-      dataSets, // actual dataset supplied to semiotic,
-      xExtentMain,
-      millisSetMain: millisSetMainUnfiltered.filter((ms: number) => ms >= xExtentMain[0] && ms <= xExtentMain[1]),
+      dataSets, // actual datasets supplied to semiotic,
+      millisSetBaselineAll,
+      millisSetMain,
+      xExtentMain: [millisSetMain[0], millisSetMain[millisSetMain.length - 1]],
     };
   };
 
-  createCommonChartProps = (dataSets: IChartDataSet[]) => {
+  // common chart props that are used for both the main XYFrame and Minimap (if applicable)
+  createCommonChartProps = () => {
     return {
-      lines: dataSets,
       lineType: {
         type: 'line',
         interpolator: curveStepAfter,
@@ -215,7 +220,6 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         strokeWidth: 2,
         strokeOpacity: 0.8,
       }),
-      xAccessor: (d: IDataPoint) => moment(d.timestampMillisNormalized).toDate(),
       yAccessor: 'value',
       xScaleType: scaleUtc(),
       baseMarkProps: { transitionDuration: { default: 200, fill: 200 } },
@@ -225,14 +229,15 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   createLineChartProps = (
     chartData: IChartData,
     dataSetsAttributes: IdataSetsAttributes,
-    commonChartProps: ISemioticXYFrameProps<IChartDataSet, IDataPoint>,
+    commonChartProps: IXYFrameProps<IChartDataSet, IDataPoint>,
   ) => {
     const { axisTickLineHeight, axisTickLabelHeight, axisLabelHeight, minimapHeight } = vizConfig.timeSeries;
 
     const { parentWidth } = this.props;
+    const { showGroup } = this.state;
 
     const { shouldUseSecondaryXAxis, shouldDisplayMinimap } = dataSetsAttributes;
-    const { dataSets, xExtentMain, millisSetMain } = chartData;
+    const { dataSets, millisSetMain, xExtentMain } = chartData;
 
     // if secondary axis is needed, we need more bottom margin to fit both axes
     const totalXAxisHeight = shouldUseSecondaryXAxis
@@ -241,6 +246,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
 
     const lineChartProps = {
       ...commonChartProps,
+      lines: dataSets.filter((ds: IChartDataSet) => showGroup[ds.label]), // only show selected groups
       hoverAnnotation: [
         {
           type: 'x',
@@ -253,7 +259,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         },
       ],
       customHoverBehavior: this.createChartHoverHandler(dataSets, dataSetsAttributes),
-      xExtent: xExtentMain.map((v: number) => new Date(v)),
+      xExtent: xExtentMain,
       axes: [
         {
           orient: 'left',
@@ -271,6 +277,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       margin: { ...this.marginMain, bottom: totalXAxisHeight },
       matte: true,
       size: [parentWidth, shouldDisplayMinimap ? this.mainMinimapHeight - minimapHeight : this.mainMinimapHeight],
+      xAccessor: (d: IDataPoint) => moment(d.timestampMillisMain).toDate(),
     };
 
     if (shouldDisplayMinimap) {
@@ -278,6 +285,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         ...lineChartProps,
         minimap: {
           ...commonChartProps,
+          lines: dataSets,
           yBrushable: false,
           brushEnd: this.onBrushEnd,
           size: [parentWidth, minimapHeight],
@@ -291,11 +299,13 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
             },
           ],
           margin: this.marginMinimap,
-        } as ISemioticMinimapProps<IChartDataSet, IDataPoint>,
+          xAccessor: (d: IDataPoint) => moment(d.timestampMillisBaseline).toDate(),
+        } as IMinimapProps<IChartDataSet, IDataPoint>,
       };
-    } else return lineChartProps as ISemioticXYFrameProps<IChartDataSet, IDataPoint>;
+    } else return lineChartProps as IXYFrameProps<IChartDataSet, IDataPoint>;
   };
 
+  // construct the graph JSX components and store them as states
   createGraphs = () => {
     const { metricSetPair, parentWidth } = this.props;
     const { showGroup } = this.state;
@@ -310,19 +320,18 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
 
     // Top level attributes to determine how data is formatted & which chart components to include
     const dataSetsAttributes = {
-      isStartTimeMillisEqual: isStartTimeMillisEqual,
       startTimeMillisOffset: canaryStartTimeMillis - baselineStartTimeMillis,
       maxDataCount: Math.max(metricSetPair.values.control.length, metricSetPair.values.experiment.length),
       shouldDisplayMinimap: metricSetPair.values.control.length > minimapDataPointsThreshold,
       shouldUseSecondaryXAxis: !isStartTimeMillisEqual && showGroup.canary && showGroup.baseline,
     };
 
-    const chartData = this.getChartData(dataSetsAttributes);
+    const chartData = this.getChartData(dataSetsAttributes, metricSetPair);
 
     /*
     * Build the visualization components
     */
-    const commonChartProps = this.createCommonChartProps(chartData.dataSets);
+    const commonChartProps = this.createCommonChartProps();
     const lineChartProps = this.createLineChartProps(chartData, dataSetsAttributes, commonChartProps);
 
     const line = (
@@ -351,7 +360,10 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       </>
     );
 
-    const differenceArea = showGroup.baseline && showGroup.canary ? <DifferenceArea {...this.props} /> : null;
+    const differenceArea =
+      showGroup.baseline && showGroup.canary ? (
+        <DifferenceArea {...this.props} millisBaselineSet={chartData.millisSetBaselineAll} />
+      ) : null;
 
     this.setState({
       graphs: {
@@ -368,16 +380,15 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     });
   };
 
-  // function factory to create a hover handler function based on the datasets
+  // function factory to create a custom hover handler function based on the datasets
   createChartHoverHandler = (dataSets: IChartDataSet[], dataSetsAttr: IdataSetsAttributes) => {
-    const { isStartTimeMillisEqual } = dataSetsAttr;
-
-    return (d: (ISemioticXYFrameHoverBaseArgs<IDataPoint> & IDataPoint) | undefined) => {
-      if (d && d.timestampMillisNormalized) {
+    const { shouldUseSecondaryXAxis } = dataSetsAttr;
+    return (d: (IXYFrameHoverBaseArgs<IDataPoint> & IDataPoint) | undefined) => {
+      if (d && d.timestampMillisMain) {
         const tooltipData = dataSets.map(
           (ds: IChartDataSet): ITooltipDataPoint => {
             const coord = ds.coordinatesUnfiltered.find(
-              (c: IDataPoint) => c.timestampMillisNormalized === d.timestampMillisNormalized,
+              (c: IDataPoint) => c.timestampMillisMain === d.timestampMillisMain,
             );
             return {
               color: ds.color,
@@ -389,14 +400,16 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         );
 
         let tooltipRows = tooltipData
+          .concat()
           .sort((a: ITooltipDataPoint, b: ITooltipDataPoint) => b.value - a.value)
           .map((o: ITooltipDataPoint) => {
             // if there's a ts offset, timestamp should be displayed for each group
-            const tsRow = isStartTimeMillisEqual ? null : (
+            const tsRow = shouldUseSecondaryXAxis ? (
               <div className="tooltip-ts">{moment(o.ts).format('YYYY-MM-DD HH:mm:ss z')}</div>
-            );
+            ) : null;
+
             return (
-              <div key={o.label} className={classNames({ 'tooltip-dual-axis-row': isStartTimeMillisEqual })}>
+              <div key={o.label} className={classNames({ 'tooltip-dual-axis-row': shouldUseSecondaryXAxis })}>
                 {tsRow}
                 <div id={o.label}>
                   <CircleIcon group={o.label} />
@@ -411,7 +424,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
           const canaryMinusBaseline = tooltipData[1].value - tooltipData[0].value;
           tooltipRows = tooltipRows.concat([
             <div id="diff" key="diff" className="tooltip-row">
-              <span>{'Canary - Baseline:'}</span>
+              <span>Canary - Baseline: </span>
               <span>{utils.formatMetricValue(canaryMinusBaseline)}</span>
             </div>,
           ]);
@@ -420,11 +433,11 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
         const tooltipContent = (
           <div>
             {/* if no dual axes, display timestamp row at the top level */}
-            {isStartTimeMillisEqual ? (
+            {shouldUseSecondaryXAxis ? null : (
               <div key="ts" className="tooltip-ts">
                 {moment(tooltipData[0].ts).format('YYYY-MM-DD HH:mm:ss z')}
               </div>
-            ) : null}
+            )}
             {tooltipRows}
           </div>
         );

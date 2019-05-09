@@ -2,11 +2,11 @@ import * as React from 'react';
 import {
   OrdinalFrame,
   Annotation,
-  ISemioticOrSummaryPiece,
-  ISemioticOrFrameHoverArgs,
-  ISemioticAnnotationType,
+  IOrSummaryPiece,
+  IOrFrameHoverArgs,
+  IAnnotationType,
   ISemioticAnnotationArgs,
-  ISemioticOrGroup,
+  IOrGroup,
 } from 'semiotic';
 import { extent } from 'd3-array';
 import { Node, Force } from 'labella';
@@ -76,7 +76,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
 
   // Generate tooltip content that shows the summary statistics of a boxplot
   createChartHoverHandler = () => {
-    return (d: ISemioticOrFrameHoverArgs<IChartDataPoint> & ISemioticOrSummaryPiece): void => {
+    return (d: IOrFrameHoverArgs<IChartDataPoint> & IOrSummaryPiece): void => {
       if (d && d.type === 'frame-hover') {
         const points = d.points;
         const data: IHoverDataGroup = {
@@ -84,7 +84,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
           canary: [],
         };
 
-        points.forEach((p: ISemioticOrSummaryPiece) => {
+        points.forEach((p: IOrSummaryPiece) => {
           data[p.key].push({ label: p.label, value: p.value });
         });
 
@@ -149,7 +149,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     });
   };
 
-  customAnnotationFunction = (args: ISemioticAnnotationArgs<IAnnotationData, ISemioticOrGroup<IChartDataPoint>>) => {
+  customAnnotationFunction = (args: ISemioticAnnotationArgs<IAnnotationData, IOrGroup<IChartDataPoint>>) => {
     const {
       d,
       orFrameState: { pieceDataXY },
@@ -162,14 +162,14 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         return null;
       }
 
-      const summaryData = pieceDataXY.filter((sd: ISemioticOrSummaryPiece) => sd.key === d.group);
+      const summaryData = pieceDataXY.filter((sd: IOrSummaryPiece) => sd.key === d.group);
       const boxPlotWidth = categories[d.group].width;
       const statLabelMap: { [stat: string]: string } = {
         median: 'median',
         q1area: '25th %-ile',
         q3area: '75th %-ile',
       };
-      const createNoteElement = (posY: number, dataPoint: ISemioticOrSummaryPiece) => {
+      const createNoteElement = (posY: number, dataPoint: IOrSummaryPiece) => {
         const name = dataPoint.summaryPieceName;
         const label = statLabelMap[name];
         const noteData = {
@@ -192,20 +192,20 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
 
       const nodes = d.summaryKeys
         .map((summaryKey: string) => {
-          const pieceData = summaryData.find((sd: ISemioticOrSummaryPiece) => sd.summaryPieceName === summaryKey);
-          return pieceData ? new Node<ISemioticOrSummaryPiece>(pieceData.y, 20, pieceData) : null;
+          const pieceData = summaryData.find((sd: IOrSummaryPiece) => sd.summaryPieceName === summaryKey);
+          return pieceData ? new Node<IOrSummaryPiece>(pieceData.y, 20, pieceData) : null;
         })
-        .map((v: null | Node<ISemioticOrSummaryPiece>) => v) as Node<ISemioticOrSummaryPiece>[];
+        .map((v: null | Node<IOrSummaryPiece>) => v) as Node<IOrSummaryPiece>[];
 
       const forceOptions = {
         minPos: this.margin.top,
         maxPos: vizConfig.height - this.margin.bottom,
       };
-      const annotations = new Force<ISemioticOrSummaryPiece>(forceOptions)
+      const annotations = new Force<IOrSummaryPiece>(forceOptions)
         .nodes(nodes)
         .compute()
         .nodes()
-        .map((n: Node<ISemioticOrSummaryPiece>) => createNoteElement(n.currentPos, n.data));
+        .map((n: Node<IOrSummaryPiece>) => createNoteElement(n.currentPos, n.data));
 
       return annotations;
     } else return null;
@@ -246,7 +246,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
       customHoverBehavior: this.createChartHoverHandler(),
       hoverAnnotation: false,
       annotations: this.defineAnnotations(),
-      summaryHoverAnnotation: [] as ISemioticAnnotationType[],
+      summaryHoverAnnotation: [] as IAnnotationType[],
       data: chartData,
       oAccessor: (d: IChartDataPoint) => d.group,
       rAccessor: (d: IChartDataPoint) => d.value,
