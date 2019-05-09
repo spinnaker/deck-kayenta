@@ -148,11 +148,6 @@
   resolved "https://registry.yarnpkg.com/@types/angular/-/angular-1.6.40.tgz#f4e5a77573068c07ccab320e63e1616e1f097fc9"
   integrity sha512-svgm2RiWEVvoNkeX+gDWA412KluZ6MBPQNu8SRkEfGmHgVhAZ6r3A+k51/KzeoEoY/GY9ZBT/Qc3fAjpGwCyJg==
 
-"@types/chart.js@^2.6.10":
-  version "2.7.51"
-  resolved "https://registry.yarnpkg.com/@types/chart.js/-/chart.js-2.7.51.tgz#b5dd40a30c8fc5e1910e77c82079aaad9f7d486b"
-  integrity sha512-bGIgvM8SzTSkKLWa6+uF5hNyH2K9Zdz6F8HUfsdP0j2744vuxXyY+hkHVvPeDuaWocltf4DRwInRN3+bqXW3ow==
-
 "@types/cheerio@*":
   version "0.22.1"
   resolved "https://registry.yarnpkg.com/@types/cheerio/-/cheerio-0.22.1.tgz#740c4cd8c4d3f3074f83b9ab62e711eac2c764ce"
@@ -371,11 +366,6 @@
     "@types/d3-interpolate" "*"
     "@types/d3-selection" "*"
 
-"@types/d3@^3":
-  version "3.5.41"
-  resolved "https://registry.yarnpkg.com/@types/d3/-/d3-3.5.41.tgz#57f08fc79b75f0fecb0b3547abc22e46e9d660e4"
-  integrity sha512-dInnr7nSPsofnLggOf70xvsInUjf3tRrE8XmxsioXALWQHkwEWi7RhTBCa9mYmiUDHMtuanSDN/JOW187ChIhw==
-
 "@types/d3@^5.0.0":
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/@types/d3/-/d3-5.0.0.tgz#fec49f2aea0f0784f829eff38132926e92676d57"
@@ -495,13 +485,6 @@
   version "7.0.5"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-7.0.5.tgz#96a0f0a618b7b606f1ec547403c00650210bfbb7"
   integrity sha1-lqDwphi3tgbx7FR0A8AGUCEL+7c=
-
-"@types/plotly.js@^1.28.12":
-  version "1.44.3"
-  resolved "https://registry.yarnpkg.com/@types/plotly.js/-/plotly.js-1.44.3.tgz#83e9880fdef2adbc65dc0fae393f3e364d3cfc5e"
-  integrity sha512-iadgTpwKgv9JCn4LdCfmk7zoAs2fhsINNhZmd+6MxvUAwl+5TiLenqyzVkUKy1dJ73vB83MeDrApkqUZ8cB9bQ==
-  dependencies:
-    "@types/d3" "^3"
 
 "@types/prop-types@*":
   version "15.5.6"

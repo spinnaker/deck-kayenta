@@ -2,7 +2,7 @@
   "main": "lib/lib.js",
   "typings": "lib/kayenta/index.d.ts",
   "name": "@spinnaker/kayenta",
-  "version": "0.0.74",
+  "version": "0.0.75",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -99,7 +99,6 @@
     "@types/angular": "1.6.26",
     "@types/angular-mocks": "^1.5.10",
     "@types/angular-ui-bootstrap": "^0.13.41",
-    "@types/chart.js": "^2.6.10",
     "@types/classnames": "^2.2.0",
     "@types/clipboard": "^1.5.33",
     "@types/d3": "^5.0.0",
