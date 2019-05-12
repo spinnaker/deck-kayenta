@@ -58,7 +58,7 @@ interface ITooltipDataPoint {
   ts: number;
 }
 
-interface IdataSetsAttributes {
+interface IDataSetsAttributes {
   startTimeMillisOffset: number;
   maxDataCount: number;
   shouldDisplayMinimap: boolean;
@@ -134,7 +134,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   * 2) normalize canary timestamp to match baseline timestamps (needed for the tooltip's
   * voronoi overlay logic in semiotic to work properly)
   */
-  getChartData = (dataSetsAttr: IdataSetsAttributes, metricSetPair: IMetricSetPair) => {
+  getChartData = (dataSetsAttr: IDataSetsAttributes, metricSetPair: IMetricSetPair) => {
     const { maxDataCount } = dataSetsAttr;
     const { showGroup } = this.state;
     const { dataGroupMap, colors } = vizConfig;
@@ -228,7 +228,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
 
   createLineChartProps = (
     chartData: IChartData,
-    dataSetsAttributes: IdataSetsAttributes,
+    dataSetsAttributes: IDataSetsAttributes,
     commonChartProps: IXYFrameProps<IChartDataSet, IDataPoint>,
   ) => {
     const { axisTickLineHeight, axisTickLabelHeight, axisLabelHeight, minimapHeight } = vizConfig.timeSeries;
@@ -381,7 +381,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   };
 
   // function factory to create a custom hover handler function based on the datasets
-  createChartHoverHandler = (dataSets: IChartDataSet[], dataSetsAttr: IdataSetsAttributes) => {
+  createChartHoverHandler = (dataSets: IChartDataSet[], dataSetsAttr: IDataSetsAttributes) => {
     const { shouldUseSecondaryXAxis } = dataSetsAttr;
     return (d: (IXYFrameHoverBaseArgs<IDataPoint> & IDataPoint) | undefined) => {
       if (d && d.timestampMillisMain) {
