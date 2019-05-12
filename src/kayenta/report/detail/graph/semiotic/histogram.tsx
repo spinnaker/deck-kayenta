@@ -42,7 +42,7 @@ interface IHistogramState {
 }
 
 export default class Histogram extends React.Component<ISemioticChartProps, IHistogramState> {
-  state: IHistogramState = {
+  public state: IHistogramState = {
     tooltip: null,
   };
 
@@ -53,10 +53,10 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     right: 10,
   };
 
-  decorateData = (dataPoints: number[], group: string): IInputDataPoint[] => {
+  private decorateData = (dataPoints: number[], group: string): IInputDataPoint[] => {
     return dataPoints.map(dp => ({
+      group,
       value: dp,
-      group: group,
     }));
   };
 
@@ -66,7 +66,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
   * Hence we're manually generating histogram data using D3 and display it as
   * a grouped bar chart in semiotic
   */
-  generateChartData = () => {
+  private generateChartData = () => {
     const { metricSetPair } = this.props;
     const filterFunc = (v: IInputDataPoint) => typeof v.value === 'number';
     const baselineInput = this.decorateData(metricSetPair.values.control, 'baseline');
@@ -88,8 +88,8 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     // Convert it to ordinal data format for bar chart in semiotic
     histogramData.forEach(h => {
       const { x0, x1 } = h;
-      const baselineBin = { group: 'baseline', x0: x0, x1: x1, count: 0 };
-      const canaryBin = { group: 'canary', x0: x0, x1: x1, count: 0 };
+      const baselineBin = { group: 'baseline', x0, x1, count: 0 };
+      const canaryBin = { group: 'canary', x0, x1, count: 0 };
       h.forEach(d => (d.group === 'baseline' ? baselineBin.count++ : canaryBin.count++));
       chartData.push(baselineBin);
       chartData.push(canaryBin);
@@ -99,7 +99,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
   };
 
   // Function factory to handle hover event
-  createChartHoverHandler = (chartData: IChartDataPoint[]) => {
+  private createChartHoverHandler = (chartData: IChartDataPoint[]) => {
     return (d: IOrFrameHoverArgs<IChartDataPoint>): void => {
       if (d && d.type === 'column-hover') {
         const x1Max: number = Math.max(...chartData.map((cd: IChartDataPoint) => cd.x1));
@@ -140,16 +140,18 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
         this.setState({
           tooltip: {
             content: tooltipContent,
-            x: x,
-            y: y,
+            x,
+            y,
           },
         });
-      } else this.setState({ tooltip: null });
+      } else {
+        this.setState({ tooltip: null });
+      }
     };
   };
 
   // generate bar value annotations object
-  defineAnnotations = (chartData: IChartDataPoint[]) => {
+  private defineAnnotations = (chartData: IChartDataPoint[]) => {
     const annotations = [] as IAnnotationData[];
     chartData.forEach((d: IChartDataPoint) => {
       if (d.count > 0) {
@@ -163,7 +165,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
   };
 
   // function to actually create the JSX elements based on the annotation object
-  customAnnotationFunction = (
+  private customAnnotationFunction = (
     args: ISemioticAnnotationArgs<IAnnotationData, IOrGroup<IChartDataPoint>>,
   ): JSX.Element | null => {
     const { d, i, categories } = args;
@@ -173,7 +175,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
       ).xy;
       const noteData = {
         x: x + width / 2,
-        y: y,
+        y,
         nx: x + width / 2,
         ny: y - 1,
         note: {
@@ -188,10 +190,12 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
         className: `bar-annotation`,
       };
       return <Annotation key={i} noteData={noteData} />;
-    } else return null;
+    } else {
+      return null;
+    }
   };
 
-  getChartProps = () => {
+  private getChartProps = () => {
     const { parentWidth } = this.props;
     const chartData = this.generateChartData();
 
@@ -227,7 +231,7 @@ export default class Histogram extends React.Component<ISemioticChartProps, IHis
     };
   };
 
-  render() {
+  public render() {
     const { metricSetPair } = this.props;
 
     return (

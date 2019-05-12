@@ -42,10 +42,10 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
     right: 20,
   };
 
-  private chartHeight: number = 40; // chart height not including axes height
-  private headerHeight: number = 17;
+  private chartHeight = 40; // chart height not including axes height
+  private headerHeight = 17;
 
-  getChartData = () => {
+  private getChartData = () => {
     const { metricSetPair, millisBaselineSet } = this.props;
     const {
       values: { experiment, control },
@@ -96,7 +96,7 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
     };
   };
 
-  getSecondaryAxis = (millisOffset: number, millisBaselineSet: number[]) => {
+  private getSecondaryAxis = (millisOffset: number, millisBaselineSet: number[]) => {
     const { parentWidth } = this.props;
     const millisSetCanary = millisBaselineSet.map((ms: number) => ms + millisOffset);
 
@@ -111,7 +111,7 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
     );
   };
 
-  getXAxisTotalHeight = (shouldUseSecondaryXAxis: boolean) => {
+  private getXAxisTotalHeight = (shouldUseSecondaryXAxis: boolean) => {
     const { axisTickLineHeight, axisTickLabelHeight, axisLabelHeight } = vizConfig.timeSeries;
 
     return shouldUseSecondaryXAxis
@@ -119,7 +119,7 @@ export default class DifferenceArea extends React.Component<IDifferenceAreaProps
       : axisTickLabelHeight;
   };
 
-  render() {
+  public render() {
     const { metricSetPair, parentWidth, millisBaselineSet } = this.props;
 
     /*

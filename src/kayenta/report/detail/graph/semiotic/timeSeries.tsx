@@ -6,7 +6,7 @@ import { SETTINGS } from '@spinnaker/core';
 const { defaultTimeZone } = SETTINGS;
 import { curveStepAfter } from 'd3-shape';
 import * as classNames from 'classnames';
-import * as _ from 'lodash';
+import { chain } from 'lodash';
 
 import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
 import * as utils from './utils';
@@ -79,7 +79,7 @@ interface IInterimDataSet {
 3. The difference chart that displays the diff between canary and baseline
 */
 export default class TimeSeries extends React.Component<ISemioticChartProps, ITimeSeriesState> {
-  state: ITimeSeriesState = {
+  public state: ITimeSeriesState = {
     tooltip: null,
     userBrushExtent: null,
     showGroup: {
@@ -87,14 +87,14 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       canary: true,
     },
     graphs: {
-      //a standalone timeseries chart if data points are few, otherwise it also includes a brushable/ zoomable minimap
+      // a standalone timeseries chart if data points are few, otherwise it also includes a brushable/ zoomable minimap
       line: null,
-      //graph that shows the delta between canary and baseline
+      // graph that shows the delta between canary and baseline
       differenceArea: null,
     },
   };
 
-  private mainMinimapHeight: number = 320; //total height of the main & minimap (if applicable)
+  private mainMinimapHeight = 320; // total height of the main & minimap (if applicable)
 
   private marginMain: IMargin = {
     top: 10,
@@ -109,12 +109,12 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     right: 20,
   };
 
-  componentDidMount = () => {
+  public componentDidMount() {
     this.createGraphs();
-  };
+  }
 
   // Only reconstruct the graph components when necessary
-  componentDidUpdate = (prevProps: ISemioticChartProps, prevState: ITimeSeriesState) => {
+  public componentDidUpdate(prevProps: ISemioticChartProps, prevState: ITimeSeriesState) {
     const { metricSetPair, parentWidth } = this.props;
     const { userBrushExtent, showGroup } = this.state;
     if (
@@ -125,7 +125,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     ) {
       this.createGraphs();
     }
-  };
+  }
 
   /*
   *  Generate chart Data
@@ -134,7 +134,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   * 2) normalize canary timestamp to match baseline timestamps (needed for the tooltip's
   * voronoi overlay logic in semiotic to work properly)
   */
-  getChartData = (dataSetsAttr: IDataSetsAttributes, metricSetPair: IMetricSetPair) => {
+  private getChartData = (dataSetsAttr: IDataSetsAttributes, metricSetPair: IMetricSetPair) => {
     const { maxDataCount } = dataSetsAttr;
     const { showGroup } = this.state;
     const { dataGroupMap, colors } = vizConfig;
@@ -151,7 +151,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     * as we want to maintain brush state when user toggles groups
     * Finally we also trim out timestamps with invalid values at both ends of the dataset
     */
-    const intDataSet: IInterimDataSet[] = _.chain(Array(maxDataCount).fill(0))
+    const intDataSet: IInterimDataSet[] = chain(Array(maxDataCount).fill(0))
       .map((_, i) => {
         const valueList = groups.map((g: string) => values[dataGroupMap[g]][i]);
         const timestampMillisList = groups.map((g: string) => scopes[dataGroupMap[g]].startTimeMillis + i * stepMillis);
@@ -171,7 +171,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     const dataSets: IChartDataSet[] = groups.map((g: string, i: number) => {
       const dataPoints = intDataSet.map((ds: IInterimDataSet) => {
         return {
-          timestampMillis: ds.timestampMillisList[i], //original ts for this data point
+          timestampMillis: ds.timestampMillisList[i], // original ts for this data point
           timestampMillisBaseline: ds.timestampMillisBaseline,
           timestampMillisMain: ds.timestampMillisMain,
           value: ds.valueList[i],
@@ -209,7 +209,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   };
 
   // common chart props that are used for both the main XYFrame and Minimap (if applicable)
-  createCommonChartProps = () => {
+  private createCommonChartProps = () => {
     return {
       lineType: {
         type: 'line',
@@ -226,7 +226,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
     };
   };
 
-  createLineChartProps = (
+  private createLineChartProps = (
     chartData: IChartData,
     dataSetsAttributes: IDataSetsAttributes,
     commonChartProps: IXYFrameProps<IChartDataSet, IDataPoint>,
@@ -302,11 +302,13 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
           xAccessor: (d: IDataPoint) => moment(d.timestampMillisBaseline).toDate(),
         } as IMinimapProps<IChartDataSet, IDataPoint>,
       };
-    } else return lineChartProps as IXYFrameProps<IChartDataSet, IDataPoint>;
+    } else {
+      return lineChartProps as IXYFrameProps<IChartDataSet, IDataPoint>;
+    }
   };
 
   // construct the graph JSX components and store them as states
-  createGraphs = () => {
+  private createGraphs = () => {
     const { metricSetPair, parentWidth } = this.props;
     const { showGroup } = this.state;
     const { minimapDataPointsThreshold, minimapHeight } = vizConfig.timeSeries;
@@ -367,13 +369,13 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
 
     this.setState({
       graphs: {
-        line: line,
-        differenceArea: differenceArea,
+        line,
+        differenceArea,
       },
     });
   };
 
-  onLegendClickHandler = (group: string) => {
+  private onLegendClickHandler = (group: string) => {
     const showGroup = this.state.showGroup;
     this.setState({
       showGroup: { ...showGroup, [group]: !showGroup[group] },
@@ -381,7 +383,7 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
   };
 
   // function factory to create a custom hover handler function based on the datasets
-  createChartHoverHandler = (dataSets: IChartDataSet[], dataSetsAttr: IDataSetsAttributes) => {
+  private createChartHoverHandler = (dataSets: IChartDataSet[], dataSetsAttr: IDataSetsAttributes) => {
     const { shouldUseSecondaryXAxis } = dataSetsAttr;
     return (d: (IXYFrameHoverBaseArgs<IDataPoint> & IDataPoint) | undefined) => {
       if (d && d.timestampMillisMain) {
@@ -448,18 +450,20 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
             y: d.voronoiY + this.marginMain.top,
           },
         });
-      } else this.setState({ tooltip: null });
+      } else {
+        this.setState({ tooltip: null });
+      }
     };
   };
 
-  //Handle user brush action event from semiotic
-  onBrushEnd = (e: Date[]) => {
+  // Handle user brush action event from semiotic
+  private onBrushEnd = (e: Date[]) => {
     this.setState({
       userBrushExtent: e,
     });
   };
 
-  render() {
+  public render() {
     const { metricSetPair } = this.props;
     const { showGroup, tooltip } = this.state;
     const { line, differenceArea } = this.state.graphs;

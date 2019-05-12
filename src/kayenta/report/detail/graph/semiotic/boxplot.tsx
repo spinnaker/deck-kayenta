@@ -46,7 +46,7 @@ interface IBoxPlotState {
 }
 
 export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPlotState> {
-  state: IBoxPlotState = {
+  public state: IBoxPlotState = {
     tooltip: null,
   };
 
@@ -57,15 +57,15 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     right: 40,
   };
 
-  decorateData = (dataPoints: number[], group: string): IChartDataPoint[] => {
+  private decorateData = (dataPoints: number[], group: string): IChartDataPoint[] => {
     return dataPoints.map(dp => ({
+      group,
       value: dp,
-      group: group,
       color: vizConfig.colors[group],
     }));
   };
 
-  generateChartData = () => {
+  private generateChartData = () => {
     const { metricSetPair } = this.props;
     const filterFunc = (v: IChartDataPoint) => typeof v.value === 'number';
     const baselineInput = this.decorateData(metricSetPair.values.control, 'baseline');
@@ -75,7 +75,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
   };
 
   // Generate tooltip content that shows the summary statistics of a boxplot
-  createChartHoverHandler = () => {
+  private createChartHoverHandler = () => {
     return (d: IOrFrameHoverArgs<IChartDataPoint> & IOrSummaryPiece): void => {
       if (d && d.type === 'frame-hover') {
         const points = d.points;
@@ -135,11 +135,13 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
             y: d.y + this.margin.top,
           },
         });
-      } else this.setState({ tooltip: null });
+      } else {
+        this.setState({ tooltip: null });
+      }
     };
   };
 
-  defineAnnotations = () => {
+  private defineAnnotations = () => {
     return ['baseline', 'canary'].map((g: string) => {
       return {
         type: 'summary-custom',
@@ -149,7 +151,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     });
   };
 
-  customAnnotationFunction = (args: ISemioticAnnotationArgs<IAnnotationData, IOrGroup<IChartDataPoint>>) => {
+  private customAnnotationFunction = (args: ISemioticAnnotationArgs<IAnnotationData, IOrGroup<IChartDataPoint>>) => {
     const {
       d,
       orFrameState: { pieceDataXY },
@@ -195,7 +197,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
           const pieceData = summaryData.find((sd: IOrSummaryPiece) => sd.summaryPieceName === summaryKey);
           return pieceData ? new Node<IOrSummaryPiece>(pieceData.y, 20, pieceData) : null;
         })
-        .map((v: null | Node<IOrSummaryPiece>) => v) as Node<IOrSummaryPiece>[];
+        .map((v: null | Node<IOrSummaryPiece>) => v) as Array<Node<IOrSummaryPiece>>;
 
       const forceOptions = {
         minPos: this.margin.top,
@@ -208,10 +210,12 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
         .map((n: Node<IOrSummaryPiece>) => createNoteElement(n.currentPos, n.data));
 
       return annotations;
-    } else return null;
+    } else {
+      return null;
+    }
   };
 
-  getChartProps = () => {
+  private getChartProps = () => {
     const { parentWidth } = this.props;
     const chartData = this.generateChartData();
 
@@ -260,7 +264,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
     };
   };
 
-  render() {
+  public render() {
     const { metricSetPair } = this.props;
     return (
       <div className="boxplot">

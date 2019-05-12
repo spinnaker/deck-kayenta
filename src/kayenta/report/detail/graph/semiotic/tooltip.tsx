@@ -17,7 +17,7 @@ export interface ITooltipProps {
 export default class Tooltip extends React.Component<ITooltipProps> {
   private tooltipTarget: HTMLDivElement;
 
-  componentDidUpdate(prevProps: ITooltipProps) {
+  public componentDidUpdate(prevProps: ITooltipProps) {
     const target = this.tooltipTarget;
     if (prevProps.content && !this.props.content) {
       ReactTooltip.hide(target);
@@ -26,7 +26,7 @@ export default class Tooltip extends React.Component<ITooltipProps> {
     }
   }
 
-  render() {
+  public render() {
     const { x, y, content, id = 'tooltip' } = this.props;
     const tooltipTargetStyle = {
       left: x ? x : 0,
@@ -45,7 +45,7 @@ export default class Tooltip extends React.Component<ITooltipProps> {
 
     return (
       <div style={containerStyle}>
-        <div data-tip data-for={id} style={tooltipTargetStyle} ref={el => (this.tooltipTarget = el)} />
+        <div data-tip={true} data-for={id} style={tooltipTargetStyle} ref={el => (this.tooltipTarget = el)} />
         <ReactTooltip id={id} type="light" border={true}>
           {content ? content : null}
         </ReactTooltip>

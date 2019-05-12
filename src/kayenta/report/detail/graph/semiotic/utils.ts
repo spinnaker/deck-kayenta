@@ -16,7 +16,9 @@ export const formatMetricValue = (value: any) => {
     return 'N/A';
   } else if (Math.abs(value) >= Math.pow(10, 25)) {
     return format('-.3~e')(value);
-  } else return format('-.3~s')(value);
+  } else {
+    return format('-.3~s')(value);
+  }
 };
 
 /*

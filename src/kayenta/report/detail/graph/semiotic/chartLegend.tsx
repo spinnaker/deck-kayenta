@@ -6,7 +6,7 @@ import './chartLegend.less';
 
 interface IChartLegendProps {
   isClickable?: boolean;
-  onClickHandler?: { (group: string): void };
+  onClickHandler?: (group: string) => void;
   showGroup?: { [group: string]: boolean };
 }
 
