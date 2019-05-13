@@ -589,6 +589,11 @@ angular-ui-bootstrap@^2.5.0:
   resolved "https://registry.yarnpkg.com/angular-ui-bootstrap/-/angular-ui-bootstrap-2.5.0.tgz#2facefb915386655dc5f44150258032517236d01"
   integrity sha1-L6zvuRU4ZlXcX0QVAlgDJRcjbQE=
 
+angular-ui-sortable@^0.17.0:
+  version "0.17.2"
+  resolved "https://registry.yarnpkg.com/angular-ui-sortable/-/angular-ui-sortable-0.17.2.tgz#8c4426cad306c7cdd1c30b454af85b2d15818cdc"
+  integrity sha1-jEQmytMGx83RwwtFSvhbLRWBjNw=
+
 angular2react@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/angular2react/-/angular2react-3.0.2.tgz#1249e21446975dc82c0e4da8ed09c0cd45810a25"
@@ -1979,6 +1984,11 @@ cached-path-relative@^1.0.0:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/cached-path-relative/-/cached-path-relative-1.0.1.tgz#d09c4b52800aa4c078e2dd81a869aac90d2e54e7"
   integrity sha1-0JxLUoAKpMB44t2BqGmqyQ0uVOc=
+
+cachefactory@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/cachefactory/-/cachefactory-3.0.0.tgz#4a020a337e82f8fb8d88f1fddf3d6527c27a2ae8"
+  integrity sha1-SgIKM36C+PuNiPH93z1lJ8J6Kug=
 
 caller-path@^0.1.0:
   version "0.1.0"
@@ -3529,6 +3539,11 @@ domhandler@^2.3.0:
   integrity sha1-iS5HAAqZvlW783dP/qBWHYh5wlk=
   dependencies:
     domelementtype "1"
+
+dompurify@^1.0.4:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/dompurify/-/dompurify-1.0.10.tgz#18d7353631c86ee25049e38fbca8c6b2c5a2af87"
+  integrity sha512-huhl3DSWX5LaA7jDtnj3XQdJgWW1wYouNW7N0drGzQa4vEUSVWyeFN+Atx6HP4r5cang6oQytMom6I4yhGJj5g==
 
 domutils@1.1:
   version "1.1.6"
