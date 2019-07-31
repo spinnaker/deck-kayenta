@@ -106,6 +106,10 @@ const helpContents: { [key: string]: string } = {
     <p>Select <strong>default</strong> to use options from the UI to configure your query.</p>
     <p>Select <strong>PromQL</strong> to compose a custom PromQL query (see <a target="blank" href="https://prometheus.io/docs/prometheus/latest/querying/basics/">documentation</a>).</p>
   `,
+  'canary.config.scope': `
+    <p>A scope name to group a collection of canary parameters (baseline/canary resource names, time boundaries, extended params, etc.). Most canary analysis only has 1 scope, and that scope is named 'default' automatically, so that's what should be entered in this field.</p>
+    <p>See <a target="_blank" href="https://github.com/spinnaker/kayenta/issues/193">kayenta/issues#193</a> for more background information.</p>
+  `,
   // These come (almost) verbatim from Stackdriver's Metric Explorer.
   'stackdriver.resourceType':
     'For Stackdriver, a set of time series is identified by a <strong>resource type</strong> and a metric type that has data from that resource type.',

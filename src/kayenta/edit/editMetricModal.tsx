@@ -211,7 +211,7 @@ function EditMetricModal({
               action={updateNanStrategy}
             />
           </FormRow>
-          <FormRow label="Scope Name" error={get(validationErrors, 'scopeName.message', null)}>
+          <FormRow label="Scope Name" error={get(validationErrors, 'scopeName.message', null)} helpId="canary.config.scope">
             <DisableableInput
               type="text"
               value={metric.scopeName}
