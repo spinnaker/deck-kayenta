@@ -80,7 +80,7 @@ function mapStateToProps(state: ICanaryState): IDatadogMetricConfigurerStateProp
 function mapDispatchToProps(dispatch: (action: Action & any) => void): IDatadogMetricConfigurerDispatchProps {
   return {
     changeMetricName: (agg: string, name: string): void => {
-      var metricName = agg + ':' + name;
+      const metricName = agg + ':' + name;
       dispatch(Creators.updateDatadogMetricName({ metricName }));
     },
   };
