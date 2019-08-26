@@ -33,6 +33,8 @@ export interface ICanaryMetricSetQueryConfig {
   serviceType: string;
   customInlineTemplate?: string;
   customFilterTemplate?: string;
+  metricType?: string;
+  tags?: [string];
 }
 
 export interface IGroupWeights {
