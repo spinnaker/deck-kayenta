@@ -16,7 +16,7 @@ interface INewRelicMetricConfigurerDispatchProps {
   changeSelect: (event: any) => void;
 }
 
-type INewRelicConfigurerProps = INewRelicMetricConfigurerStateProps & INewRelicMetricConfigurerDispatchProps;
+type NewRelicMetricConfigurerProps = INewRelicMetricConfigurerStateProps & INewRelicMetricConfigurerDispatchProps;
 
 export const queryFinder = (metric: ICanaryMetricConfig) => get(metric, 'query.select', '');
 
