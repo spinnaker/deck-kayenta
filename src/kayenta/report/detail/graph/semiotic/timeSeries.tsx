@@ -6,7 +6,6 @@ import { SETTINGS } from '@spinnaker/core';
 const { defaultTimeZone } = SETTINGS;
 import { curveStepAfter } from 'd3-shape';
 import * as classNames from 'classnames';
-// import { chain } from 'lodash';
 
 import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
 import * as utils from './utils';
@@ -180,9 +179,8 @@ export default class TimeSeries extends React.Component<ISemioticChartProps, ITi
       ? dataSets[0].coordinatesUnfiltered
       : dataSets[0].coordinatesUnfiltered.filter((c: IDataPoint) => {
           return (
-            !userBrushExtent ||
-            (c.timestampMillisNormalizedMinimap >= userBrushExtent[0].valueOf() &&
-              c.timestampMillisNormalizedMinimap <= userBrushExtent[1].valueOf())
+            c.timestampMillisNormalizedMinimap >= userBrushExtent[0].valueOf() &&
+            c.timestampMillisNormalizedMinimap <= userBrushExtent[1].valueOf()
           );
         })
     ).map((c: IDataPoint) => c.timestampMillisNormalizedMain);
