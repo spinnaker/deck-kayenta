@@ -34,5 +34,5 @@
     }
   },
   "include": ["../src/kayenta/**/*.ts", "../src/kayenta/**/*.tsx"],
-  "exclude": ["../lib", "../src/kayenta/**/*.spec.ts"]
+  "exclude": ["../lib", "../src/kayenta/**/*.spec.ts", "node_modules"]
 }
