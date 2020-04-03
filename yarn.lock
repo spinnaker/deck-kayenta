@@ -19,10 +19,10 @@
   resolved "https://registry.yarnpkg.com/@spinnaker/amazon/-/amazon-0.0.222.tgz#22ab8e5be412032248de1e69818b2a50402edad1"
   integrity sha512-vzgz+5WvvR+JaeAO8pSEoOzksuk3qxv7FoW3vRTfLQYmt2e4uioAe6ZwZZ6bFPfiryYcUwY8dsADmbqYJvQz4g==
 
-"@spinnaker/core@0.0.428":
-  version "0.0.428"
-  resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.428.tgz#7dda2bf9f8016153d6aca3e763576552f0604976"
-  integrity sha512-uVZ7i9CAMXF4PE0TbjyI+fbfvR5WWfUmBI5Z8KChz9p0M3xcaShU7Sxf0t1N+9WHP6IsGETbFcMG6ulpnCY2LQ==
+"@spinnaker/core@0.0.469":
+  version "0.0.469"
+  resolved "https://registry.yarnpkg.com/@spinnaker/core/-/core-0.0.469.tgz#8a39b1d332306c3cfe1bdeed35edce4462ec9f8f"
+  integrity sha512-z8KA58e28/9kdPC2com9xfRvRe8F+wAyOMGvJh7sn7E+eIMLf6O3YqTIAefg6Ua0bcNQdMjzEi03Rh/6GSv3Sw==
 
 "@spinnaker/styleguide@^1.0.12":
   version "1.0.12"
