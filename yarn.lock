@@ -499,7 +499,7 @@
 
 "@types/redux-test-utils@^0.2.0":
   version "0.2.0"
-  resolved "http://registry.npmjs.org/@types/redux-test-utils/-/redux-test-utils-0.2.0.tgz#372fb9e2f55a24dd9d257b91257edbae146505c2"
+  resolved "https://registry.npmjs.org/@types/redux-test-utils/-/redux-test-utils-0.2.0.tgz#372fb9e2f55a24dd9d257b91257edbae146505c2"
   integrity sha512-uEMO7/mnLpo8X9N2J04RfdbkMCYWNnbyhVM1SFL+dbFwXmmYydDqdmFlLdn0gUB4ado6UcQFWgRS+FAc2vvSFw==
   dependencies:
     redux "^3.6.0"
@@ -4308,7 +4308,7 @@ get-stdin@^6.0.0:
 
 get-stream@^3.0.0:
   version "3.0.0"
-  resolved "http://registry.npmjs.org/get-stream/-/get-stream-3.0.0.tgz#8e943d1358dc37555054ecbe2edb05aa174ede14"
+  resolved "https://registry.npmjs.org/get-stream/-/get-stream-3.0.0.tgz#8e943d1358dc37555054ecbe2edb05aa174ede14"
   integrity sha1-jpQ9E1jcN1VQVOy+LtsFqhdO3hQ=
 
 get-stream@^4.0.0:
@@ -9686,9 +9686,9 @@ toposort@^1.0.0:
   integrity sha1-8CzYp0vYvi/A6YYRw7rLlaFxhpw=
 
 tough-cookie@~2.3.0:
-  version "2.3.2"
-  resolved "https://registry.yarnpkg.com/tough-cookie/-/tough-cookie-2.3.2.tgz#f081f76e4c85720e6c37a5faced737150d84072a"
-  integrity sha1-8IH3bkyFcg5sN6X6ztc3FQ2EByo=
+  version "2.3.4"
+  resolved "https://registry.yarnpkg.com/tough-cookie/-/tough-cookie-2.3.4.tgz#ec60cee38ac675063ffc97a5c18970578ee83655"
+  integrity sha512-TZ6TTfI5NtZnuyy/Kecv+CnoROnyXn2DN97LontgQpCwsX2XyLYCC0ENhYkehSOwAp8rTQKc/NUIF7BkQ5rKLA==
   dependencies:
     punycode "^1.4.1"
 
