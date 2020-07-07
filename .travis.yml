@@ -7,7 +7,6 @@ addons:
   chrome: stable
 before_install:
   - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
   - echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
 # Uncomment out below lines to enable integration with Codecov
 # See PR #375 for details: https://github.com/spinnaker/deck-kayenta/pull/375
