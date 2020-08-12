@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { mountWithState, mountWithStore } from 'enzyme-redux';
 import { createMockStore } from 'redux-test-utils';
-import Select, { Option, ReactSelectProps } from 'react-select';
+import Select, { Option } from 'react-select';
 
 import { noop } from '@spinnaker/core';
 import * as Actions from 'kayenta/actions';
@@ -78,8 +78,8 @@ describe('<StackdriverMetricTypeSelector />', () => {
       <Component value="compute.googleapis.com/disk/read_ops_count" onChange={noop} />,
       store,
     );
-    const allProps: ReactSelectProps = component.find(Select).props();
-    allProps.onInputChange('redis');
+
+    component.find(Select).props().onInputChange('redis');
 
     expect(
       store.isActionDispatched({

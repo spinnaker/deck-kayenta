@@ -2,7 +2,7 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { mountWithState, mountWithStore } from 'enzyme-redux';
 import { createMockStore } from 'redux-test-utils';
-import Select, { Option, ReactSelectProps } from 'react-select';
+import Select, { Option } from 'react-select';
 
 import { noop } from '@spinnaker/core';
 import * as Actions from 'kayenta/actions';
@@ -45,8 +45,7 @@ describe('<DatadogMetricTypeSelector />', () => {
     const store = createMockStore(state);
     const component = mountWithStore(<Component value="" onChange={noop} />, store);
 
-    const allProps: ReactSelectProps = component.find(Select).props();
-    allProps.onInputChange('heartbeat');
+    component.find(Select).props().onInputChange('heartbeat');
 
     expect(
       store.isActionDispatched({
