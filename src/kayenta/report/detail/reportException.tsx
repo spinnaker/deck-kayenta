@@ -12,17 +12,34 @@ interface IReportExceptionProps {
 }
 
 const ReportException = ({ exception }: IReportExceptionProps) => {
-  const message =
-    exception.details?.error ??
-    exception.details.errors?.join('\n') ??
-    'No error message provided. Click the "Report" link to see more details.';
+  const errorMessages = [];
+  if (exception.details) {
+    // error messages can be in an array on the details, or a single field, or possibly both?
+    // it's unclear based on Orca where the error message might be
+    const { error, errors } = exception.details;
+    if (error) {
+      errorMessages.push(error);
+    }
+    if (errors?.length) {
+      errors.forEach((m: string) => errorMessages.push(m));
+    }
+  }
+  // if there were no errors, set a default message
+  if (!errorMessages.length) {
+    errorMessages.push('No error message provided. Click the "Report" link to see more details.');
+  }
+
   return (
     <>
       <h3 className="text-center">Canary report failed</h3>
       <dl>
         <dt>Details</dt>
         <dd>
-          <code>{message}</code>
+          {errorMessages.map((message, i) => (
+            <div key={i}>
+              <code>{message}</code>
+            </div>
+          ))}
         </dd>
         <dt>Source</dt>
         <dd>
