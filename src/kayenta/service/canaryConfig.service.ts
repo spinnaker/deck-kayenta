@@ -13,8 +13,8 @@ import {
 } from 'kayenta/domain';
 
 export function getCanaryConfigById(id: string): PromiseLike<ICanaryConfig> {
-  return REST()
-    .path('v2', 'canaryConfig', id)
+  return REST('/v2/canaryConfig')
+    .path(id)
     .get()
     .then((config: ICanaryConfig) => ({
       ...config,
@@ -23,30 +23,29 @@ export function getCanaryConfigById(id: string): PromiseLike<ICanaryConfig> {
 }
 
 export function getCanaryConfigSummaries(...application: string[]): PromiseLike<ICanaryConfigSummary[]> {
-  return REST().path('v2', 'canaryConfig').query({ application }).get();
+  return REST('/v2/canaryConfig').query({ application }).get();
 }
 
 export function updateCanaryConfig(config: ICanaryConfig): PromiseLike<ICanaryConfigUpdateResponse> {
-  return REST().path('v2', 'canaryConfig', config.id).put(config);
+  return REST('/v2/canaryConfig').path(config.id).put(config);
 }
 
 export function createCanaryConfig(config: ICanaryConfig): PromiseLike<ICanaryConfigUpdateResponse> {
-  return REST().path('v2', 'canaryConfig').post(config);
+  return REST('/v2/canaryConfig').post(config);
 }
 
 export function deleteCanaryConfig(id: string): PromiseLike<void> {
-  return REST().path('v2', 'canaryConfig', id).delete();
+  return REST('/v2/canaryConfig').path(id).delete();
 }
 
 export function listJudges(): PromiseLike<IJudge[]> {
-  return REST()
-    .path('v2', 'canaries', 'judges')
+  return REST('/v2/canaries/judges')
     .get()
     .then((judges: IJudge[]) => judges.filter((judge) => judge.visible));
 }
 
 export function listKayentaAccounts(): PromiseLike<IKayentaAccount[]> {
-  return REST().path('v2', 'canaries', 'credentials').useCache().get();
+  return REST('/v2/canaries/credentials').useCache().get();
 }
 
 // Not sure if this is the right way to go about this. We have pieces of the config
