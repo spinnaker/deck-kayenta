@@ -15,7 +15,7 @@
   },
   "scripts": {
     "build": "webpack --bail",
-    "eslint": "eslint --ext src",
+    "eslint": "eslint --ext ts,tsx,js,jsx src",
     "start": "sh ./start.sh",
     "start-dev-server": "webpack-dev-server --inline --hot",
     "test": "karma start",
