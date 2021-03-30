@@ -5,5 +5,5 @@ import { IMetricsServiceMetadata } from 'kayenta/domain/IMetricsServiceMetadata'
 export const listMetricsServiceMetadata = (
   filter?: string,
   metricsAccountName?: string,
-): Promise<IMetricsServiceMetadata[]> =>
+): PromiseLike<IMetricsServiceMetadata[]> =>
   API.one('v2/canaries/metadata/metricsService').withParams({ filter, metricsAccountName }).get();

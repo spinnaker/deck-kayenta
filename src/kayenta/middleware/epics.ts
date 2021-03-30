@@ -36,7 +36,7 @@ const selectConfigEpic = (action$: Observable<Action & any>) =>
 const saveConfigEpic = (action$: Observable<Action & any>, store: MiddlewareAPI<ICanaryState>) =>
   action$.filter(typeMatches(Actions.SAVE_CONFIG_REQUEST)).concatMap(() => {
     const config = mapStateToConfig(store.getState());
-    let saveAction: Promise<ICanaryConfigUpdateResponse>;
+    let saveAction: PromiseLike<ICanaryConfigUpdateResponse>;
     if (config.isNew) {
       delete config.isNew;
       saveAction = createCanaryConfig(config);
