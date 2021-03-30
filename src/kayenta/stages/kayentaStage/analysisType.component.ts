@@ -1,6 +1,8 @@
-import { withErrorBoundary } from '@spinnaker/core';
 import { module } from 'angular';
 import { react2angular } from 'react2angular';
+
+import { withErrorBoundary } from '@spinnaker/core';
+
 import { AnalysisType } from './AnalysisType';
 
 export const KAYENTA_ANALYSIS_TYPE_COMPONENT = 'spinnaker.kayenta.analysisType.component';

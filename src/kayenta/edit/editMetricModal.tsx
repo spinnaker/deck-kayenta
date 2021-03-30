@@ -1,28 +1,29 @@
-import * as React from 'react';
 import * as classNames from 'classnames';
-import { connect } from 'react-redux';
-import { Modal } from 'react-bootstrap';
-import { isNull, values } from 'lodash';
-
-import { noop } from '@spinnaker/core';
 import * as Creators from 'kayenta/actions/creators';
-import { ICanaryState } from 'kayenta/reducers';
+import { CanarySettings } from 'kayenta/canary.settings';
 import { ICanaryMetricConfig } from 'kayenta/domain';
-import MetricConfigurerDelegator from './metricConfigurerDelegator';
-import Styleguide from 'kayenta/layout/styleguide';
+import { DISABLE_EDIT_CONFIG, DisableableInput, DisableableSelect } from 'kayenta/layout/disableable';
 import FormRow from 'kayenta/layout/formRow';
 import RadioChoice from 'kayenta/layout/radioChoice';
-import { DisableableInput, DisableableSelect, DISABLE_EDIT_CONFIG } from 'kayenta/layout/disableable';
+import Styleguide from 'kayenta/layout/styleguide';
+import metricStoreConfigService from 'kayenta/metricStore/metricStoreConfig.service';
+import { ICanaryState } from 'kayenta/reducers';
 import { editingMetricValidationErrorsSelector } from 'kayenta/selectors';
 import { isTemplateValidSelector, useInlineTemplateEditorSelector } from 'kayenta/selectors/filterTemplatesSelectors';
-import { CanarySettings } from 'kayenta/canary.settings';
+import { isNull, values } from 'lodash';
+import * as React from 'react';
+import { Modal } from 'react-bootstrap';
+import { connect } from 'react-redux';
+
+import { noop } from '@spinnaker/core';
+
+import EditMetricEffectSizes from './editMetricEffectSizes';
 import { ICanaryMetricValidationErrors } from './editMetricValidation';
 import FilterTemplateSelector from './filterTemplateSelector';
-import metricStoreConfigService from 'kayenta/metricStore/metricStoreConfig.service';
 import InlineTemplateEditor from './inlineTemplateEditor';
+import MetricConfigurerDelegator from './metricConfigurerDelegator';
 
 import './editMetricModal.less';
-import EditMetricEffectSizes from './editMetricEffectSizes';
 
 interface IEditMetricModalDispatchProps {
   rename: (event: any) => void;

@@ -1,13 +1,13 @@
-import { REST, ReactInjector } from '@spinnaker/core';
-
 import { CanarySettings } from 'kayenta/canary.settings';
 import {
-  IMetricSetPair,
-  ICanaryExecutionStatusResult,
   ICanaryExecutionRequest,
   ICanaryExecutionRequestParams,
   ICanaryExecutionResponse,
+  ICanaryExecutionStatusResult,
+  IMetricSetPair,
 } from 'kayenta/domain';
+
+import { ReactInjector, REST } from '@spinnaker/core';
 
 export const getCanaryRun = (configId: string, canaryExecutionId: string): PromiseLike<ICanaryExecutionStatusResult> =>
   REST('/v2/canaries/canary')

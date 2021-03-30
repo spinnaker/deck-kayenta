@@ -1,19 +1,19 @@
 import { module } from 'angular';
-import { get, has, isEmpty, map, uniq, difference, isString } from 'lodash';
+import { CanarySettings } from 'kayenta/canary.settings';
+import { CANARY_SCORES_CONFIG_COMPONENT } from 'kayenta/components/canaryScores.component';
+import { IKayentaStage, KayentaAnalysisType } from 'kayenta/domain';
+import { getCanaryConfigById } from 'kayenta/service/canaryConfig.service';
+import { difference, get, has, isEmpty, isString, map, uniq } from 'lodash';
 
 import { IPipeline, Registry } from '@spinnaker/core';
 
-import { CanarySettings } from 'kayenta/canary.settings';
-import { getCanaryConfigById } from 'kayenta/service/canaryConfig.service';
-import { IKayentaStage, KayentaAnalysisType } from 'kayenta/domain';
-import { CANARY_SCORES_CONFIG_COMPONENT } from 'kayenta/components/canaryScores.component';
-import { KayentaStageTransformer, KAYENTA_STAGE_TRANSFORMER } from './kayentaStage.transformer';
-import { KayentaStageController } from './kayentaStage.controller';
 import { CanaryExecutionLabel } from './CanaryExecutionLabel';
-import { KAYENTA_STAGE_EXECUTION_DETAILS_CONTROLLER } from './kayentaStageExecutionDetails.controller';
-import { KAYENTA_STAGE_CONFIG_SECTION } from './kayentaStageConfigSection.component';
 import { KAYENTA_ANALYSIS_TYPE_COMPONENT } from './analysisType.component';
 import { FOR_ANALYSIS_TYPE_COMPONENT } from './forAnalysisType.component';
+import { KayentaStageController } from './kayentaStage.controller';
+import { KAYENTA_STAGE_TRANSFORMER, KayentaStageTransformer } from './kayentaStage.transformer';
+import { KAYENTA_STAGE_CONFIG_SECTION } from './kayentaStageConfigSection.component';
+import { KAYENTA_STAGE_EXECUTION_DETAILS_CONTROLLER } from './kayentaStageExecutionDetails.controller';
 
 const isExpression = (value: string) => isString(value) && value.includes('${');
 

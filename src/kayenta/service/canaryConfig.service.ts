@@ -1,16 +1,16 @@
-import { omit } from 'lodash';
-import { REST } from '@spinnaker/core';
-
 import { CanarySettings } from 'kayenta/canary.settings';
-import { ICanaryState } from 'kayenta/reducers';
 import {
+  ICanaryConfig,
+  ICanaryConfigSummary,
+  ICanaryConfigUpdateResponse,
   ICanaryMetricConfig,
   IJudge,
-  ICanaryConfigSummary,
-  ICanaryConfig,
   IKayentaAccount,
-  ICanaryConfigUpdateResponse,
 } from 'kayenta/domain';
+import { ICanaryState } from 'kayenta/reducers';
+import { omit } from 'lodash';
+
+import { REST } from '@spinnaker/core';
 
 export function getCanaryConfigById(id: string): PromiseLike<ICanaryConfig> {
   return REST('/v2/canaryConfig')

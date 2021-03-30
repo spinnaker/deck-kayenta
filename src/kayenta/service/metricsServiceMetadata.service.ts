@@ -1,6 +1,6 @@
-import { REST } from '@spinnaker/core';
-
 import { IMetricsServiceMetadata } from 'kayenta/domain/IMetricsServiceMetadata';
+
+import { REST } from '@spinnaker/core';
 
 export const listMetricsServiceMetadata = (
   filter?: string,
