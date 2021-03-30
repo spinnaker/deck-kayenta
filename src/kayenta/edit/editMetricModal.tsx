@@ -224,6 +224,7 @@ function mapStateToProps(state: ICanaryState): IEditMetricModalStateProps {
     metric: state.selectedConfig.editingMetric,
     groups: state.selectedConfig.group.list.sort(),
     isTemplateValid: isTemplateValidSelector(state),
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     useInlineTemplateEditor: useInlineTemplateEditorSelector(state),
     disableEdit: state.app.disableConfigEdit,
     validationErrors: editingMetricValidationErrorsSelector(state),
