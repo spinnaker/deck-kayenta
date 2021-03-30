@@ -10,7 +10,7 @@ import {
 } from 'kayenta/domain';
 
 export const getCanaryRun = (configId: string, canaryExecutionId: string): PromiseLike<ICanaryExecutionStatusResult> =>
-  API.one('v2/canaries/canary')
+  API.one('v2', 'canaries', 'canary')
     .one(configId)
     .one(canaryExecutionId)
     .withParams({ storageAccountName: CanarySettings.storageAccountName })
@@ -29,14 +29,14 @@ export const startCanaryRun = (
   executionRequest: ICanaryExecutionRequest,
   params: ICanaryExecutionRequestParams = {},
 ): PromiseLike<ICanaryExecutionResponse> => {
-  return API.one('v2/canaries/canary')
+  return API.one('v2', 'canaries', 'canary')
     .one(configId)
     .withParams(params as any)
     .post(executionRequest);
 };
 
 export const getMetricSetPair = (metricSetPairListId: string, metricSetPairId: string): PromiseLike<IMetricSetPair> =>
-  API.one('v2/canaries/metricSetPairList')
+  API.one('v2', 'canaries', 'metricSetPairList')
     .one(metricSetPairListId)
     .withParams({ storageAccountName: CanarySettings.storageAccountName })
     .useCache()
@@ -45,7 +45,7 @@ export const getMetricSetPair = (metricSetPairListId: string, metricSetPairId: s
 
 export const listCanaryExecutions = (application: string): PromiseLike<ICanaryExecutionStatusResult[]> => {
   const limit = ReactInjector.$stateParams.count || 20;
-  return API.one('v2/canaries').one(application).one('executions').withParams({ limit }).getList();
+  return API.one('v2', 'canaries').one(application).one('executions').withParams({ limit }).getList();
 };
 
 export const getHealthLabel = (health: string, result: string): string => {

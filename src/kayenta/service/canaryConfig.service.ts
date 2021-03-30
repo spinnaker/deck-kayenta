@@ -13,7 +13,7 @@ import {
 } from 'kayenta/domain';
 
 export function getCanaryConfigById(id: string): PromiseLike<ICanaryConfig> {
-  return API.one('v2/canaryConfig')
+  return API.one('v2', 'canaryConfig')
     .one(id)
     .get()
     .then((config: ICanaryConfig) => ({
@@ -23,29 +23,29 @@ export function getCanaryConfigById(id: string): PromiseLike<ICanaryConfig> {
 }
 
 export function getCanaryConfigSummaries(...application: string[]): PromiseLike<ICanaryConfigSummary[]> {
-  return API.one('v2/canaryConfig').withParams({ application }).get();
+  return API.one('v2', 'canaryConfig').withParams({ application }).get();
 }
 
 export function updateCanaryConfig(config: ICanaryConfig): PromiseLike<ICanaryConfigUpdateResponse> {
-  return API.one('v2/canaryConfig').one(config.id).put(config);
+  return API.one('v2', 'canaryConfig').one(config.id).put(config);
 }
 
 export function createCanaryConfig(config: ICanaryConfig): PromiseLike<ICanaryConfigUpdateResponse> {
-  return API.one('v2/canaryConfig').post(config);
+  return API.one('v2', 'canaryConfig').post(config);
 }
 
 export function deleteCanaryConfig(id: string): PromiseLike<void> {
-  return API.one('v2/canaryConfig').one(id).remove();
+  return API.one('v2', 'canaryConfig').one(id).remove();
 }
 
 export function listJudges(): PromiseLike<IJudge[]> {
-  return API.one('v2/canaries/judges')
+  return API.one('v2', 'canaries', 'judges')
     .get()
     .then((judges: IJudge[]) => judges.filter((judge) => judge.visible));
 }
 
 export function listKayentaAccounts(): PromiseLike<IKayentaAccount[]> {
-  return API.one('v2/canaries/credentials').useCache().get();
+  return API.one('v2', 'canaries', 'credentials').useCache().get();
 }
 
 // Not sure if this is the right way to go about this. We have pieces of the config
