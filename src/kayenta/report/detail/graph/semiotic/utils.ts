@@ -1,7 +1,8 @@
-import { format } from 'd3-format';
-import * as moment from 'moment-timezone';
-import { scaleUtc } from 'd3-scale';
 import { quantile } from 'd3-array';
+import { format } from 'd3-format';
+import { scaleUtc } from 'd3-scale';
+import * as moment from 'moment-timezone';
+
 import { ISummaryStatistics } from './semiotic.service';
 
 /*
@@ -51,7 +52,7 @@ export const calculateDateTimeTicks = (millisSet: number[]) => {
   const minMillisShifted = minMillis + offsetMillis;
   const maxMillisShifted = maxMillis + offsetMillis;
   const scale = scaleUtc().domain([new Date(minMillisShifted), new Date(maxMillisShifted)]);
-  const ticks = scale.ticks(6).map((d: Date) => new Date(d.valueOf() - offsetMillis));
+  const ticks = scale.ticks(6).map((d: Date) => d.valueOf() - offsetMillis);
   return ticks;
 };
 

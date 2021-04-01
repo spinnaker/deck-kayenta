@@ -1,10 +1,10 @@
-import { combineReducers, Action, Reducer } from 'redux';
+import * as Actions from 'kayenta/actions';
+import { ICanaryExecutionStatusResult, IMetricSetPair, MetricClassificationLabel } from 'kayenta/domain';
+import { GraphType } from 'kayenta/report/detail/graph/metricSetPairGraph.service';
+import { Action, combineReducers, Reducer } from 'redux';
 import { handleActions } from 'redux-actions';
 
-import * as Actions from 'kayenta/actions';
 import { AsyncRequestState } from './asyncRequest';
-import { IMetricSetPair, ICanaryExecutionStatusResult } from 'kayenta/domain';
-import { GraphType } from 'kayenta/report/detail/graph/metricSetPairGraph.service';
 
 interface IMetricSetPairState {
   pair: IMetricSetPair;
@@ -18,7 +18,21 @@ export interface ISelectedRunState {
   selectedMetric: string;
   metricSetPair: IMetricSetPairState;
   graphType: GraphType;
+  metricFilters: MetricClassificationLabel[];
 }
+
+const metricFilters = handleActions(
+  {
+    [Actions.TOGGLE_METRIC_CLASSIFICATION_FILTER]: (_state: MetricClassificationLabel[], action: Action & any) => {
+      const { classification } = action.payload;
+      if (_state.includes(classification)) {
+        return _state.filter((s) => s !== classification);
+      }
+      return _state.concat([classification]);
+    },
+  },
+  [],
+);
 
 const run = handleActions(
   {
@@ -83,4 +97,5 @@ export const selectedRun: Reducer<ISelectedRunState> = combineReducers<ISelected
   selectedMetric,
   metricSetPair,
   graphType,
+  metricFilters,
 });

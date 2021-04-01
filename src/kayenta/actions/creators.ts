@@ -1,29 +1,33 @@
-import { createAction } from 'redux-actions';
-import { Action } from 'redux';
-
-import * as Actions from './index';
+import {
+  ICanaryConfig,
+  ICanaryConfigSummary,
+  ICanaryExecutionStatusResult,
+  ICanaryMetricConfig,
+  ICanaryMetricEffectSizeConfig,
+  IJudge,
+  IKayentaAccount,
+  IMetricSetPair,
+  IMetricsServiceMetadata,
+  MetricClassificationLabel,
+} from 'kayenta/domain';
 import { ConfigJsonModalTabState } from 'kayenta/edit/configJsonModal';
 import { IUpdateListPayload } from 'kayenta/layout/list';
 import { GraphType } from 'kayenta/report/detail/graph/metricSetPairGraph.service';
-import {
-  IKayentaAccount,
-  IMetricsServiceMetadata,
-  ICanaryExecutionStatusResult,
-  IMetricSetPair,
-  IJudge,
-  ICanaryConfigSummary,
-  ICanaryConfig,
-  ICanaryMetricConfig,
-  ICanaryMetricEffectSizeConfig,
-} from 'kayenta/domain';
+import { Action } from 'redux';
+import { createAction } from 'redux-actions';
+
+import * as Actions from './index';
 import { IUpdateKeyValueListPayload } from '../layout/keyValueList';
-import { IStackdriverCanaryMetricSetQueryConfig } from '../metricStore/stackdriver/domain/IStackdriverCanaryMetricSetQueryConfig';
 import { IPrometheusCanaryMetricSetQueryConfig } from '../metricStore/prometheus/domain/IPrometheusCanaryMetricSetQueryConfig';
+import { IStackdriverCanaryMetricSetQueryConfig } from '../metricStore/stackdriver/domain/IStackdriverCanaryMetricSetQueryConfig';
 
 export interface IKayentaAction<T> extends Action {
   payload: T;
 }
 
+export const toggleMetricClassificationFilter = createAction<{ classification: MetricClassificationLabel }>(
+  Actions.TOGGLE_METRIC_CLASSIFICATION_FILTER,
+);
 export const setExecutionsCount = createAction<{ count: number }>(Actions.SET_EXECUTIONS_COUNT);
 export const openDeleteConfigModal = createAction(Actions.DELETE_CONFIG_MODAL_OPEN);
 export const closeDeleteConfigModal = createAction(Actions.DELETE_CONFIG_MODAL_CLOSE);

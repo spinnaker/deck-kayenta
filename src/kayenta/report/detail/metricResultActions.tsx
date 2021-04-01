@@ -1,13 +1,14 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { CopyToClipboard } from '@spinnaker/core';
-
+import { CanarySettings } from 'kayenta/canary.settings';
 import { ICanaryMetricConfig } from 'kayenta/domain/ICanaryConfig';
 import { IMetricSetPair } from 'kayenta/domain/IMetricSetPair';
-import { CanarySettings } from 'kayenta/canary.settings';
+import metricStoreConfigStore from 'kayenta/metricStore/metricStoreConfig.service';
 import { ICanaryState } from 'kayenta/reducers';
 import { selectedMetricConfigSelector } from 'kayenta/selectors';
-import metricStoreConfigStore from 'kayenta/metricStore/metricStoreConfig.service';
+import * as React from 'react';
+import { connect } from 'react-redux';
+
+import { CopyToClipboard } from '@spinnaker/core';
+
 import './metricResultActions.less';
 
 export interface IMetricResultStatsStateProps {
@@ -16,14 +17,20 @@ export interface IMetricResultStatsStateProps {
 }
 
 const buildAtlasGraphUrl = (metricSetPair: IMetricSetPair) => {
-  const { attributes, scopes, values } = metricSetPair;
+  const { attributes, scopes, values, tags } = metricSetPair;
   const { atlasGraphBaseUrl } = CanarySettings;
+  let legendTags = '';
+  if (Object.keys(tags).length) {
+    legendTags = ` (${Object.keys(tags)
+      .map((tag) => `$${tag}`)
+      .join('|')})`;
+  }
 
   // TODO: If the control and experiment have different baseURLs, generate two links instead of a combined one.
   const backend = encodeURIComponent(attributes.control.baseURL);
   const experimentQuery = encodeURIComponent(attributes.experiment.query);
   const controlQuery = encodeURIComponent(attributes.control.query);
-  const query = `${experimentQuery},Canary,:legend,:freeze,${controlQuery},Baseline,:legend`;
+  const query = `${experimentQuery},Canary${legendTags},:legend,:freeze,${controlQuery},Baseline${legendTags},:legend`;
 
   const startTime = Math.min(scopes.control.startTimeMillis, scopes.experiment.startTimeMillis);
   const controlEndTime = scopes.control.startTimeMillis + values.control.length * scopes.control.stepMillis;
@@ -43,7 +50,7 @@ const MetricResultActions = ({ metricSetPair, metricConfig }: IMetricResultStats
       <CopyToClipboard displayText={false} text={atlasQuery} toolTip={null} />
       <button className="primary copy-button" key="copy-link">
         <i className="glyphicon glyphicon-copy  copy-icon" />
-        Copy this Metric URL
+        Copy metric query
       </button>
     </div>
   );
@@ -52,7 +59,7 @@ const MetricResultActions = ({ metricSetPair, metricConfig }: IMetricResultStats
     <a href={atlasURL} target="_blank">
       <button className="primary">
         <i className="fas fa-chart-line" />
-        Explore More Data in Atlas
+        Explore more data in Atlas
       </button>
     </a>
   );
