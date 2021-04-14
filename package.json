@@ -63,7 +63,7 @@
     "redux-observable": "^0.14.1",
     "reselect": "^3.0.1",
     "rxjs": "^5.4.2",
-    "semiotic": "^2.0.0-rc.5",
+    "semiotic": "2.0.0-rc.12",
     "spel2js": "^0.2.6",
     "ui-select": "^0.19.6"
   },

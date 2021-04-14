@@ -1,4 +1,15 @@
 .boxplot {
+  /* TODO: Remove the .hover-summary rule when Semiotic V2 gets released and we switch back to the Tooltip */
+  .hover-summary {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    opacity: 0.9;
+    font-size: 90%;
+    padding: 4px 8px;
+    border: 1px solid var(--color-dovegray);
+    background-color: var(--color-white);
+  }
   .tooltip-container {
     .columns {
       display: flex;

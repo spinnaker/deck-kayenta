@@ -175,8 +175,10 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
       const createNoteElement = (posY: number, dataPoint: IOrSummaryPiece) => {
         const name = dataPoint.summaryPieceName;
         const label = statLabelMap[name];
+        // TODO: If Semiotic fixes the x value in v2, remove this line and set x to dataPoint.x in the noteData
+        const x = d.group === 'baseline' ? boxPlotWidth - 75 : 2 * boxPlotWidth + 70;
         const noteData = {
-          x: dataPoint.x,
+          x: x /* dataPoint.x */,
           y: posY,
           dx: boxPlotWidth / 2,
           dy: 0,
@@ -190,7 +192,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
           },
           className: 'boxplot-annotation',
         };
-        return <Annotation key={name} noteData={noteData} />;
+        return <Annotation key={`${d.group}: ${name}`} noteData={noteData} />;
       };
 
       const nodes = d.summaryKeys
@@ -226,7 +228,7 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
       projection: 'vertical',
       summaryType: 'boxplot',
       oLabel: false,
-      oPadding: 160,
+      oPadding: 142, // TODO: try changing this back to 160 when Semiotic v2 gets released
       style: (d: IChartDataPoint) => {
         return {
           fill: d.color,
@@ -275,7 +277,9 @@ export default class BoxPlot extends React.Component<ISemioticChartProps, IBoxPl
           <div className="boxplot-chart">
             <OrdinalFrame {...this.getChartProps()} />
           </div>
-          <Tooltip {...this.state.tooltip} />
+          {/* TODO: Remove this block, use the Tooltip when Semiotic V2 gets released */}
+          {this.state.tooltip && <div className="hover-summary">{this.state.tooltip.content}</div>}
+          {/*<Tooltip {...this.state.tooltip} />*/}
         </div>
       </div>
     );
