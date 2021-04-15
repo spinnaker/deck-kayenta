@@ -14,7 +14,7 @@
     "yarn": ">=1.21.1"
   },
   "scripts": {
-    "build": "npm run clean && rollup -c",
+    "build": "npm run clean && NODE_ENV=production rollup -c",
     "test": "jest",
     "test:debug": "node --inspect-brk ./node_modules/.bin/jest --runInBand",
     "prepublishOnly": "npm run build",
@@ -79,7 +79,7 @@
     "@rollup/plugin-url": "6.0.0",
     "@spinnaker/core": "0.0.563",
     "@spinnaker/eslint-plugin": "1.0.13",
-    "@spinnaker/pluginsdk": "0.0.25",
+    "@spinnaker/pluginsdk": "0.0.26",
     "@spinnaker/pluginsdk-peerdeps": "0.0.11",
     "@spinnaker/presentation": "0.0.4",
     "@types/angular": "1.6.26",
