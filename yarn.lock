@@ -1461,10 +1461,10 @@
   resolved "https://registry.yarnpkg.com/@spinnaker/pluginsdk-peerdeps/-/pluginsdk-peerdeps-0.0.11.tgz#e92f2bbee735ca18147c688a9c5bfefe2920383e"
   integrity sha512-FWtKY2g8rZhKZ0QF/CQDoZ241PCNq+wfadFLIdG7LYlmiHPRNWPJ9DLXjXNHBnXsgG6Om8sOgqnRHxifShnpDQ==
 
-"@spinnaker/pluginsdk@0.0.25":
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/@spinnaker/pluginsdk/-/pluginsdk-0.0.25.tgz#e21d905b4737db7d7ac31ff1cb0daa614da55667"
-  integrity sha512-T9HklzyDn6NcfeQGzN2RpMrFfHsm8MZZyltbj3/YkKHKbWKijQSvhzKf6NTCU09GuQ/IDYUyZLF39em6b3cNow==
+"@spinnaker/pluginsdk@0.0.26":
+  version "0.0.26"
+  resolved "https://registry.yarnpkg.com/@spinnaker/pluginsdk/-/pluginsdk-0.0.26.tgz#2867330d03f02ccb1896e17a45ee6908b6a922b4"
+  integrity sha512-kvpW905OkrSUJ0o1Ch1BYIvPcEkqFv64RX/WAZNrqY83tigl2cVusochcokelfINeqwTHBudXUBqdvjo4XBCuA==
   dependencies:
     check-peer-dependencies "^4.0.0"
     chokidar "^3.5.1"
