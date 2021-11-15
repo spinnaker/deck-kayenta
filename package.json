@@ -1,6 +1,6 @@
 {
   "name": "@spinnaker/kayenta",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -43,7 +43,6 @@
     "memoize-one": "^4.0.2",
     "ngimport": "^0.6.0",
     "react": "~16.14.0",
-    "react-ace": "^6.1.4",
     "react-bootstrap": "^0.32.1",
     "react-bootstrap-typeahead": "^3.2.4",
     "react-container-dimensions": "^1.4.1",
