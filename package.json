@@ -29,7 +29,6 @@
     "prepare": "husky-install"
   },
   "dependencies": {
-    "@spinnaker/kayenta": "file:.yalc/@spinnaker/kayenta",
     "@uirouter/core": "6.0.4",
     "@uirouter/react": "1.0.2",
     "@uirouter/react-hybrid": "1.0.2",
@@ -82,8 +81,8 @@
     "@rollup/plugin-url": "6.0.0",
     "@spinnaker/core": "0.0.571",
     "@spinnaker/eslint-plugin": "1.0.13",
-    "@spinnaker/pluginsdk": "0.3.0",
-    "@spinnaker/pluginsdk-peerdeps": "0.14.0",
+    "@spinnaker/pluginsdk": "0.0.30",
+    "@spinnaker/pluginsdk-peerdeps": "0.0.14",
     "@spinnaker/presentation": "0.0.4",
     "@types/angular": "1.6.26",
     "@types/angular-mocks": "1.5.10",
