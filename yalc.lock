@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "@spinnaker/kayenta": {
+      "signature": "4c4a016bdea07f3efa01dd104b159302",
+      "file": true
+    }
+  }
+}
