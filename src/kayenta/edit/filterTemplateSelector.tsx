@@ -1,6 +1,7 @@
 import * as Creators from 'kayenta/actions/creators';
 import { ICanaryFilterTemplateValidationMessages } from 'kayenta/edit/filterTemplatesValidation';
 import {
+  CANARY_EDIT_DISABLED,
   DISABLE_EDIT_CONFIG,
   DisableableInput,
   DisableableReactSelect,
@@ -94,7 +95,7 @@ export class FilterTemplateSelector extends React.Component<IFilterTemplateSelec
           {!isEditing && (
             <DisableableReactSelect
               value={selectedTemplateName}
-              disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+              disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
               onChange={selectTemplate}
               options={this.getOptions()}
               optionRenderer={this.optionRenderer}
@@ -105,7 +106,7 @@ export class FilterTemplateSelector extends React.Component<IFilterTemplateSelec
           <>
             <FormRow label="Name" error={get(validation, 'errors.templateName.message')} inputOnly={true}>
               <DisableableInput
-                disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+                disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
                 onChange={editTemplateName}
                 value={editedTemplateName}
               />
@@ -118,7 +119,7 @@ export class FilterTemplateSelector extends React.Component<IFilterTemplateSelec
             >
               <DisableableTextarea
                 className="template-editor-textarea"
-                disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+                disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
                 onChange={editTemplateValue}
                 value={editedTemplateValue}
               />

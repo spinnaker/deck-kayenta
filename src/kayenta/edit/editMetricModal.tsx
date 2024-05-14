@@ -2,7 +2,12 @@ import classNames from 'classnames';
 import * as Creators from 'kayenta/actions/creators';
 import { CanarySettings } from 'kayenta/canary.settings';
 import { ICanaryMetricConfig } from 'kayenta/domain';
-import { DISABLE_EDIT_CONFIG, DisableableInput, DisableableSelect } from 'kayenta/layout/disableable';
+import {
+  CANARY_EDIT_DISABLED,
+  DISABLE_EDIT_CONFIG,
+  DisableableInput,
+  DisableableSelect,
+} from 'kayenta/layout/disableable';
 import FormRow from 'kayenta/layout/formRow';
 import RadioChoice from 'kayenta/layout/radioChoice';
 import Styleguide from 'kayenta/layout/styleguide';
@@ -69,7 +74,11 @@ function EditMetricModal({
   const direction = metric.analysisConfigurations?.canary?.direction ?? 'either';
   const nanStrategy = metric.analysisConfigurations?.canary?.nanStrategy ?? 'default';
   const critical = metric.analysisConfigurations?.canary?.critical ?? false;
-  const isConfirmDisabled = !isTemplateValid || disableEdit || values(validationErrors).some((e) => !isNull(e));
+  const isConfirmDisabled =
+    !isTemplateValid ||
+    disableEdit ||
+    CanarySettings.disableConfigEdit ||
+    values(validationErrors).some((e) => !isNull(e));
 
   const metricGroup = metric.groups.length ? metric.groups[0] : groups[0];
   const templatesEnabled =
@@ -80,7 +89,9 @@ function EditMetricModal({
     <Modal bsSize="large" show={true} onHide={noop} className={classNames('kayenta-edit-metric-modal')}>
       <Styleguide>
         <Modal.Header>
-          <Modal.Title>{disableEdit ? 'Metric Details' : 'Configure Metric'}</Modal.Title>
+          <Modal.Title>
+            {disableEdit || CanarySettings.disableConfigEdit ? 'Metric Details' : 'Configure Metric'}
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <FormRow label="Group" inputOnly={true}>
@@ -90,7 +101,7 @@ function EditMetricModal({
                 value={metric.groups}
                 data-id={metric.id}
                 onChange={changeGroup}
-                disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+                disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
               />
             )}
             {metric.groups.length < 2 && (
@@ -98,7 +109,7 @@ function EditMetricModal({
                 value={metricGroup}
                 onChange={changeGroup}
                 className="form-control input-sm"
-                disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+                disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
               >
                 {groups.map((g) => (
                   <option key={g} value={g}>
@@ -114,7 +125,7 @@ function EditMetricModal({
               value={metric.name}
               data-id={metric.id}
               onChange={rename}
-              disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+              disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
             />
           </FormRow>
           <FormRow label="Fail on">
@@ -140,7 +151,7 @@ function EditMetricModal({
                 type="checkbox"
                 checked={critical}
                 onChange={updateCriticality}
-                disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+                disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
               />
               Fail the canary if this metric fails
             </label>
@@ -227,7 +238,7 @@ function mapStateToProps(state: ICanaryState): IEditMetricModalStateProps {
     isTemplateValid: isTemplateValidSelector(state),
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useInlineTemplateEditor: useInlineTemplateEditorSelector(state),
-    disableEdit: state.app.disableConfigEdit,
+    disableEdit: state.app.disableConfigEdit || CanarySettings.disableConfigEdit,
     validationErrors: editingMetricValidationErrorsSelector(state),
   };
 }

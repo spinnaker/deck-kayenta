@@ -1,5 +1,6 @@
 import * as Creators from 'kayenta/actions/creators';
-import { DISABLE_EDIT_CONFIG, DisableableButton } from 'kayenta/layout/disableable';
+import { CanarySettings } from 'kayenta/canary.settings';
+import { CANARY_EDIT_DISABLED, DISABLE_EDIT_CONFIG, DisableableButton } from 'kayenta/layout/disableable';
 import { ICanaryState } from 'kayenta/reducers';
 import * as React from 'react';
 import { connect } from 'react-redux';
@@ -22,9 +23,9 @@ function DeleteConfigButton({ openDeleteConfigModal, disabled }: IDeleteButtonDi
     <div>
       <DisableableButton
         className="passive"
-        disabled={disabled}
+        disabled={disabled || CanarySettings.disableConfigEdit}
         onClick={openDeleteConfigModal}
-        disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+        disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
       >
         <i className="fa fa-trash" />
         <span>Delete</span>
@@ -36,7 +37,7 @@ function DeleteConfigButton({ openDeleteConfigModal, disabled }: IDeleteButtonDi
 
 function mapStateToProps(state: ICanaryState) {
   return {
-    disabled: state.selectedConfig.config && state.selectedConfig.config.isNew,
+    disabled: (state.selectedConfig.config && state.selectedConfig.config.isNew) || CanarySettings.disableConfigEdit,
   };
 }
 

@@ -8,6 +8,7 @@ import Select, { ReactSelectProps } from 'react-select';
 
 // Well-known keys that flag if a component should be disabled.
 export const DISABLE_EDIT_CONFIG = 'app.disableConfigEdit';
+export const CANARY_EDIT_DISABLED = 'CanarySettings.disableConfigEdit';
 
 interface IDisableable {
   disabled?: boolean;

@@ -1,4 +1,5 @@
 import { UISref } from '@uirouter/react';
+import { CanarySettings } from 'kayenta/canary.settings';
 import { ICanaryConfig } from 'kayenta/domain';
 import FormattedDate from 'kayenta/layout/formattedDate';
 import { ICanaryState } from 'kayenta/reducers';
@@ -80,7 +81,7 @@ function ConfigDetailHeader({ selectedConfig, editingDisabled }: IConfigDetailSt
 function mapStateToProps(state: ICanaryState): IConfigDetailStateProps {
   return {
     selectedConfig: mapStateToConfig(state),
-    editingDisabled: state.app.disableConfigEdit,
+    editingDisabled: state.app.disableConfigEdit || CanarySettings.disableConfigEdit,
   };
 }
 

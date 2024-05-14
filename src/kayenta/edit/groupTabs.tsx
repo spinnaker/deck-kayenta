@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import * as Creators from 'kayenta/actions/creators';
-import { DISABLE_EDIT_CONFIG, DisableableButton } from 'kayenta/layout/disableable';
+import { CanarySettings } from 'kayenta/canary.settings';
+import { CANARY_EDIT_DISABLED, DISABLE_EDIT_CONFIG, DisableableButton } from 'kayenta/layout/disableable';
 import { Tab, Tabs } from 'kayenta/layout/tabs';
 import { ICanaryState } from 'kayenta/reducers';
 import * as React from 'react';
@@ -46,8 +47,10 @@ function GroupTabs({
         {selected && editable && !editing && (
           <i
             data-group={group}
-            onClick={disableConfigEdit ? noop : editGroupBegin}
-            className={classNames('fas', 'fa-pencil-alt', { disabled: disableConfigEdit })}
+            onClick={disableConfigEdit || CanarySettings.disableConfigEdit ? noop : editGroupBegin}
+            className={classNames('fas', 'fa-pencil-alt', {
+              disabled: disableConfigEdit || CanarySettings.disableConfigEdit,
+            })}
           />
         )}
       </Tab>
@@ -60,7 +63,11 @@ function GroupTabs({
         {groupList.map((group) => (
           <GroupTab key={group} group={group} editable={true} />
         ))}
-        <DisableableButton className="passive float-right" onClick={addGroup} disabledStateKeys={[DISABLE_EDIT_CONFIG]}>
+        <DisableableButton
+          className="passive float-right"
+          onClick={addGroup}
+          disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+        >
           Add Group
         </DisableableButton>
       </Tabs>
@@ -73,7 +80,7 @@ function mapStateToProps(state: ICanaryState): IGroupTabsStateProps {
     groupList: state.selectedConfig.group.list,
     selectedGroup: state.selectedConfig.group.selected,
     editing: !!state.selectedConfig.group.edit || state.selectedConfig.group.edit === '',
-    disableConfigEdit: state.app.disableConfigEdit,
+    disableConfigEdit: state.app.disableConfigEdit || CanarySettings.disableConfigEdit,
   };
 }
 

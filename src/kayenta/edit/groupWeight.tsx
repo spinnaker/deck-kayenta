@@ -1,6 +1,6 @@
 import * as Creators from 'kayenta/actions/creators';
 import { ICanaryConfig } from 'kayenta/domain/ICanaryConfig';
-import { DISABLE_EDIT_CONFIG, DisableableInput } from 'kayenta/layout/disableable';
+import { CANARY_EDIT_DISABLED, DISABLE_EDIT_CONFIG, DisableableInput } from 'kayenta/layout/disableable';
 import { ICanaryState } from 'kayenta/reducers';
 import { mapStateToConfig } from 'kayenta/service/canaryConfig.service';
 import { get, isNumber } from 'lodash';
@@ -39,7 +39,7 @@ function GroupWeight({
         onChange={handleInputChange}
         min={0}
         max={100}
-        disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+        disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
       />
     </FormRow>
   );

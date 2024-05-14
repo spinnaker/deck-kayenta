@@ -1,5 +1,10 @@
 import * as Creators from 'kayenta/actions/creators';
-import { DISABLE_EDIT_CONFIG, DisableableInput, DisableableReactSelect } from 'kayenta/layout/disableable';
+import {
+  CANARY_EDIT_DISABLED,
+  DISABLE_EDIT_CONFIG,
+  DisableableInput,
+  DisableableReactSelect,
+} from 'kayenta/layout/disableable';
 import FormRow from 'kayenta/layout/formRow';
 import { ICanaryState } from 'kayenta/reducers';
 import * as React from 'react';
@@ -41,7 +46,7 @@ function JudgeSelect({
             options={judgeOptions}
             clearable={false}
             onChange={handleJudgeSelect}
-            disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+            disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
           />
         </FormRow>
       );
@@ -52,7 +57,7 @@ function JudgeSelect({
             type="text"
             value={selectedJudge}
             disabled={true}
-            disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+            disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
           />
         </FormRow>
       );
