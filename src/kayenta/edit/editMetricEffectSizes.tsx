@@ -9,7 +9,7 @@ import { connect } from 'react-redux';
 
 import { HelpField, robotToHuman } from '@spinnaker/core';
 
-import { CANARY_EDIT_DISABLED, DISABLE_EDIT_CONFIG, DisableableInput } from '../layout/disableable';
+import { DISABLE_EDIT_CONFIG, DisableableInput } from '../layout/disableable';
 
 interface IEditMetricEffectSizesProps {
   metricId: string;
@@ -115,7 +115,8 @@ export function EditMetricEffectSizes({
               step={isCles ? 0.01 : 1}
               onChange={(e) => updateSize(field, e.target.value)}
               value={isCles ? value : toPercent(value, field)}
-              disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+              disabled={CanarySettings.disableConfigEdit}
+              disabledStateKeys={[DISABLE_EDIT_CONFIG]}
             />
             {!isCles && <div className="input-group-addon">%</div>}
           </div>

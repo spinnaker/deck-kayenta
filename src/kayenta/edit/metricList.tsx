@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import * as Creators from 'kayenta/actions/creators';
 import { CanarySettings } from 'kayenta/canary.settings';
 import { ICanaryMetricConfig } from 'kayenta/domain';
-import { CANARY_EDIT_DISABLED, DISABLE_EDIT_CONFIG, DisableableButton } from 'kayenta/layout/disableable';
+import { DISABLE_EDIT_CONFIG, DisableableButton } from 'kayenta/layout/disableable';
 import { ITableColumn, NativeTable } from 'kayenta/layout/table';
 import { ICanaryState } from 'kayenta/reducers';
 import { cloneDeep } from 'lodash';
@@ -145,7 +145,8 @@ function MetricList({
         data-default={groupList[0]}
         data-metric-store={metricStore}
         onClick={addMetric}
-        disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+        disabled={CanarySettings.disableConfigEdit}
+        disabledStateKeys={[DISABLE_EDIT_CONFIG]}
       >
         Add Metric
       </DisableableButton>

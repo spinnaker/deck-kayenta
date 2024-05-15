@@ -2,12 +2,7 @@ import classNames from 'classnames';
 import * as Creators from 'kayenta/actions/creators';
 import { CanarySettings } from 'kayenta/canary.settings';
 import { ICanaryMetricConfig } from 'kayenta/domain';
-import {
-  CANARY_EDIT_DISABLED,
-  DISABLE_EDIT_CONFIG,
-  DisableableInput,
-  DisableableSelect,
-} from 'kayenta/layout/disableable';
+import { DISABLE_EDIT_CONFIG, DisableableInput, DisableableSelect } from 'kayenta/layout/disableable';
 import FormRow from 'kayenta/layout/formRow';
 import RadioChoice from 'kayenta/layout/radioChoice';
 import Styleguide from 'kayenta/layout/styleguide';
@@ -101,7 +96,8 @@ function EditMetricModal({
                 value={metric.groups}
                 data-id={metric.id}
                 onChange={changeGroup}
-                disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+                disabled={CanarySettings.disableConfigEdit}
+                disabledStateKeys={[DISABLE_EDIT_CONFIG]}
               />
             )}
             {metric.groups.length < 2 && (
@@ -109,7 +105,8 @@ function EditMetricModal({
                 value={metricGroup}
                 onChange={changeGroup}
                 className="form-control input-sm"
-                disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+                disabled={CanarySettings.disableConfigEdit}
+                disabledStateKeys={[DISABLE_EDIT_CONFIG]}
               >
                 {groups.map((g) => (
                   <option key={g} value={g}>
@@ -125,7 +122,8 @@ function EditMetricModal({
               value={metric.name}
               data-id={metric.id}
               onChange={rename}
-              disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+              disabled={CanarySettings.disableConfigEdit}
+              disabledStateKeys={[DISABLE_EDIT_CONFIG]}
             />
           </FormRow>
           <FormRow label="Fail on">
@@ -151,7 +149,8 @@ function EditMetricModal({
                 type="checkbox"
                 checked={critical}
                 onChange={updateCriticality}
-                disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+                disabled={CanarySettings.disableConfigEdit}
+                disabledStateKeys={[DISABLE_EDIT_CONFIG]}
               />
               Fail the canary if this metric fails
             </label>

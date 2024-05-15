@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import * as Creators from 'kayenta/actions/creators';
 import { CanarySettings } from 'kayenta/canary.settings';
-import { CANARY_EDIT_DISABLED, DISABLE_EDIT_CONFIG, DisableableButton } from 'kayenta/layout/disableable';
+import { DISABLE_EDIT_CONFIG, DisableableButton } from 'kayenta/layout/disableable';
 import { Tab, Tabs } from 'kayenta/layout/tabs';
 import { ICanaryState } from 'kayenta/reducers';
 import * as React from 'react';
@@ -66,7 +66,8 @@ function GroupTabs({
         <DisableableButton
           className="passive float-right"
           onClick={addGroup}
-          disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+          disabled={CanarySettings.disableConfigEdit}
+          disabledStateKeys={[DISABLE_EDIT_CONFIG]}
         >
           Add Group
         </DisableableButton>

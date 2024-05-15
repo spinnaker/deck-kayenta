@@ -1,5 +1,6 @@
 import * as Creators from 'kayenta/actions/creators';
-import { CANARY_EDIT_DISABLED, DISABLE_EDIT_CONFIG, DisableableInput } from 'kayenta/layout/disableable';
+import { CanarySettings } from 'kayenta/canary.settings';
+import { DISABLE_EDIT_CONFIG, DisableableInput } from 'kayenta/layout/disableable';
 import { ICanaryState } from 'kayenta/reducers';
 import * as React from 'react';
 import { connect } from 'react-redux';
@@ -42,7 +43,8 @@ function GroupName({
           autoFocus={true}
           value={edit}
           onChange={handleUpdate}
-          disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+          disabled={CanarySettings.disableConfigEdit}
+          disabledStateKeys={[DISABLE_EDIT_CONFIG]}
         />
       </form>
     );

@@ -12,6 +12,7 @@ import ConfigDetailActionButtons from './configDetailActionButtons';
 interface IConfigDetailStateProps {
   selectedConfig: ICanaryConfig;
   editingDisabled: boolean;
+  disableConfigEdit: boolean;
 }
 
 const getOwnerAppLinks = (owners: string[]) => {
@@ -53,10 +54,21 @@ const EditingDisabledWarning = ({ owners }: { owners: string[] }) => {
   );
 };
 
+const ConfigEditingDisabledWarning = () => {
+  return (
+    <div className="horizontal middle well-compact alert alert-warning config-detail-edit-warning">
+      <i className="fa fa-exclamation-triangle sp-margin-m-right" />
+      <span>
+        <b>UI Editing is disabled</b>
+      </span>
+    </div>
+  );
+};
+
 /*
  * Config detail header layout.
  */
-function ConfigDetailHeader({ selectedConfig, editingDisabled }: IConfigDetailStateProps) {
+function ConfigDetailHeader({ selectedConfig, editingDisabled, disableConfigEdit }: IConfigDetailStateProps) {
   return (
     <div className="vertical">
       <div className="horizontal config-detail-header">
@@ -73,7 +85,10 @@ function ConfigDetailHeader({ selectedConfig, editingDisabled }: IConfigDetailSt
           <ConfigDetailActionButtons />
         </div>
       </div>
-      {selectedConfig && editingDisabled && <EditingDisabledWarning owners={selectedConfig.applications} />}
+      {selectedConfig && editingDisabled && !disableConfigEdit && (
+        <EditingDisabledWarning owners={selectedConfig.applications} />
+      )}
+      {selectedConfig && disableConfigEdit && <ConfigEditingDisabledWarning />}
     </div>
   );
 }
@@ -81,7 +96,8 @@ function ConfigDetailHeader({ selectedConfig, editingDisabled }: IConfigDetailSt
 function mapStateToProps(state: ICanaryState): IConfigDetailStateProps {
   return {
     selectedConfig: mapStateToConfig(state),
-    editingDisabled: state.app.disableConfigEdit || CanarySettings.disableConfigEdit,
+    editingDisabled: state.app.disableConfigEdit,
+    disableConfigEdit: CanarySettings.disableConfigEdit,
   };
 }
 

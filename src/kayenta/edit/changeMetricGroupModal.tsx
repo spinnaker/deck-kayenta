@@ -1,6 +1,7 @@
 import * as Creators from 'kayenta/actions/creators';
+import { CanarySettings } from 'kayenta/canary.settings';
 import { ICanaryMetricConfig } from 'kayenta/domain/ICanaryConfig';
-import { CANARY_EDIT_DISABLED, DISABLE_EDIT_CONFIG, DisableableSelect } from 'kayenta/layout/disableable';
+import { DISABLE_EDIT_CONFIG, DisableableSelect } from 'kayenta/layout/disableable';
 import Styleguide from 'kayenta/layout/styleguide';
 import { ICanaryState } from 'kayenta/reducers';
 import * as React from 'react';
@@ -43,7 +44,8 @@ function ChangeMetricGroupModal({
             value={toGroup || ''}
             onChange={select}
             className="form-control input-sm"
-            disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+            disabled={CanarySettings.disableConfigEdit}
+            disabledStateKeys={[DISABLE_EDIT_CONFIG]}
           >
             <option value={''}>-- select group --</option>
             {groups.map((g) => (

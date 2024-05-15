@@ -1,5 +1,6 @@
 import * as Creators from 'kayenta/actions/creators';
-import { CANARY_EDIT_DISABLED, DISABLE_EDIT_CONFIG, DisableableTextarea } from 'kayenta/layout/disableable';
+import { CanarySettings } from 'kayenta/canary.settings';
+import { DISABLE_EDIT_CONFIG, DisableableTextarea } from 'kayenta/layout/disableable';
 import FormRow from 'kayenta/layout/formRow';
 import { ICanaryState } from 'kayenta/reducers';
 import {
@@ -35,7 +36,8 @@ export function InlineTemplateEditor({
     >
       <DisableableTextarea
         className="template-editor-textarea"
-        disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+        disabledStateKeys={[DISABLE_EDIT_CONFIG]}
+        disabled={CanarySettings.disableConfigEdit}
         onChange={(e: any) => editTemplateValue(transformValueForSave(e.target.value))}
         value={templateValue}
       />

@@ -1,10 +1,6 @@
 import * as Creators from 'kayenta/actions/creators';
-import {
-  CANARY_EDIT_DISABLED,
-  DISABLE_EDIT_CONFIG,
-  DisableableInput,
-  DisableableTextarea,
-} from 'kayenta/layout/disableable';
+import { CanarySettings } from 'kayenta/canary.settings';
+import { DISABLE_EDIT_CONFIG, DisableableInput, DisableableTextarea } from 'kayenta/layout/disableable';
 import FormList from 'kayenta/layout/formList';
 import FormRow from 'kayenta/layout/formRow';
 import { ICanaryState } from 'kayenta/reducers';
@@ -40,7 +36,8 @@ function NameAndDescription({
           type="text"
           value={name}
           onChange={changeName}
-          disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+          disabled={CanarySettings.disableConfigEdit}
+          disabledStateKeys={[DISABLE_EDIT_CONFIG]}
         />
       </FormRow>
       <MetricStoreSelector />
@@ -49,7 +46,8 @@ function NameAndDescription({
           className="form-control input-sm"
           value={description}
           onChange={changeDescription}
-          disabledStateKeys={[DISABLE_EDIT_CONFIG, CANARY_EDIT_DISABLED]}
+          disabled={CanarySettings.disableConfigEdit}
+          disabledStateKeys={[DISABLE_EDIT_CONFIG]}
         />
       </FormRow>
     </FormList>
