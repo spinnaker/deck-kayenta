@@ -59,7 +59,7 @@ const ConfigEditingDisabledWarning = () => {
     <div className="horizontal middle well-compact alert alert-warning config-detail-edit-warning">
       <i className="fa fa-exclamation-triangle sp-margin-m-right" />
       <span>
-        <b>UI Editing is disabled</b>
+        <b>Canary config is locked and does not allow modification</b>
       </span>
     </div>
   );
